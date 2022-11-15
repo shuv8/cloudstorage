@@ -1,6 +1,12 @@
 import uuid
 
 
+class Directory:
+    ...
+
+from files import File
+
+
 class SpaceManager:
     __spaces: list = None
 

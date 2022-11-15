@@ -1,5 +1,6 @@
 from department_manager import DepartmentManager
 from role import Role
+from space_manager import SpaceManager
 
 
 class User:
@@ -29,7 +30,7 @@ class User:
             raise TypeError
 
     def get_username(self) -> str:
-        return self.__password
+        return self.__username
 
     def set_username(self, new_username: str):
         if isinstance(new_username, str):

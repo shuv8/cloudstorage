@@ -1,6 +1,3 @@
-from user import User
-
-
 class Department:
     __department_name: str = None
     __users: list = None
@@ -18,19 +15,19 @@ class Department:
         return self.__users
 
     def set_users(self, new_users: list):
-        if all(map(lambda new_user: isinstance(new_user, User), new_users)):
+        if all(map(lambda new_user: isinstance(new_user, str), new_users)):
             self.__users = new_users
         else:
             raise TypeError
 
-    def add_user(self, new_user: User):
-        if isinstance(new_user, User):
+    def add_user(self, new_user: str):
+        if isinstance(new_user, str):
             self.__users.append(new_user)
         else:
             raise TypeError
 
-    def remove_user(self, user: User):
-        if isinstance(user, User):
+    def remove_user(self, user: str):
+        if isinstance(user, str):
             self.__users.remove(user)
         else:
             raise TypeError

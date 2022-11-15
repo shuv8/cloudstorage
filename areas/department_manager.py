@@ -1,5 +1,4 @@
 from department import Department
-from user import User
 
 
 class DepartmentManager:
@@ -25,12 +24,12 @@ class DepartmentManager:
             if self.__departments[i].get_department_name() == department_name:
                 self.__departments.pop(i)
 
-    def add_user(self, user: User, department_name: str):
+    def add_user(self, user: str, department_name: str):
         for i in range(len(self.__departments)):
             if self.__departments[i].get_department_name() == department_name:
                 self.__departments[i].addUser(user)
 
-    def remove_user(self, user: User, department_name: str):
+    def remove_user(self, user: str, department_name: str):
         for i in range(len(self.__departments)):
             if self.__departments[i].get_department_name() == department_name:
                 self.__departments[i].remove(user)

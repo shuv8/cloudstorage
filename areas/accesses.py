@@ -21,7 +21,7 @@ class BaseAccess:
             raise TypeError
 
     def get_id_from_ids(self, index: int) -> uuid.UUID:
-        if index > len(self.__ids):
+        if index >= len(self.__ids):
             raise IndexError
         else:
             return self.__ids[index]
