@@ -1,6 +1,9 @@
 class Department:
     __department_name: str = None
-    __users: list = None
+    __users_emails: list = None
+
+    def __init__(self):
+        self.__users_emails = []
 
     def get_department_name(self) -> str:
         return self.__department_name
@@ -12,22 +15,25 @@ class Department:
             raise TypeError
 
     def get_users(self) -> list:
-        return self.__users
+        return self.__users_emails
 
-    def set_users(self, new_users: list):
-        if all(map(lambda new_user: isinstance(new_user, str), new_users)):
-            self.__users = new_users
+    def set_users(self, new_users_emails: list):
+        if isinstance(new_users_emails, list):
+            if all(map(lambda new_user: isinstance(new_user, str), new_users_emails)):
+                self.__users_emails = new_users_emails
+            else:
+                raise TypeError
         else:
             raise TypeError
 
-    def add_user(self, new_user: str):
-        if isinstance(new_user, str):
-            self.__users.append(new_user)
+    def add_user(self, email: str):
+        if isinstance(email, str):
+            self.__users_emails.append(email)
         else:
             raise TypeError
 
-    def remove_user(self, user: str):
-        if isinstance(user, str):
-            self.__users.remove(user)
+    def remove_user(self, email: str):
+        if isinstance(email, str):
+            self.__users_emails.remove(email)
         else:
             raise TypeError
