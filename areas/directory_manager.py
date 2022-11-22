@@ -1,22 +1,24 @@
+from files import FileManager
+from space_manager import Directory
 from base_storage_manager import BaseStorageManager
 from abstract_space import AbstractSpace
 from directory_manager import DirectoryManager
-from file_manager import FileManager
 
 class DirectoryManager:
     __items: list = None
     __directoryManager: DirectoryManager = None
     __fileManager: FileManager = None
-    #TO DO
+
+    # TODO
 
     def __init__(self):
         self.__items = []
 
-    def __directoryManager__(self)
-        self.__directoryManager #TO DO
+    def __directoryManager__(self):
+        self.__directoryManager  # TODO
 
-    def __fileManager__(self)
-        self.__fileManager #TO DO
+    def __fileManager__(self):
+        self.__fileManager  # TODO
 
     def create_dir(self, directory_name: str):
         if isinstance(directory_name, str):

@@ -4,7 +4,7 @@ from directory_manager import DirectoryManager
 
 
 class TestDirectoryManager:
-    @pytest.fixture(scope = 'function')
+    @pytest.fixture(scope='function')
     def directory_manager(self):
         return DirectoryManager()
 
@@ -17,7 +17,7 @@ class TestDirectoryManager:
     def test_get_dir(self, directory_manager):
         assert 1 == 1  # TODO
 
-     def test_set_items(self, directory_manager):
+    def test_set_items(self, directory_manager):
         assert 1 == 1  # TODO
 
     def test_get_items(self, directory_manager):

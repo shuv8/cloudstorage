@@ -4,6 +4,9 @@ from user import User
 class UserManager:
     __users: list = None
 
+    def __init__(self):
+        self.__users = []
+
     def get_users(self) -> list:
         return self.__users
 
@@ -21,7 +24,7 @@ class UserManager:
 
     def get_user(self, email: str) -> User:
         for i in range(len(self.__users)):
-            if self.__users[i].email == email:
+            if self.__users[i].get_email() == email:
                 return self.__users[i]
         pass
 
