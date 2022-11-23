@@ -1,35 +1,23 @@
-from files import FileManager
-from space_manager import Directory
+from base_storage_manager import BaseStorageManager
+from abstract_space import AbstractSpace
 from directory_manager import DirectoryManager
-
+from file_manager import FileManager
+from directory import Directory
 
 class DirectoryManager:
     __items: list = None
     __directoryManager: DirectoryManager = None
     __fileManager: FileManager = None
 
-    # TODO
-
     def __init__(self):
         self.__items = []
 
-    def __directoryManager__(self):
-        self.__directoryManager  # TODO
-
-    def __fileManager__(self):
-        self.__fileManager  # TODO
-
     def create_dir(self, directory_name: str):
-        if isinstance(directory_name, str):
-            self.__directory.append(directory_name)
-        else:
-            raise TypeError
+        if self.directory_name #TO DO
 
     def remove_dir(self, directory_name: str):
-        if isinstance(directory_name, str):
-            self.__directory.append(directory_name)
-        else:
-            raise TypeError
+            for item in self.__items:
+                if item.get_name()
 
     def get_dir(self, directory_name: str) -> Directory:
         for i in range(len(self.__items)):
@@ -63,4 +51,4 @@ class DirectoryManager:
             raise TypeError
 
     def get_file_manager(self) -> FileManager:
-        return self.__directory_manager
+        return self.__fileManager
