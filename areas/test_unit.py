@@ -7,6 +7,7 @@ from faker.providers import file
 
 from accesses import BaseAccess
 from base_storage_item import BaseStorageItem
+from base_storage_manager import BaseStorageManager
 from files import File, FileManager
 
 
@@ -133,6 +134,47 @@ class TestBaseStorageItem:
             pass
         try:
             base_storage_item.remove_access(1)
+        except TypeError:
+            pass
+
+
+class TestBaseStorageManager:
+
+    @pytest.fixture(scope='function')
+    def base_storage_manager(self):
+        return BaseStorageManager()
+
+    @pytest.fixture(scope='function')
+    def base_storage_items(self):
+        return [BaseStorageItem(), BaseStorageItem(), BaseStorageItem()]
+
+    def test_items(self, base_storage_manager, base_storage_items):
+        base_storage_manager.set_items(base_storage_items)
+        assert base_storage_manager.get_items() == base_storage_items
+
+    def test_add_item(self, base_storage_manager, base_storage_items):
+        base_storage_manager.set_items(base_storage_items)
+        base_storage_manager.add_item(BaseStorageItem())
+        assert len(base_storage_manager.get_items()) == 4
+
+    def test_remove_item(self, base_storage_manager, base_storage_items):
+        base_storage_manager.set_items(base_storage_items)
+        new_item = BaseStorageItem()
+        base_storage_manager.add_item(new_item)
+        base_storage_manager.remove_item(new_item)
+        assert len(base_storage_manager.get_items()) == 3
+
+    def test_negative(self, base_storage_manager):
+        try:
+            base_storage_manager.set_items([1])
+        except TypeError:
+            pass
+        try:
+            base_storage_manager.add_item(1)
+        except TypeError:
+            pass
+        try:
+            base_storage_manager.remove_item(1)
         except TypeError:
             pass
 
