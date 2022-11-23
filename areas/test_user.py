@@ -51,7 +51,7 @@ class TestUser:
         assert user.get_role() is None
 
     def test_set_role(self, user):
-        assert user.set_role(Role()) is None
+        assert user.set_role(Role.ADMIN) is None
         try:
             user.set_role(123)
         except TypeError:
