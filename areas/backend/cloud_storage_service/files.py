@@ -1,9 +1,18 @@
-from base_storage_item import BaseStorageItem
-from base_storage_manager import BaseStorageManager
+from typing import Optional
+
+from cloud_storage_service.accesses import BaseAccess
+from cloud_storage_service.base_storage_item import BaseStorageItem
 
 
 class File(BaseStorageItem):
-    __type: str = None
+    def __init__(
+            self,
+            name: str,
+            _type: str,
+            accesses: Optional[list[BaseAccess]] = None,
+    ):
+        super().__init__(name, accesses)
+        self.__type = _type
 
     def get_type(self) -> str:
         return self.__type
@@ -14,18 +23,23 @@ class File(BaseStorageItem):
         else:
             raise TypeError
 
+    type = property(get_type, set_type)
 
-class FileManager(BaseStorageManager):
-    __items: list = None
 
-    def get_items(self) -> list:
+class FileManager:
+    def __init__(self, items: Optional[list[File]]):
+        self.__items = items or list()
+
+    def get_items(self) -> list[File]:
         return self.__items
 
-    def set_items(self, new_items: list):
+    def set_items(self, new_items: list[File]):
         if all(map(lambda new_item: isinstance(new_item, File), new_items)):
             self.__items = new_items
         else:
             raise TypeError
+
+    items = property(get_items, set_items)
 
     def add_item(self, new_item: File):
         if isinstance(new_item, File):
