@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional
 
 from core.accesses import BaseAccess
@@ -9,9 +10,10 @@ class File(BaseStorageItem):
             self,
             name: str,
             _type: str,
+            _id: Optional[uuid.UUID] = None,
             accesses: Optional[list[BaseAccess]] = None,
     ):
-        super().__init__(name, accesses)
+        super().__init__(name, accesses, _id)
         self.__type = _type
 
     def get_type(self) -> str:

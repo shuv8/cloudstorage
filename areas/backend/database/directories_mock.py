@@ -40,7 +40,7 @@ class DataBaseTemporaryMock:
     ]
 
     user_cloud_space_1_.get_directory_manager().file_manager.items = [
-        File(name="wow3", _type=".type"),
+        File(name="wow3", _type=".type", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
         File(name="test6", _type=".e")
     ]
 
