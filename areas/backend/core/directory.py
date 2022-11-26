@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import uuid
 from typing import Optional
 
 from core.accesses import BaseAccess
@@ -12,8 +14,9 @@ class Directory(BaseStorageItem):
             self,
             name: str,
             accesses: Optional[list[BaseAccess]] = None,
+            _id: Optional[uuid.UUID] = None,
     ):
-        super().__init__(name, accesses)
+        super().__init__(name, accesses, _id)
 
         self.__directory_manager = directory_manager.DirectoryManager(
             items=None,
