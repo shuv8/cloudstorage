@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from core.base_storage_item import BaseStorageItem
+from core import directory
 from core.files import FileManager
 
 from core import directory
@@ -12,7 +12,7 @@ class DirectoryManager:
 
     def __init__(
             self,
-            items: Optional[list[BaseStorageItem]],
+            items: Optional[list[directory.Directory]],
             file_manager: Optional[FileManager]
     ):
         self.__items = items or list()
@@ -45,14 +45,14 @@ class DirectoryManager:
         else:
             raise TypeError
 
-    def set_items(self, items: list[BaseStorageItem]):
+    def set_items(self, items: list[directory.Directory]):
         for item in items:
-            if isinstance(item, BaseStorageItem):
+            if isinstance(item, directory.Directory):
                 self.__items.append(item)
             else:
                 raise TypeError
 
-    def get_items(self) -> list[BaseStorageItem]:
+    def get_items(self) -> list[directory.Directory]:
         return self.__items
 
     items = property(get_items, set_items)

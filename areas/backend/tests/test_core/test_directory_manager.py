@@ -61,9 +61,9 @@ class TestDirectoryManager:
         with pytest.raises(TypeError):
             directory_manager.get_dir(123)
 
-    def test_set_get_items(self, directory_manager, file, directory):
-        directory_manager.items = [file, directory]
-        assert directory_manager.items == [file, directory]
+    def test_set_get_items(self, directory_manager, directory):
+        directory_manager.items = [directory]
+        assert directory_manager.items == [directory]
 
         with pytest.raises(TypeError):
             directory_manager.items = "trq"
@@ -74,4 +74,3 @@ class TestDirectoryManager:
 
         with pytest.raises(TypeError):
             directory_manager.set_file_manager("trq")
-

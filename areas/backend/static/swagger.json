@@ -20,7 +20,7 @@
   "tags": [
     {
       "name": "UserRequest",
-      "description": "Example API for requesting and return book requests"
+      "description": "API for cloud storage service"
     }
   ],
   "paths": {
@@ -30,15 +30,7 @@
           {
             "name": "query",
             "in": "query",
-            "description": "--",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "user_mail",
-            "in": "query",
-            "description": "--",
+            "description": "File or directory to search for",
             "schema": {
               "type": "string"
             }
@@ -59,7 +51,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/found_item"
                   }
                 }
               }
@@ -78,8 +70,15 @@
           }
         }
       },
-      "item": {
-        "name": "string"
+      "found_item": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
       }
     }
   }

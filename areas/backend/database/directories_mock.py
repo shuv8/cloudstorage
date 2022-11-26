@@ -1,78 +1,57 @@
+import uuid
+
 from core.directory import Directory
 from core.files import File
+from core.space_manager import SpaceManager
+from core.user import User
+from core.user_cloud_space import UserCloudSpace, SpaceType
 
 
-class RootDirectoryForUserMock:
-    def __init__(self, user_email: str, root_id: str):
-        self.user_email = user_email
-        self.root_id = root_id
+class DataBaseTemporaryMock:
+    user_cloud_space_1_ = UserCloudSpace(
+        _id=uuid.uuid4(),
+        space_type=SpaceType.Regular
+    )
 
+    user_cloud_space_2_ = UserCloudSpace(
+        _id=uuid.uuid4(),
+        space_type=SpaceType.Shared
+    )
 
-class RootDirectoryForUsersMock:
-    dir_to_user = {
-        "test_mail@mail.com": 1,
-        "test1_mail@mail.com": 2
-    }
+    space_manager_ = SpaceManager(
+        spaces=[user_cloud_space_1_, user_cloud_space_2_]
+    )
 
-    def query_by_dir_to_user(self, query: str):
-        return self.dir_to_user[query]
+    user_1_ = User(
+        email="test_mail@mail.com",
+        password="password",
+        username="username",
+        space_manager=space_manager_
+    )
 
-    @staticmethod
-    def very_mocked_mock(query: str) -> Directory:
-        dir_ = Directory(name="test")
-        dir_.directory_manager.items = [Directory(name="wow")]
-        dir_.directory_manager.file_manager.items = [File(name="wow3", _type=".type"), File(name="test6", _type=".e")]
+    user_2_ = User(
+        email="test2_mail@mail.com",
+        password="password",
+        username="username",
+    )
 
-        return dir_
-
-
-class ItemInDirectoryMock:
-    def __init__(self, directory_id: str, item_id: str):
-        self.directory_id = directory_id
-        self.item_id = item_id
-
-
-class ItemInDirectoriesMock:
-    data = [
-        ItemInDirectoryMock("1", "23"),
-        ItemInDirectoryMock("1", "3"),
-        ItemInDirectoryMock("3", "25"),
-        ItemInDirectoryMock("2", "24"),
+    user_cloud_space_1_.get_directory_manager().items = [
+        Directory(name="wow")
     ]
 
-    def query_directory(self, query: str):
-        return [item for item in self.data if item.item_id == query]
+    user_cloud_space_1_.get_directory_manager().file_manager.items = [
+        File(name="wow3", _type=".type"),
+        File(name="test6", _type=".e")
+    ]
 
+    user_cloud_space_2_.get_directory_manager().items = [
+        Directory(name="test1")
+    ]
 
-class DirectoryMock:
-    directories = {
-        "1": {
-            "name": "1",
-        },
-        "2": {
-            "name": "2",
-        },
-        "3": {
-            "name": "3",
-        }
+    users = {
+        "test_mail@mail.com": user_1_,
+        "test2_mail@mail.com": user_2_
     }
 
-    def query_directory(self, query: str):
-        return self.directories[query]
-
-
-class FileMock:
-    files = {
-        "23": {
-            "name": "23",
-        },
-        "24": {
-            "name": "24",
-        },
-        "25": {
-            "name": "25",
-        }
-    }
-
-    def query_files(self, query: str):
-        return self.files[query]
+    def get_space_by_user_mail(self, mail: str) -> SpaceManager:
+        return self.users[mail].space_manager
