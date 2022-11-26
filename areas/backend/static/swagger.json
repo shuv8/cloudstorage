@@ -19,17 +19,35 @@
   ],
   "tags": [
     {
-      "name": "Test Request",
+      "name": "UserRequest",
       "description": "Example API for requesting and return book requests"
     }
   ],
   "paths": {
-    "/request": {
+    "/search": {
       "get": {
-        "tags": [
-          "Test Request"
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "--",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user_mail",
+            "in": "query",
+            "description": "--",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "summary": "Returns testRequests",
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -39,7 +57,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/testRequest"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -57,8 +78,8 @@
           }
         }
       },
-      "testRequest": {
-        "type": "integer"
+      "item": {
+        "name": "string"
       }
     }
   }
