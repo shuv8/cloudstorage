@@ -24,6 +24,66 @@
     }
   ],
   "paths": {
+    "/registration": {
+      "post": {
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Registration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref":"#/components/schemas/user"
+              },
+              "example": {
+                "email": "grigorevmp@gmail.com",
+                "username": "grigorevmp",
+                "password": "megapass",
+                "role": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/login": {
+      "put": {
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref":"#/components/schemas/user"
+              },
+              "example": {
+                "email": "grigorevmp@gmail.com",
+                "password": "megapass"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/search": {
       "get": {
         "parameters": [
@@ -476,6 +536,22 @@
         "properties": {
           "uuid": {
             "type": "string"
+          }
+        }
+      },
+      "user": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "role": {
+            "type": "number"
           }
         }
       },
