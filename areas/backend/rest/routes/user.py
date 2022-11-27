@@ -1,4 +1,5 @@
 """The Endpoints to manage the USER_REQUESTS"""
+import flask
 from flask import jsonify, Blueprint, request
 
 from controller.data_store_controller import *
@@ -226,3 +227,41 @@ def remove_access_by_department(item_id, department):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+
+
+@USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])
+def rename_item(item_id):
+    """
+    Path:
+        - item_id: id of item to rename
+    """
+
+    new_name = request.args.get('new_name', type=str)
+    if new_name is not None:
+        result = dataStoreController.rename_item(item_id, new_name)
+        if result is not None:
+            return jsonify({'new_name': result}), 200
+        else:
+            return jsonify({'error': 'Can\'t find item'}), 404
+    else:
+        return jsonify({'error': 'No new name presented. Use query parameter \'new_name\''}), 400
+
+
+@USER_REQUEST_API.route('/move/<item_id>', methods=['PUT'])
+def move_item(item_id):
+    """
+    Path:
+        - item_id: id of item to move
+    Body:
+        - new_path: new path to item
+    """
+
+    target_directory = request.args.get('target_directory', type=str)
+    if target_directory is not None:
+        result = dataStoreController.move_item(item_id, target_directory)
+        if result is not None:
+            return jsonify({'new_directory': result}), 200
+        else:
+            return jsonify({'error': 'Can\'t find one of items'}), 404
+    else:
+        return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
