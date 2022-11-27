@@ -386,7 +386,7 @@ def delete_by_item_id(item_id):
         file
     """
     result = dataStoreController.delete_item(item_id)
-    if result is not None:
-        return jsonify({}), 200
+    if result:
+        return jsonify({'delete': 'success'}), 200
     else:
         return jsonify({'error': 'Wrong try to delete'}), 400

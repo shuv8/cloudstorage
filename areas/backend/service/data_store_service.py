@@ -236,7 +236,7 @@ class DataStoreService:
 
     def download_item(self, user_mail: str, item_id: UUID) -> Optional[BinaryIO]:
         user_mail = "test_mail@mail.com"
-        item = self.is_user_file(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             result = self.data_store_storage_repo.db.get_file_by_item_id(item.id)
             # TODO для папки
@@ -246,10 +246,20 @@ class DataStoreService:
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
         user_mail = "test_mail@mail.com"
-        item = self.is_user_file(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            if isinstance(item, File):
-                # TODO найти файл менеджер
-                return True
+            my_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
+            if my_directory_manager is not None:
+                if isinstance(item, File):
+                    my_directory_manager.file_manager.remove_item(item)
+                    return True
+                elif isinstance(item, Directory):
+                    my_directory_manager.remove_dir(item.name)
+                    return True
+                else:
+                    return False
+            else:
+                return False
+
         else:
             return False

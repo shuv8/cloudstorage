@@ -650,6 +650,32 @@
           }
         }
       }
+    },
+    "/delete/{item_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to download",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "TO DO",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
