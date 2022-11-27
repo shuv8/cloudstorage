@@ -2,7 +2,7 @@ import uuid
 from uuid import UUID
 
 from core.accesses import UrlAccess, Access, UserAccess, DepartmentAccess, BaseAccess
-from exceptions.exceptions import NotAllowedError
+from exceptions.exceptions import NotAllowedError, ItemNotFoundError
 from service.data_store_service import DataStoreService
 
 
@@ -16,7 +16,11 @@ class AccessService:
         if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
-        return self.data_store_service.get_accesses_for_item(user_mail, item_id)
+
+        try:
+            return self.data_store_service.get_accesses_for_item(user_mail, item_id)
+        except ItemNotFoundError:
+            raise ItemNotFoundError
 
     def add_access_for_item_by_url(self, item_id: UUID, view_only: bool):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
@@ -33,14 +37,20 @@ class AccessService:
             access_type=access_type
         )
 
-        self.data_store_service.set_url_access_for_file(user_mail, item_id, new_access)
+        try:
+            self.data_store_service.set_url_access_for_file(user_mail, item_id, new_access)
+        except ItemNotFoundError:
+            raise ItemNotFoundError
 
     def remove_access_for_item_by_url(self, item_id: UUID):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
         if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_url_access_for_file(user_mail, item_id)
+        try:
+            self.data_store_service.remove_url_access_for_file(user_mail, item_id)
+        except ItemNotFoundError:
+            raise ItemNotFoundError
 
     def add_access_for_item_by_email(self, item_id: UUID, email: str, view_only: bool):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
@@ -57,14 +67,20 @@ class AccessService:
             access_type=access_type
         )
 
-        self.data_store_service.add_email_access_for_file(user_mail, item_id, new_access)
+        try:
+            self.data_store_service.add_email_access_for_file(user_mail, item_id, new_access)
+        except ItemNotFoundError:
+            raise ItemNotFoundError
 
     def remove_access_for_item_by_email(self, item_id: UUID, email: str):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
         if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_email_access_for_file(user_mail, item_id, email)
+        try:
+            self.data_store_service.remove_email_access_for_file(user_mail, item_id, email)
+        except ItemNotFoundError:
+            raise ItemNotFoundError
 
     def add_access_for_item_by_department(self, item_id: UUID, department: str, view_only: bool):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
@@ -81,11 +97,17 @@ class AccessService:
             access_type=access_type
         )
 
-        self.data_store_service.add_department_access_for_file(user_mail, item_id, new_access)
+        try:
+            self.data_store_service.add_department_access_for_file(user_mail, item_id, new_access)
+        except ItemNotFoundError:
+            raise ItemNotFoundError
 
     def remove_access_for_item_by_department(self, item_id: UUID, department: str):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
         if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_department_access_for_file(user_mail, item_id, department)
+        try:
+            self.data_store_service.remove_department_access_for_file(user_mail, item_id, department)
+        except ItemNotFoundError:
+            raise ItemNotFoundError

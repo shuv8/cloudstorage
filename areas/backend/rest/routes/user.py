@@ -90,7 +90,7 @@ def search_for():
     query = request.args.get('query', default=".", type=str)
 
     items: list[tuple[BaseStorageItem, str]
-                ] = dataStoreController.search_in_cloud(user_mail, query)
+    ] = dataStoreController.search_in_cloud(user_mail, query)
     items_content = []
     for (item, path) in items:
         items_content.append(
@@ -197,10 +197,12 @@ def get_accesses(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
-def add_access_by_url(item_id):
+def set_access_by_url(item_id):
     """
     Path:
         - item_id: id of item to change access
@@ -217,10 +219,12 @@ def add_access_by_url(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'No item found to modify'}), 404
 
 
-@USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
-def remove_access_by_url(item_id):
+@USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
+def reset_access_by_url(item_id):
     """
     Path:
         - item_id: id of item to change access
@@ -235,6 +239,8 @@ def remove_access_by_url(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
@@ -259,9 +265,11 @@ def add_access_by_user(item_id, email):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'No item found to modify'}), 404
 
 
-@USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
+@USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['DELETE'])
 def remove_access_by_user(item_id, email):
     """
     Path:
@@ -276,6 +284,8 @@ def remove_access_by_user(item_id, email):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
@@ -300,9 +310,11 @@ def add_access_by_department(item_id, department):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'No item found to modify'}), 404
 
 
-@USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
+@USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['DELETE'])
 def remove_access_by_department(item_id, department):
     """
     Path:
@@ -322,6 +334,8 @@ def remove_access_by_department(item_id, department):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])
