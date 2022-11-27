@@ -363,7 +363,7 @@ def move_item(item_id):
 
 
 @USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
-def download_by_name(item_id):
+def download_by_item_id(item_id):
     """
     Path:
         - item_id: id of item to download
@@ -378,7 +378,7 @@ def download_by_name(item_id):
 
 
 @USER_REQUEST_API.route('/delete/<item_id>', methods=['DELETE'])
-def download_by_name(item_id):
+def delete_by_item_id(item_id):
     """
     Path:
         - item_id: id of item to download
