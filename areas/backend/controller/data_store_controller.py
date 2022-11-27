@@ -41,6 +41,9 @@ class DataStoreController:
     def move_item(self, item_id: UUID, target_directory_id: UUID):
         return self.data_store_service.move_item(item_id=item_id, user_mail='test', target_directory_id=target_directory_id)
 
+    def get_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
+        return self.data_store_service.get_user_file_by_id(user_mail, item_id)
+
     """
         ==============
         Access Service
