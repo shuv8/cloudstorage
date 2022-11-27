@@ -1,12 +1,17 @@
 import bcrypt
 import jwt
+from typing import List
 
+from core.department import Department
+from core.department_manager import DepartmentNotFoundError
+from exceptions.exceptions import AlreadyExistsError
 from core.user import User
 from repository.user_storage_repository import UserRepository
 
 
 class UserService:
-    user_repo = UserRepository()
+    def __init__(self):
+        self.user_repo = UserRepository()
 
     def registration(self, new_user: User):
         if self.user_repo.get_user_by_email(new_user.email):
@@ -31,3 +36,23 @@ class UserService:
                            "SUPER-SECRET-KEY", algorithm="HS256")  # TODO: get secret from env
 
         return token, None
+
+    def get_all_departments(self, page: int, limit: int) -> List[Department]:
+        departments = self.user_repo.get_departments()
+        output_list = []
+        start_index = (page - 1) * limit
+        end_index = min(len(departments), start_index + limit)
+        for index in range(start_index, end_index):
+            output_list.append(departments[index])
+        return output_list
+
+    def add_new_department(self, new_department: Department) -> None:
+        try:
+            self.user_repo.get_department_by_name(new_department.department_name)
+            raise AlreadyExistsError
+        except DepartmentNotFoundError:
+            self.user_repo.add_new_department(new_department)
+
+    def delete_department_by_name(self, department_name: str) -> None:
+        self.user_repo.delete_department_by_name(department_name)
+

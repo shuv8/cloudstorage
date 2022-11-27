@@ -210,3 +210,6 @@ class TestDepartmentManager:
 
         assert len(department_manager_with_departments_and_users.get_users_list_by_department_name(
             department.department_name)) == 2
+
+    def test_get_departments(self, department_manager_with_departments):
+        assert len(department_manager_with_departments.get_departments()) == 2

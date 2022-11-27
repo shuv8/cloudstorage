@@ -69,7 +69,7 @@ def login():
 """
 
 
-@ USER_REQUEST_API.route('/search', methods=['GET'])
+@USER_REQUEST_API.route('/search', methods=['GET'])
 def search_for():
     """
     Query:
@@ -156,7 +156,7 @@ def view_file_by_id(file_id):
 # TODO Add validation after auth
 
 
-@ USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
+@USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
 def get_accesses(item_id):
     """
     Path:
@@ -199,7 +199,7 @@ def get_accesses(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@ USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
+@USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
 def add_access_by_url(item_id):
     """
     Path:
@@ -219,7 +219,7 @@ def add_access_by_url(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@ USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
+@USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
 def remove_access_by_url(item_id):
     """
     Path:
@@ -237,7 +237,7 @@ def remove_access_by_url(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@ USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
+@USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
 def add_access_by_user(item_id, email):
     """
     Path:
@@ -261,7 +261,7 @@ def add_access_by_user(item_id, email):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@ USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
+@USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
 def remove_access_by_user(item_id, email):
     """
     Path:
@@ -279,7 +279,7 @@ def remove_access_by_user(item_id, email):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@ USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
+@USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
 def add_access_by_department(item_id, department):
     """
     Path:
@@ -303,7 +303,7 @@ def add_access_by_department(item_id, department):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@ USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
+@USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
 def remove_access_by_department(item_id, department):
     """
     Path:
@@ -361,3 +361,4 @@ def move_item(item_id):
             return jsonify({'error': 'Can\'t find one of items'}), 404
     else:
         return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
+

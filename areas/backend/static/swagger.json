@@ -528,6 +528,102 @@
           }
         }
       }
+    },
+    "/department": {
+      "get": {
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page for department",
+            "schema": {
+              "type": "int"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page for department",
+            "schema": {
+              "type": "int"
+            }
+          }
+        ],
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "departments": {
+                    "$ref": "#/components/schemas/department_info"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/department_info"
+              }
+            }
+          }
+        },
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "404": {
+            "description": "Already exists"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/department_info"
+              }
+            }
+          }
+        },
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "404": {
+            "description": "Already exists"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -596,6 +692,13 @@
             "type": "string"
           },
           "content": {
+            "type": "string"
+          }
+        }
+      },
+      "department_info": {
+        "properties": {
+          "department_name": {
             "type": "string"
           }
         }
