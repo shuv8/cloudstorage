@@ -1,5 +1,6 @@
 """The Endpoints to manage the USER_REQUESTS"""
-import flask
+from controller.user_controller import UserController
+from core.user import User
 from flask import jsonify, Blueprint, request, send_file
 from io import BytesIO
 
@@ -10,11 +11,55 @@ from core.files import File
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
 dataStoreController = DataStoreController()
+userController = UserController()
 
 
 def get_blueprint():
     """Return the blueprint for the main app module"""
     return USER_REQUEST_API
+
+
+@USER_REQUEST_API.route('/registration', methods=['POST'])
+def registration():
+    request_data = request.get_json()
+
+    new_user: Optional[User] = None
+
+    try:
+        new_user = User(
+            email=request_data['email'],
+            password=request_data['password'],
+            role=request_data['role'],
+            username=request_data['username']
+        )
+    except:
+        return jsonify({'error': 'invalid request body'}), 400
+
+    err = userController.registration(new_user)
+    if err:
+        return jsonify({'error': err}), 400
+
+    return jsonify({'error': None}), 200
+
+
+@USER_REQUEST_API.route('/login', methods=['PUT'])
+def login():
+    request_data = request.get_json()
+
+    email: Optional[str] = None
+    password: Optional[str] = None
+
+    try:
+        email = request_data['email']
+        password = request_data['password']
+    except:
+        return jsonify({'data': None, 'error': 'invalid request body'}), 400
+
+    token, err = userController.login(email, password)
+    if err:
+        return jsonify({'data': None, 'error': err}), 400
+
+    return jsonify({'data': token, 'error': None}), 200
 
 
 """
@@ -24,7 +69,7 @@ def get_blueprint():
 """
 
 
-@USER_REQUEST_API.route('/search', methods=['GET'])
+@ USER_REQUEST_API.route('/search', methods=['GET'])
 def search_for():
     """
     Query:
@@ -44,7 +89,8 @@ def search_for():
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     query = request.args.get('query', default=".", type=str)
 
-    items: list[tuple[BaseStorageItem, str]] = dataStoreController.search_in_cloud(user_mail, query)
+    items: list[tuple[BaseStorageItem, str]
+                ] = dataStoreController.search_in_cloud(user_mail, query)
     items_content = []
     for (item, path) in items:
         items_content.append(
@@ -73,11 +119,13 @@ def view_file_by_id(file_id):
     """
 
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-    file: Optional[File] = dataStoreController.get_item_by_id(user_mail, file_id)
+    file: Optional[File] = dataStoreController.get_item_by_id(
+        user_mail, file_id)
     if file is None:
         return jsonify({'error': 'File not found'}), 404
 
-    allowed_file_type_to_view = ['.png', '.pdf', '.jpeg', 'jpg', '.svg', '.mp4', '.txt']
+    allowed_file_type_to_view = ['.png', '.pdf',
+                                 '.jpeg', 'jpg', '.svg', '.mp4', '.txt']
     mimetype_dict = {
         '.png': 'image/png',
         '.pdf': 'application/pdf',
@@ -108,7 +156,7 @@ def view_file_by_id(file_id):
 # TODO Add validation after auth
 
 
-@USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
+@ USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
 def get_accesses(item_id):
     """
     Path:
@@ -117,7 +165,8 @@ def get_accesses(item_id):
         url
     """
     try:
-        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(item_id) or list()
+        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(
+            item_id) or list()
 
         accesses_content = []
         for access in accesses:
@@ -150,7 +199,7 @@ def get_accesses(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
+@ USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
 def add_access_by_url(item_id):
     """
     Path:
@@ -162,14 +211,15 @@ def add_access_by_url(item_id):
     view_only = request.args.get('view_only', default=".", type=bool)
 
     try:
-        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only)
+        dataStoreController.edit_access(
+            item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only)
         return jsonify({}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
+@ USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
 def remove_access_by_url(item_id):
     """
     Path:
@@ -179,14 +229,15 @@ def remove_access_by_url(item_id):
     """
 
     try:
-        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.Url)
+        dataStoreController.edit_access(
+            item_id, AccessEditTypeEnum.Remove, AccessClassEnum.Url)
         return jsonify({}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
+@ USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
 def add_access_by_user(item_id, email):
     """
     Path:
@@ -210,7 +261,7 @@ def add_access_by_user(item_id, email):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
+@ USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
 def remove_access_by_user(item_id, email):
     """
     Path:
@@ -220,14 +271,15 @@ def remove_access_by_user(item_id, email):
     """
 
     try:
-        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
+        dataStoreController.edit_access(
+            item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
         return jsonify({}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
+@ USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
 def add_access_by_department(item_id, department):
     """
     Path:
@@ -251,7 +303,7 @@ def add_access_by_department(item_id, department):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
+@ USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
 def remove_access_by_department(item_id, department):
     """
     Path:
