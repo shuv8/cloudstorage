@@ -1,0 +1,370 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "sean",
+    "version": "1.0.0",
+    "title": "Cloud service",
+    "contact": {
+      "email": "grigorevmp@gmail.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "UserRequest",
+      "description": "API for cloud storage service"
+    }
+  ],
+  "paths": {
+    "/search": {
+      "get": {
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/found_item"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accesses/{item_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/access"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/set_access/{item_id}": {
+      "put": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "view_only",
+            "in": "query",
+            "description": "to do",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Press F"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/add_access/{item_id}/email/{email}": {
+      "put": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "view_only",
+            "in": "query",
+            "description": "to do",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Press F"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/add_access/{item_id}/department/{department}": {
+      "put": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "department",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "view_only",
+            "in": "query",
+            "description": "to do",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Press F"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/reset_access/{item_id}": {
+      "put": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Press F"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/remove_access/{item_id}/email/{email}": {
+      "put": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Press F"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/remove_access/{item_id}/department/{department}": {
+      "put": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "department",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Press F"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "id": {
+        "properties": {
+          "uuid": {
+            "type": "string"
+          }
+        }
+      },
+      "found_item": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "access": {
+        "properties": {
+          "level": {
+            "type": "string"
+          },
+          "class": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
