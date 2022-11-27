@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Optional
 
-from core import directory
 from core.files import FileManager
 
 from core import directory
