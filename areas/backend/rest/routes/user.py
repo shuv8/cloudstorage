@@ -405,3 +405,23 @@ def delete_by_item_id(item_id):
         return jsonify({'delete': 'success'}), 200
     else:
         return jsonify({'error': 'Wrong try to delete'}), 400
+
+
+@USER_REQUEST_API.route('/copy/<item_id>', methods=['POST'])
+def copy_item(item_id):
+    """
+    Path:
+        - item_id: id of item to move
+    Body:
+        - new_path: new path to item
+    """
+
+    target_directory = request.args.get('target_directory', type=str)
+    if target_directory is not None:
+        result = dataStoreController.copy_item(item_id, target_directory)
+        if result is not None:
+            return jsonify({'new_directory': result}), 200
+        else:
+            return jsonify({'error': 'Can\'t find one of items'}), 404
+    else:
+        return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400

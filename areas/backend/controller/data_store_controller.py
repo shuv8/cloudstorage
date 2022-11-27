@@ -51,6 +51,9 @@ class DataStoreController:
     def delete_item(self, item_id: UUID) -> bool:
         return self.data_store_service.delete_item(user_mail="test", item_id=item_id)
 
+    def copy_item(self, item_id: UUID, target_directory_id: UUID):
+        return self.data_store_service.copy_item(item_id=item_id, user_mail='test', target_directory_id=target_directory_id)
+
     """
         ==============
         Access Service

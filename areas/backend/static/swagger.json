@@ -700,6 +700,43 @@
           }
         }
       }
+    },
+    "/copy/{item_id}": {
+      "post": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to copy",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "target_directory",
+            "in": "query",
+            "description": "New target directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "404": {
+            "description": "Items not found"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
