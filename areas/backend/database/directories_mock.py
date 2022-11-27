@@ -37,13 +37,18 @@ class DataBaseTemporaryMock:
     )
 
     user_cloud_space_1_.get_directory_manager().items = [
-        Directory(name="wow")
+        Directory(name="wow", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51n1jn1'),
+        Directory(name='second', _id='xyz9cd7f-9ffd-42b0-bce4-eb14b51n1jn1')
     ]
 
     user_cloud_space_1_.get_directory_manager().file_manager.items = [
         File(name="wow3", _type=".type",
              _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
-        File(name="test6", _type=".e")
+        File(name="test6", _type=".e"),
+        File(name="image", _type=".png",
+             _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71'),
+        File(name="test", _type=".txt",
+             _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
     ]
 
     user_cloud_space_2_.get_directory_manager().items = [

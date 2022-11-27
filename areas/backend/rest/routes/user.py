@@ -1,10 +1,12 @@
 """The Endpoints to manage the USER_REQUESTS"""
 from controller.user_controller import UserController
 from core.user import User
-from flask import jsonify, Blueprint, request
+from flask import jsonify, Blueprint, request, send_file
+from io import BytesIO
 
 from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from core.files import File
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -60,11 +62,18 @@ def login():
     return jsonify({'data': token, 'error': None}), 200
 
 
+"""
+    ===================
+    Block with Files
+    ===================
+"""
+
+
 @ USER_REQUEST_API.route('/search', methods=['GET'])
 def search_for():
     """
     Query:
-        - query: file/dir name tosearch for
+        - query: file/dir name to search for
         - user_mail
     Result:
         {
@@ -89,6 +98,7 @@ def search_for():
                 "name": item.name,
                 "path": path,
                 "type": str(type(item)),
+                "id": str(item.id)
             }
         )
 
@@ -97,6 +107,43 @@ def search_for():
             "items": items_content
         }
     ), 200
+
+
+@USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
+def view_file_by_id(file_id):
+    """
+    Path:
+        - file_id: id of file to view
+    Result:
+        file to view
+    """
+
+    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+    file: Optional[File] = dataStoreController.get_item_by_id(
+        user_mail, file_id)
+    if file is None:
+        return jsonify({'error': 'File not found'}), 404
+
+    allowed_file_type_to_view = ['.png', '.pdf',
+                                 '.jpeg', 'jpg', '.svg', '.mp4', '.txt']
+    mimetype_dict = {
+        '.png': 'image/png',
+        '.pdf': 'application/pdf',
+        '.jpeg': 'image/jpeg',
+        '.jpg': 'image/jpeg',
+        '.svg': 'image/svg+xml',
+        '.mp4': 'video/mp4',
+        '.txt': 'text/plain'
+    }
+    # TODO GET FILE FROM DATABASE
+    if file.type not in allowed_file_type_to_view:
+        return jsonify({'error': 'Cannot view such type of file'}), 403
+    try:
+        with open(f'./database/{file.name}{file.type}', 'rb') as file_buffer:
+            buf = BytesIO(file_buffer.read())
+            return send_file(buf, mimetype_dict[file.type])
+    except FileNotFoundError:
+        return jsonify({'error': 'File is damaged'}), 404
 
 
 """
@@ -117,7 +164,6 @@ def get_accesses(item_id):
     Result:
         url
     """
-
     try:
         accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(
             item_id) or list()
@@ -277,3 +323,41 @@ def remove_access_by_department(item_id, department):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+
+
+@USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])
+def rename_item(item_id):
+    """
+    Path:
+        - item_id: id of item to rename
+    """
+
+    new_name = request.args.get('new_name', type=str)
+    if new_name is not None:
+        result = dataStoreController.rename_item(item_id, new_name)
+        if result is not None:
+            return jsonify({'new_name': result}), 200
+        else:
+            return jsonify({'error': 'Can\'t find item'}), 404
+    else:
+        return jsonify({'error': 'No new name presented. Use query parameter \'new_name\''}), 400
+
+
+@USER_REQUEST_API.route('/move/<item_id>', methods=['PUT'])
+def move_item(item_id):
+    """
+    Path:
+        - item_id: id of item to move
+    Body:
+        - new_path: new path to item
+    """
+
+    target_directory = request.args.get('target_directory', type=str)
+    if target_directory is not None:
+        result = dataStoreController.move_item(item_id, target_directory)
+        if result is not None:
+            return jsonify({'new_directory': result}), 200
+        else:
+            return jsonify({'error': 'Can\'t find one of items'}), 404
+    else:
+        return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
