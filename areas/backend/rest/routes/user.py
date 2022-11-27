@@ -347,7 +347,7 @@ def rename_item(item_id):
 
     new_name = request.args.get('new_name', type=str)
     if new_name is not None:
-        result = dataStoreController.rename_item(item_id, new_name)
+        result = dataStoreController.rename_item('test@mail.ru', item_id, new_name)
         if result is not None:
             return jsonify({'new_name': result}), 200
         else:
@@ -367,7 +367,7 @@ def move_item(item_id):
 
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.move_item(item_id, target_directory)
+        result = dataStoreController.move_item('test@mail.ru', item_id, target_directory)
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:
@@ -418,7 +418,7 @@ def copy_item(item_id):
 
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.copy_item(item_id, target_directory)
+        result = dataStoreController.copy_item('test@mail.ru', item_id, target_directory)
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:

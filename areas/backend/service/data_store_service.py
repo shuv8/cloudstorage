@@ -295,8 +295,9 @@ class DataStoreService:
             target_directory = self.get_user_file_by_id(user_mail, target_directory_id)
             if target_directory is not None and isinstance(target_directory, Directory):
                 if isinstance(item, Directory):
-                    target_directory.directory_manager.add_items([deepcopy(item)])
+                    new_directory = deepcopy(item)
                     self.copy_directory(directory=item)
+                    target_directory.directory_manager.add_items([new_directory])
                 elif isinstance(item, File):
                     new_item = deepcopy(item)
                     new_item.id = self.data_store_storage_repo.copy_file(item)

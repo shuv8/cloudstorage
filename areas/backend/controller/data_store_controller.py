@@ -36,11 +36,11 @@ class DataStoreController:
     def search_in_cloud(self, user_mail: str, file_name: str) -> list[tuple[BaseStorageItem, str]]:
         return self.data_store_service.search_in_cloud(user_mail, file_name)
 
-    def rename_item(self, item_id: UUID, new_name: str):
-        return self.data_store_service.rename_item_by_id(item_id=item_id, user_mail='test', new_name=new_name)
+    def rename_item(self, user_mail: str, item_id: UUID, new_name: str):
+        return self.data_store_service.rename_item_by_id(item_id=item_id, user_mail=user_mail, new_name=new_name)
 
-    def move_item(self, item_id: UUID, target_directory_id: UUID):
-        return self.data_store_service.move_item(item_id=item_id, user_mail='test', target_directory_id=target_directory_id)
+    def move_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
+        return self.data_store_service.move_item(item_id=item_id, user_mail=user_mail, target_directory_id=target_directory_id)
 
     def get_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         return self.data_store_service.get_user_file_by_id(user_mail, item_id)
@@ -51,8 +51,8 @@ class DataStoreController:
     def delete_item(self, item_id: UUID) -> bool:
         return self.data_store_service.delete_item(user_mail="test", item_id=item_id)
 
-    def copy_item(self, item_id: UUID, target_directory_id: UUID):
-        return self.data_store_service.copy_item(item_id=item_id, user_mail='test', target_directory_id=target_directory_id)
+    def copy_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
+        return self.data_store_service.copy_item(item_id=item_id, user_mail=user_mail, target_directory_id=target_directory_id)
 
     """
         ==============
