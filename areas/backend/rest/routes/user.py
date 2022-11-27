@@ -1,9 +1,11 @@
 """The Endpoints to manage the USER_REQUESTS"""
 import flask
-from flask import jsonify, Blueprint, request
+from flask import jsonify, Blueprint, request, send_file
+from io import BytesIO
 
 from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from core.files import File
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -15,11 +17,18 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
+"""
+    ===================
+    Block with Files
+    ===================
+"""
+
+
 @USER_REQUEST_API.route('/search', methods=['GET'])
 def search_for():
     """
     Query:
-        - query: file/dir name tosearch for
+        - query: file/dir name to search for
         - user_mail
     Result:
         {
@@ -43,6 +52,7 @@ def search_for():
                 "name": item.name,
                 "path": path,
                 "type": str(type(item)),
+                "id": str(item.id)
             }
         )
 
@@ -51,6 +61,39 @@ def search_for():
             "items": items_content
         }
     ), 200
+
+
+@USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
+def view_file_by_id(file_id):
+    """
+    Path:
+        - file_id: id of file to view
+    Result:
+        file to view
+    """
+
+    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+    file: Optional[File] = dataStoreController.get_item_by_id(user_mail, file_id)
+    if file is None:
+        return jsonify({'error': 'File not found'}), 404
+
+    allowed_file_type_to_view = ['.png', '.pdf', '.jpeg', 'jpg', '.svg', '.mp4', '.txt']
+    mimetype_dict = {
+        '.png': 'image/png',
+        '.pdf': 'application/pdf',
+        '.jpeg': 'image/jpeg',
+        '.jpg': 'image/jpeg',
+        '.svg': 'image/svg+xml',
+        '.mp4': 'video/mp4',
+        '.txt': 'text/plain'
+    }
+
+    # TODO GET FILE FROM DATABASE
+    if file.type not in allowed_file_type_to_view:
+        return jsonify({'error': 'Cannot view such type of file'}), 403
+    with open(f'./database/{file.name}{file.type}', 'rb') as file_buffer:
+        buf = BytesIO(file_buffer.read())
+        return send_file(buf, mimetype_dict[file.type])
 
 
 """
@@ -71,7 +114,6 @@ def get_accesses(item_id):
     Result:
         url
     """
-
     try:
         accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(item_id) or list()
 

@@ -43,6 +43,12 @@ def handle_401_error(_error):
     return make_response(jsonify({'error': 'Unauthorised'}), 401)
 
 
+@app.errorhandler(403)
+def handle_403_error(_error):
+    """Return a http 403 error to client"""
+    return make_response(jsonify({'error': 'Forbidden'}), 403)
+
+
 @app.errorhandler(404)
 def handle_404_error(_error):
     """Return a http 404 error to client"""

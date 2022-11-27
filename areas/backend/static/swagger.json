@@ -60,6 +60,74 @@
         }
       }
     },
+    "/file/{file_id}/view": {
+      "get": {
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "description": "Id of file to view",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns file to view",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "403": {
+            "description": "Cannot view such type of file."
+          },
+          "404": {
+            "description": "File not found"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                },
+              "image/jpeg": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "image/svg+xml": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "video/mp4": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/accesses/{item_id}": {
       "get": {
         "parameters": [
@@ -420,6 +488,22 @@
           },
           "type": {
             "type": "string"
+          },
+          "id": {
+            "id": "string"
+          }
+        }
+      },
+      "file_to_view": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "id": {
+            "id": "string"
           }
         }
       },
