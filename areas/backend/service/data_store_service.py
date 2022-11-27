@@ -1,4 +1,6 @@
 from typing import Optional, BinaryIO
+import uuid
+from copy import deepcopy
 from uuid import UUID
 
 from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess
@@ -230,14 +232,11 @@ class DataStoreService:
                 source_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
                 if isinstance(item, Directory):
                     source_directory_manager.remove_dir(item.name)
-                if isinstance(item, File):
-                    source_directory_manager.file_manager.remove_item(item)
-                if isinstance(item, File):
-                    target_directory.directory_manager.file_manager.add_item(item)
-                    return target_directory.name
-                elif isinstance(item, Directory):
                     target_directory.directory_manager.add_items([item])
-                    return target_directory.name
+                elif isinstance(item, File):
+                    source_directory_manager.file_manager.remove_item(item)
+                    target_directory.directory_manager.file_manager.add_item(item)
+                return target_directory.name
         else:
             return None
 
@@ -288,3 +287,28 @@ class DataStoreService:
 
         else:
             return False
+
+    def copy_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
+        user_mail = 'test_mail@mail.com'  # TODO: real email
+        item = self.get_user_file_by_id(user_mail, item_id)
+        if item is not None:
+            target_directory = self.get_user_file_by_id(user_mail, target_directory_id)
+            if target_directory is not None and isinstance(target_directory, Directory):
+                if isinstance(item, Directory):
+                    new_directory = deepcopy(item)
+                    self.copy_directory(directory=item)
+                    target_directory.directory_manager.add_items([new_directory])
+                elif isinstance(item, File):
+                    new_item = deepcopy(item)
+                    new_item.id = self.data_store_storage_repo.copy_file(item)
+                    target_directory.directory_manager.file_manager.add_item(new_item)
+                return target_directory.name
+        return None
+
+    def copy_directory(self, directory: Directory):
+        directory.id = uuid.uuid4()
+        for file in directory.directory_manager.file_manager.items:
+            _id = self.data_store_storage_repo.copy_file(file)
+            file.id = _id
+        for subdirectory in directory.directory_manager.items:
+            self.copy_directory(subdirectory)
