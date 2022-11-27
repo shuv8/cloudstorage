@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, BinaryIO
 from uuid import UUID
 
 from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess
@@ -233,3 +233,23 @@ class DataStoreService:
                 if item is not None:
                     return directory.get_directory_manager()
         return None
+
+    def download_item(self, user_mail: str, item_id: UUID) -> Optional[BinaryIO]:
+        user_mail = "test_mail@mail.com"
+        item = self.is_user_file(user_mail, item_id)
+        if item is not None:
+            result = self.data_store_storage_repo.db.get_file_by_item_id(item.id)
+            # TODO для папки
+            return result
+        else:
+            return None
+
+    def delete_item(self, user_mail: str, item_id: UUID) -> bool:
+        user_mail = "test_mail@mail.com"
+        item = self.is_user_file(user_mail, item_id)
+        if item is not None:
+            if isinstance(item, File):
+                # TODO найти файл менеджер
+                return True
+        else:
+            return False

@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import BinaryIO, Optional
 import uuid
+from uuid import UUID
 
 from core.directory import Directory
 from core.files import File
@@ -96,3 +97,8 @@ class DataBaseTemporaryMock:
             return self.users[email]
 
         return None
+
+    @staticmethod
+    def get_file_by_item_id(item_id: UUID) -> BinaryIO:
+        _file = BinaryIO()
+        return _file

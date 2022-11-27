@@ -271,8 +271,7 @@ def remove_access_by_user(item_id, email):
     """
 
     try:
-        dataStoreController.edit_access(
-            item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
+        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
         return jsonify({}), 200
 
     except NotAllowedError:
@@ -362,3 +361,32 @@ def move_item(item_id):
     else:
         return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
 
+
+@USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
+def download_by_name(item_id):
+    """
+    Path:
+        - item_id: id of item to download
+    Result:
+        file
+    """
+    result = dataStoreController.download_item(item_id)
+    if result is not None:
+        return send_file(result, download_name="file", as_attachment=True), 200
+    else:
+        return jsonify({'error': 'No such fail or directory'}), 400
+
+
+@USER_REQUEST_API.route('/delete/<item_id>', methods=['DELETE'])
+def download_by_name(item_id):
+    """
+    Path:
+        - item_id: id of item to download
+    Result:
+        file
+    """
+    result = dataStoreController.delete_item(item_id)
+    if result is not None:
+        return jsonify({}), 200
+    else:
+        return jsonify({'error': 'Wrong try to delete'}), 400
