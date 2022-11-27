@@ -5,7 +5,7 @@ from uuid import UUID
 from core.accesses import BaseAccess
 from core.base_storage_item import BaseStorageItem
 from core.files import File
-from exceptions.exceptions import NotAllowedError
+from exceptions.exceptions import NotAllowedError, ItemNotFoundError
 from service.data_store_service import DataStoreService
 from service.access_service import AccessService
 
@@ -89,3 +89,5 @@ class DataStoreController:
                 return False
         except NotAllowedError:
             raise NotAllowedError
+        except ItemNotFoundError:
+            raise ItemNotFoundError

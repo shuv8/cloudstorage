@@ -34,7 +34,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref":"#/components/schemas/user"
+                "$ref": "#/components/schemas/user"
               },
               "example": {
                 "email": "grigorevmp@gmail.com",
@@ -65,7 +65,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref":"#/components/schemas/user"
+                "$ref": "#/components/schemas/user"
               },
               "example": {
                 "email": "grigorevmp@gmail.com",
@@ -209,6 +209,12 @@
           "400": {
             "description": "Failed. Bad post data."
           },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -253,8 +259,11 @@
           "400": {
             "description": "Failed. Bad post data."
           },
+          "404": {
+            "description": "Failed. Item not found"
+          },
           "401": {
-            "description": "Press F"
+            "description": "Failed. No permissions for this action"
           },
           "200": {
             "description": "OK"
@@ -298,8 +307,11 @@
           "400": {
             "description": "Failed. Bad post data."
           },
+          "404": {
+            "description": "Failed. Item not found"
+          },
           "401": {
-            "description": "Press F"
+            "description": "Failed. No permissions for this action"
           },
           "200": {
             "description": "OK"
@@ -343,8 +355,11 @@
           "400": {
             "description": "Failed. Bad post data."
           },
+          "404": {
+            "description": "Failed. Item not found"
+          },
           "401": {
-            "description": "Press F"
+            "description": "Failed. No permissions for this action"
           },
           "200": {
             "description": "OK"
@@ -353,7 +368,7 @@
       }
     },
     "/reset_access/{item_id}": {
-      "put": {
+      "delete": {
         "parameters": [
           {
             "name": "item_id",
@@ -372,8 +387,11 @@
           "400": {
             "description": "Failed. Bad post data."
           },
+          "404": {
+            "description": "Failed. Item not found"
+          },
           "401": {
-            "description": "Press F"
+            "description": "Failed. No permissions for this action"
           },
           "200": {
             "description": "OK"
@@ -382,7 +400,7 @@
       }
     },
     "/remove_access/{item_id}/email/{email}": {
-      "put": {
+      "delete": {
         "parameters": [
           {
             "name": "item_id",
@@ -409,8 +427,11 @@
           "400": {
             "description": "Failed. Bad post data."
           },
+          "404": {
+            "description": "Failed. Item not found"
+          },
           "401": {
-            "description": "Press F"
+            "description": "Failed. No permissions for this action"
           },
           "200": {
             "description": "OK"
@@ -419,7 +440,7 @@
       }
     },
     "/remove_access/{item_id}/department/{department}": {
-      "put": {
+      "delete": {
         "parameters": [
           {
             "name": "item_id",
@@ -446,8 +467,11 @@
           "400": {
             "description": "Failed. Bad post data."
           },
+          "404": {
+            "description": "Failed. Item not found"
+          },
           "401": {
-            "description": "Press F"
+            "description": "Failed. No permissions for this action"
           },
           "200": {
             "description": "OK"
@@ -537,7 +561,7 @@
             "in": "query",
             "description": "Page for department",
             "schema": {
-              "type": "int"
+              "type": "integer"
             }
           },
           {
@@ -545,7 +569,7 @@
             "in": "query",
             "description": "Page for department",
             "schema": {
-              "type": "int"
+              "type": "integer"
             }
           }
         ],
@@ -563,7 +587,7 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "departments": {
+                  "items": {
                     "$ref": "#/components/schemas/department_info"
                   }
                 }
@@ -715,7 +739,7 @@
             "type": "string"
           },
           "id": {
-            "id": "string"
+            "type": "string"
           }
         }
       },
@@ -728,7 +752,7 @@
             "type": "string"
           },
           "id": {
-            "id": "string"
+            "type": "string"
           }
         }
       },

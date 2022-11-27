@@ -7,6 +7,7 @@ from core.directory import Directory
 from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
+from exceptions.exceptions import ItemNotFoundError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
 import logging
@@ -143,6 +144,9 @@ class DataStoreService:
     def set_url_access_for_file(self, user_mail: str, item_id, new_access: BaseAccess):
         item = self.get_user_file_by_id(user_mail, item_id)
 
+        if item is None:
+            raise ItemNotFoundError
+
         for access in item.accesses:
             if type(access) == UrlAccess:
                 return
@@ -152,6 +156,9 @@ class DataStoreService:
     def remove_url_access_for_file(self, user_mail: str, item_id: UUID):
         item = self.get_user_file_by_id(user_mail, item_id)
 
+        if item is None:
+            raise ItemNotFoundError
+
         for access in item.accesses:
             if type(access) == UrlAccess:
                 item.accesses.remove(access)
@@ -159,10 +166,17 @@ class DataStoreService:
 
     def add_email_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
         item = self.get_user_file_by_id(user_mail, item_id)
+
+        if item is None:
+            raise ItemNotFoundError
+
         item.add_access(new_access)
 
     def remove_email_access_for_file(self, user_mail: str, item_id: UUID, email: str):
         item = self.get_user_file_by_id(user_mail, item_id)
+
+        if item is None:
+            raise ItemNotFoundError
 
         for access in item.accesses:
             if type(access) == UserAccess:
@@ -172,10 +186,17 @@ class DataStoreService:
 
     def add_department_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
         item = self.get_user_file_by_id(user_mail, item_id)
+
+        if item is None:
+            raise ItemNotFoundError
+
         item.add_access(new_access)
 
     def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department: str):
         item = self.get_user_file_by_id(user_mail, item_id)
+
+        if item is None:
+            raise ItemNotFoundError
 
         for access in item.accesses:
             if type(access) == DepartmentAccess:
@@ -185,6 +206,10 @@ class DataStoreService:
 
     def get_accesses_for_item(self, user_mail: str, item_id: UUID) -> list[BaseAccess]:
         item = self.get_user_file_by_id(user_mail, item_id)
+
+        if item is None:
+            raise ItemNotFoundError
+        
         return item.accesses
 
     def rename_item_by_id(self, user_mail: str, item_id: UUID, new_name: str):
