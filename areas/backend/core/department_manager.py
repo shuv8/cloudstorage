@@ -15,6 +15,9 @@ class DepartmentManager:
     def __init__(self, departments: Optional[List[department.Department]]):
         self.__departments = departments or list()
 
+    def get_departments(self):
+        return self.__departments
+
     def add_department(self, new_department: department.Department):
         if isinstance(new_department, department.Department):
             self.__departments.append(new_department)

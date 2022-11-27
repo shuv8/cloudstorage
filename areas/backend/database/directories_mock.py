@@ -6,6 +6,8 @@ from core.files import File
 from core.space_manager import SpaceManager
 from core.user import User
 from core.user_cloud_space import UserCloudSpace, SpaceType
+from core.department_manager import DepartmentManager
+from core.department import Department
 
 
 class DataBaseTemporaryMock:
@@ -59,6 +61,29 @@ class DataBaseTemporaryMock:
         "test_mail@mail.com": user_1_,
         "test2_mail@mail.com": user_2_
     }
+
+    department_1 = Department('Test_department_1', [user_1_, user_2_])
+    department_2 = Department('Test_department_2', None)
+
+    departments = {
+        "Test_department_1": department_1,
+        "Test_department_2": department_2
+    }
+
+    department_manager = DepartmentManager([department_1, department_2])
+
+    def get_department_list(self):
+        return self.department_manager.get_departments()
+
+    def get_department_by_name(self, department_name):
+        self.department_manager.get_department(department_name)
+
+    def add_new_department(self, new_department: Department):
+        self.department_manager.add_department(new_department)
+        self.departments[new_department.department_name] = new_department
+
+    def delete_department_by_name(self, department_name: str):
+        self.department_manager.remove_department_by_department_name(department_name)
 
     def get_space_by_user_mail(self, mail: str) -> SpaceManager:
         return self.users[mail].space_manager
