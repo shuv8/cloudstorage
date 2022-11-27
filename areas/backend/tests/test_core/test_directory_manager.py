@@ -20,13 +20,6 @@ def file_manager():
     )
 
 
-@pytest.fixture()
-def file():
-    return File(
-        name="test",
-        _type=".txt"
-    )
-
 
 @pytest.fixture()
 def directory():
@@ -67,6 +60,16 @@ class TestDirectoryManager:
 
         with pytest.raises(TypeError):
             directory_manager.items = "trq"
+
+    def test_add_items(self, directory_manager, directory):
+        directory_manager.add_items([directory])
+        assert directory_manager.items == [directory]
+
+        with pytest.raises(TypeError):
+            directory_manager.add_items(43)
+
+        with pytest.raises(TypeError):
+            directory_manager.add_items([43, directory])
 
     def test_set_get_file_manager(self, directory_manager, file_manager):
         directory_manager.file_manager = file_manager

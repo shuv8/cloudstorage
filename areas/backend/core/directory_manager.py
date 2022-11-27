@@ -45,6 +45,12 @@ class DirectoryManager:
             raise TypeError
 
     def set_items(self, items: list[directory.Directory]):
+        if all(map(lambda item: isinstance(item, directory.Directory), items)):
+            self.__items = items
+        else:
+            raise TypeError
+
+    def add_items(self, items: list[directory.Directory]):
         for item in items:
             if isinstance(item, directory.Directory):
                 self.__items.append(item)
