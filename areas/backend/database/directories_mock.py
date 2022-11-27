@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 
 from core.directory import Directory
@@ -40,7 +41,8 @@ class DataBaseTemporaryMock:
     ]
 
     user_cloud_space_1_.get_directory_manager().file_manager.items = [
-        File(name="wow3", _type=".type", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
+        File(name="wow3", _type=".type",
+             _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
         File(name="test6", _type=".e")
     ]
 
@@ -55,3 +57,12 @@ class DataBaseTemporaryMock:
 
     def get_space_by_user_mail(self, mail: str) -> SpaceManager:
         return self.users[mail].space_manager
+
+    def create_user(self, new_user: User):
+        self.users[new_user.email] = new_user
+
+    def get_user_by_email(self, email: str) -> Optional[User]:
+        if email in self.users:
+            return self.users[email]
+
+        return None

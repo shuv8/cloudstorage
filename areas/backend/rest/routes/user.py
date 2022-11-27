@@ -1,4 +1,6 @@
 """The Endpoints to manage the USER_REQUESTS"""
+from controller.user_controller import UserController
+from core.user import User
 from flask import jsonify, Blueprint, request
 
 from controller.data_store_controller import *
@@ -7,6 +9,7 @@ from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
 dataStoreController = DataStoreController()
+userController = UserController()
 
 
 def get_blueprint():
@@ -14,7 +17,39 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
-@USER_REQUEST_API.route('/search', methods=['GET'])
+@USER_REQUEST_API.route('/registration', methods=['POST'])
+def registration():
+    request_data = request.get_json()
+
+    new_user = User(
+        email=request_data['email'],
+        password=request_data['password'],
+        role=request_data['role'],
+        username=request_data['username']
+    )
+
+    err = userController.registration(new_user)
+    if err:
+        return jsonify({'error': err}), 400
+
+    return jsonify({'error': None}), 200
+
+
+@USER_REQUEST_API.route('/login', methods=['PUT'])
+def login():
+    request_data = request.get_json()
+
+    email = request_data['email']
+    password = request_data['password']
+
+    token, err = userController.login(email, password)
+    if err:
+        return jsonify({'data': None, 'error': err}), 400
+
+    return jsonify({'data': token, 'error': None}), 200
+
+
+@ USER_REQUEST_API.route('/search', methods=['GET'])
 def search_for():
     """
     Query:
@@ -34,7 +69,8 @@ def search_for():
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     query = request.args.get('query', default=".", type=str)
 
-    items: list[tuple[BaseStorageItem, str]] = dataStoreController.search_in_cloud(user_mail, query)
+    items: list[tuple[BaseStorageItem, str]
+                ] = dataStoreController.search_in_cloud(user_mail, query)
     items_content = []
     for (item, path) in items:
         items_content.append(
@@ -62,7 +98,7 @@ def search_for():
 # TODO Add validation after auth
 
 
-@USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
+@ USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
 def get_accesses(item_id):
     """
     Path:
@@ -72,7 +108,8 @@ def get_accesses(item_id):
     """
 
     try:
-        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(item_id) or list()
+        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(
+            item_id) or list()
 
         accesses_content = []
         for access in accesses:
@@ -105,7 +142,7 @@ def get_accesses(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
+@ USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
 def add_access_by_url(item_id):
     """
     Path:
@@ -117,14 +154,15 @@ def add_access_by_url(item_id):
     view_only = request.args.get('view_only', default=".", type=bool)
 
     try:
-        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only)
+        dataStoreController.edit_access(
+            item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only)
         return jsonify({}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
+@ USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
 def remove_access_by_url(item_id):
     """
     Path:
@@ -134,14 +172,15 @@ def remove_access_by_url(item_id):
     """
 
     try:
-        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.Url)
+        dataStoreController.edit_access(
+            item_id, AccessEditTypeEnum.Remove, AccessClassEnum.Url)
         return jsonify({}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
+@ USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
 def add_access_by_user(item_id, email):
     """
     Path:
@@ -165,7 +204,7 @@ def add_access_by_user(item_id, email):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
+@ USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
 def remove_access_by_user(item_id, email):
     """
     Path:
@@ -175,14 +214,15 @@ def remove_access_by_user(item_id, email):
     """
 
     try:
-        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
+        dataStoreController.edit_access(
+            item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
         return jsonify({}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
+@ USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
 def add_access_by_department(item_id, department):
     """
     Path:
@@ -206,7 +246,7 @@ def add_access_by_department(item_id, department):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-@USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
+@ USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
 def remove_access_by_department(item_id, department):
     """
     Path:
