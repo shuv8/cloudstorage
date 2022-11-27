@@ -87,13 +87,15 @@ def view_file_by_id(file_id):
         '.mp4': 'video/mp4',
         '.txt': 'text/plain'
     }
-
     # TODO GET FILE FROM DATABASE
     if file.type not in allowed_file_type_to_view:
         return jsonify({'error': 'Cannot view such type of file'}), 403
-    with open(f'./database/{file.name}{file.type}', 'rb') as file_buffer:
-        buf = BytesIO(file_buffer.read())
-        return send_file(buf, mimetype_dict[file.type])
+    try:
+        with open(f'./database/{file.name}{file.type}', 'rb') as file_buffer:
+            buf = BytesIO(file_buffer.read())
+            return send_file(buf, mimetype_dict[file.type])
+    except FileNotFoundError:
+        return jsonify({'error': 'File is damaged'}), 404
 
 
 """
