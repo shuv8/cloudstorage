@@ -4,6 +4,7 @@ from uuid import UUID
 
 from core.accesses import BaseAccess
 from core.base_storage_item import BaseStorageItem
+from core.files import File
 from exceptions.exceptions import NotAllowedError
 from service.data_store_service import DataStoreService
 from service.access_service import AccessService
@@ -44,7 +45,7 @@ class DataStoreController:
     def get_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         return self.data_store_service.get_user_file_by_id(user_mail, item_id)
 
-    def download_item(self, item_id: UUID) -> BinaryIO:
+    def download_item(self, item_id: UUID) -> [Optional[BinaryIO], File]:
         return self.data_store_service.download_item(user_mail="test", item_id=item_id)
 
     def delete_item(self, item_id: UUID) -> bool:

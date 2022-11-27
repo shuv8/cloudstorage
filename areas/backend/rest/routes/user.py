@@ -370,9 +370,10 @@ def download_by_item_id(item_id):
     Result:
         file
     """
-    result = dataStoreController.download_item(item_id)
+    result, file = dataStoreController.download_item(item_id)
     if result is not None:
-        return send_file(result, download_name="file", as_attachment=True), 200
+        file_name = file.name + file.type
+        return send_file(result, download_name=file_name, as_attachment=True), 200
     else:
         return jsonify({'error': 'No such fail or directory'}), 400
 

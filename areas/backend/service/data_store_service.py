@@ -234,13 +234,13 @@ class DataStoreService:
                     return directory.get_directory_manager()
         return None
 
-    def download_item(self, user_mail: str, item_id: UUID) -> Optional[BinaryIO]:
+    def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
         user_mail = "test_mail@mail.com"
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             result = self.data_store_storage_repo.db.get_file_by_item_id(item.id)
             # TODO для папки
-            return result
+            return [result, item]
         else:
             return None
 
