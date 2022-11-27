@@ -13,14 +13,14 @@ class AccessService:
 
     def get_accesses_for_item(self, item_id: UUID) -> list[BaseAccess]:
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-        if not self.data_store_service.isUserFile(user_mail, item_id):
+        if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
         return self.data_store_service.get_accesses_for_item(user_mail, item_id)
 
     def add_access_for_item_by_url(self, item_id: UUID, view_only: bool):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-        if not self.data_store_service.isUserFile(user_mail, item_id):
+        if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
         if view_only:
@@ -37,14 +37,14 @@ class AccessService:
 
     def remove_access_for_item_by_url(self, item_id: UUID):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-        if not self.data_store_service.isUserFile(user_mail, item_id):
+        if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
         self.data_store_service.remove_url_access_for_file(user_mail, item_id)
 
     def add_access_for_item_by_email(self, item_id: UUID, email: str, view_only: bool):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-        if not self.data_store_service.isUserFile(user_mail, item_id):
+        if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
         if view_only:
@@ -61,14 +61,14 @@ class AccessService:
 
     def remove_access_for_item_by_email(self, item_id: UUID, email: str):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-        if not self.data_store_service.isUserFile(user_mail, item_id):
+        if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
         self.data_store_service.remove_email_access_for_file(user_mail, item_id, email)
 
     def add_access_for_item_by_department(self, item_id: UUID, department: str, view_only: bool):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-        if not self.data_store_service.isUserFile(user_mail, item_id):
+        if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
         if view_only:
@@ -85,7 +85,7 @@ class AccessService:
 
     def remove_access_for_item_by_department(self, item_id: UUID, department: str):
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
-        if not self.data_store_service.isUserFile(user_mail, item_id):
+        if not self.data_store_service.is_user_file(user_mail, item_id):
             raise NotAllowedError()
 
         self.data_store_service.remove_department_access_for_file(user_mail, item_id, department)

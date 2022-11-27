@@ -6,7 +6,7 @@ from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
-from repository.DataStoreStorageRepository import DataStoreStorageRepository
+from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
 import logging
 
@@ -117,7 +117,7 @@ class DataStoreService:
                 return file
         return None
 
-    def getUserFileById(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
+    def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
 
         for space in space_manager.get_spaces():
@@ -136,11 +136,11 @@ class DataStoreService:
 
         return None
 
-    def isUserFile(self, user_mail: str, item_id: UUID) -> bool:
-        return self.getUserFileById(user_mail, item_id) is not None
+    def is_user_file(self, user_mail: str, item_id: UUID) -> bool:
+        return self.get_user_file_by_id(user_mail, item_id) is not None
 
     def set_url_access_for_file(self, user_mail: str, item_id, new_access: BaseAccess):
-        item = self.getUserFileById(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
 
         for access in item.accesses:
             if type(access) == UrlAccess:
@@ -149,7 +149,7 @@ class DataStoreService:
         item.add_access(new_access)
 
     def remove_url_access_for_file(self, user_mail: str, item_id: UUID):
-        item = self.getUserFileById(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
 
         for access in item.accesses:
             if type(access) == UrlAccess:
@@ -157,11 +157,11 @@ class DataStoreService:
                 break
 
     def add_email_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
-        item = self.getUserFileById(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
         item.add_access(new_access)
 
     def remove_email_access_for_file(self, user_mail: str, item_id: UUID, email: str):
-        item = self.getUserFileById(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
 
         for access in item.accesses:
             if type(access) == UserAccess:
@@ -170,11 +170,11 @@ class DataStoreService:
                     break
 
     def add_department_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
-        item = self.getUserFileById(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
         item.add_access(new_access)
 
     def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department: str):
-        item = self.getUserFileById(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
 
         for access in item.accesses:
             if type(access) == DepartmentAccess:
@@ -183,5 +183,5 @@ class DataStoreService:
                     break
 
     def get_accesses_for_item(self, user_mail: str, item_id: UUID) -> list[BaseAccess]:
-        item = self.getUserFileById(user_mail, item_id)
+        item = self.get_user_file_by_id(user_mail, item_id)
         return item.accesses

@@ -113,6 +113,7 @@ def add_access_by_url(item_id):
     Result:
         url
     """
+
     view_only = request.args.get('view_only', default=".", type=bool)
 
     try:
