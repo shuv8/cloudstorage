@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from core.department import Department
 from core.user import User
@@ -15,7 +15,7 @@ class UserController:
     def login(self, email: str, password: str):
         return self.user_service.login(email, password)
 
-    def get_all_departments(self, page: int, limit: int):
+    def get_all_departments(self, page: int, limit: int) -> List[Department]:
         return self.user_service.get_all_departments(page, limit)
 
     def add_new_department(self, new_department: Department) -> None:

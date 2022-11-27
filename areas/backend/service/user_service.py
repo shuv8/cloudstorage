@@ -1,5 +1,6 @@
 import bcrypt
 import jwt
+from typing import List
 
 from core.department import Department
 from core.department_manager import DepartmentNotFoundError
@@ -36,7 +37,7 @@ class UserService:
 
         return token, None
 
-    def get_all_departments(self, page: int, limit: int):
+    def get_all_departments(self, page: int, limit: int) -> List[Department]:
         departments = self.user_repo.get_departments()
         output_list = []
         start_index = (page - 1) * limit
@@ -45,7 +46,7 @@ class UserService:
             output_list.append(departments[index])
         return output_list
 
-    def add_new_department(self, new_department: Department):
+    def add_new_department(self, new_department: Department) -> None:
         try:
             self.user_repo.get_department_by_name(new_department.department_name)
             raise AlreadyExistsError

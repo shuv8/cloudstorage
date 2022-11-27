@@ -17,11 +17,11 @@ class UserRepository:
     def get_departments(self) -> List[Department]:
         return self.db.get_department_list()
 
-    def get_department_by_name(self, department_name):
+    def get_department_by_name(self, department_name) -> Department:
         return self.db.get_department_by_name(department_name)
 
-    def add_new_department(self, new_department: Department):
-        return self.db.add_new_department(new_department)
+    def add_new_department(self, new_department: Department) -> None:
+        self.db.add_new_department(new_department)
 
     def delete_department_by_name(self, department_name: str) -> None:
         self.db.delete_department_by_name(department_name)
