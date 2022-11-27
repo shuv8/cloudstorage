@@ -102,7 +102,7 @@ def get_accesses(item_id):
         ), 200
 
     except NotAllowedError:
-        jsonify({'error': 'Not allowed to do this action'}), 401
+        return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
 @USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
@@ -120,7 +120,7 @@ def add_access_by_url(item_id):
         return jsonify({}), 200
 
     except NotAllowedError:
-        jsonify({'error': 'Not allowed to do this action'}), 401
+        return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
 @USER_REQUEST_API.route('/reset_access/<item_id>', methods=['PUT'])
@@ -137,7 +137,7 @@ def remove_access_by_url(item_id):
         return jsonify({}), 200
 
     except NotAllowedError:
-        jsonify({'error': 'Not allowed to do this action'}), 401
+        return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
@@ -161,7 +161,7 @@ def add_access_by_user(item_id, email):
         return jsonify({}), 200
 
     except NotAllowedError:
-        jsonify({'error': 'Not allowed to do this action'}), 401
+        return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['PUT'])
@@ -178,7 +178,7 @@ def remove_access_by_user(item_id, email):
         return jsonify({}), 200
 
     except NotAllowedError:
-        jsonify({'error': 'Not allowed to do this action'}), 401
+        return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
@@ -202,7 +202,7 @@ def add_access_by_department(item_id, department):
         return jsonify({}), 200
 
     except NotAllowedError:
-        jsonify({'error': 'Not allowed to do this action'}), 401
+        return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['PUT'])
@@ -224,4 +224,4 @@ def remove_access_by_department(item_id, department):
         return jsonify({}), 200
 
     except NotAllowedError:
-        jsonify({'error': 'Not allowed to do this action'}), 401
+        return jsonify({'error': 'Not allowed to do this action'}), 401
