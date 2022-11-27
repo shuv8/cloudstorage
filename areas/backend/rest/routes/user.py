@@ -21,12 +21,17 @@ def get_blueprint():
 def registration():
     request_data = request.get_json()
 
-    new_user = User(
-        email=request_data['email'],
-        password=request_data['password'],
-        role=request_data['role'],
-        username=request_data['username']
-    )
+    new_user: Optional[User] = None
+
+    try:
+        new_user = User(
+            email=request_data['email'],
+            password=request_data['password'],
+            role=request_data['role'],
+            username=request_data['username']
+        )
+    except:
+        return jsonify({'error': 'invalid request body'}), 400
 
     err = userController.registration(new_user)
     if err:
@@ -39,8 +44,14 @@ def registration():
 def login():
     request_data = request.get_json()
 
-    email = request_data['email']
-    password = request_data['password']
+    email: Optional[str] = None
+    password: Optional[str] = None
+
+    try:
+        email = request_data['email']
+        password = request_data['password']
+    except:
+        return jsonify({'data': None, 'error': 'invalid request body'}), 400
 
     token, err = userController.login(email, password)
     if err:
