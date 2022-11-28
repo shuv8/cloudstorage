@@ -382,8 +382,7 @@ def move_item(item_id):
     """
     Path:
         - item_id: id of item to move
-    Body:
-        - new_path: new path to item
+        - target_directory: new target directory of item
     """
 
     target_directory = request.args.get('target_directory', type=str)
@@ -433,8 +432,7 @@ def copy_item(item_id):
     """
     Path:
         - item_id: id of item to move
-    Body:
-        - new_path: new path to item
+        - target_directory: new target directory of item
     """
 
     target_directory = request.args.get('target_directory', type=str)
