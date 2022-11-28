@@ -266,7 +266,7 @@ class DataStoreService:
             # TODO для папки
             return [result, item]
         else:
-            return None
+            return [None, None]
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
         user_mail = "test_mail@mail.com"
