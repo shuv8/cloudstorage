@@ -11,7 +11,7 @@ from core.user_manager import UserManager
 from core.user import User
 
 
-class DataBaseTemporaryMock:
+class DataBaseTemporary:
 
     def __init__(self):
         self.user_cloud_space_1_ = UserCloudSpace(
@@ -80,6 +80,9 @@ class DataBaseTemporaryMock:
         }
 
         self.department_manager = DepartmentManager([department_1, department_2])
+
+    def get_user_manager(self):
+        return self.user_manager
 
     def get_department_list(self):
         return self.department_manager.get_departments()

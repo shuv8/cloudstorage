@@ -3,14 +3,21 @@ from typing import List
 from flask import jsonify, request
 from jwt import InvalidTokenError
 
+from app_states_for_test import ScopeTypeEnum
 from core.department import Department
 from core.user import User
 from service.user_service import UserService
 
 
 class UserController:
-    def __init__(self):
-        self.user_service = UserService()
+
+    def __init__(self, server_state):
+        self.server_state = server_state
+        self.user_service = UserService(server_state)
+        self.scope = ScopeTypeEnum.Prod
+
+    def set_scope(self, scope: ScopeTypeEnum):
+        self.user_service.set_scope(scope)
 
     def registration(self, new_user: User) -> None:
         self.user_service.registration(new_user)

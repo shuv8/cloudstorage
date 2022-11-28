@@ -2,31 +2,36 @@ from typing import List
 
 from uuid import UUID
 
+from app_states_for_test import ScopeTypeEnum
 from core.user import User
-from database.directories_mock import DataBaseTemporaryMock
 from core.department import Department
 
 
 class UserRepository:
-    db = DataBaseTemporaryMock()
+    def __init__(self, server_state):
+        self.server_state = server_state
+        self.scope = ScopeTypeEnum.Prod
+
+    def set_scope(self, scope: ScopeTypeEnum):
+        self.scope = scope
 
     def get_user(self, id: UUID) -> User:
-        return self.db.get_user(id)
+        return self.server_state.get_user(id)
 
     def get_user_by_email(self, email: str) -> User:
-        return self.db.get_user_by_email(email)
+        return self.server_state.get_user_by_email(email)
 
     def add_new_user(self, new_user: User) -> None:
-        self.db.add_new_user(new_user)
+        self.server_state.add_new_user(new_user)
 
     def get_departments(self) -> List[Department]:
-        return self.db.get_department_list()
+        return self.server_state.get_department_list()
 
     def get_department_by_name(self, department_name) -> Department:
-        return self.db.get_department_by_name(department_name)
+        return self.server_state.get_department_by_name(department_name)
 
     def add_new_department(self, new_department: Department) -> None:
-        self.db.add_new_department(new_department)
+        self.server_state.add_new_department(new_department)
 
     def delete_department_by_name(self, department_name: str) -> None:
-        self.db.delete_department_by_name(department_name)
+        self.server_state.delete_department_by_name(department_name)

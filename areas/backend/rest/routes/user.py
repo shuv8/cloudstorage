@@ -8,11 +8,12 @@ from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from core.files import File
 from core.user import User
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
+import app_state
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
-dataStoreController = DataStoreController()
-userController = UserController()
+dataStoreController = DataStoreController(app_state.state)
+userController = UserController(app_state.state)
 
 
 def get_blueprint():
@@ -29,8 +30,8 @@ def authentication():
 def reset_core():
     global dataStoreController
     global userController
-    dataStoreController = DataStoreController()
-    userController = UserController()
+    dataStoreController = DataStoreController(app_state.state)
+    userController = UserController(app_state.state)
     print('CORE USER RESET')
     return 'Core reset OK', 200
 
@@ -97,8 +98,10 @@ def search_for():
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     query = request.args.get('query', default=".", type=str)
 
-    items: list[tuple[BaseStorageItem, str]
-    ] = dataStoreController.search_in_cloud(user_mail, query)
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
+    items: list[tuple[BaseStorageItem, str]] = dataStoreController.search_in_cloud(user_mail, query)
     items_content = []
     for (item, path) in items:
         items_content.append(
@@ -176,6 +179,9 @@ def get_accesses(item_id):
         url
     """
     try:
+        scope = request.args.get('scope', default="prod", type=str)
+        dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
         accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(
             item_id) or list()
 
@@ -220,6 +226,9 @@ def set_access_by_url(item_id):
         url
     """
 
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
     view_only = request.args.get('view_only', default="true")
     if view_only == "true":
         view_only_bool: bool = True
@@ -248,6 +257,9 @@ def reset_access_by_url(item_id):
         url
     """
 
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
     try:
         dataStoreController.edit_access(
             item_id, AccessEditTypeEnum.Remove, AccessClassEnum.Url)
@@ -267,6 +279,9 @@ def add_access_by_user(item_id, email):
     Result:
         url
     """
+
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
     view_only = request.args.get('view_only', default="true")
     if view_only == "true":
@@ -299,6 +314,9 @@ def remove_access_by_user(item_id, email):
         url
     """
 
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
     try:
         dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
         return jsonify({}), 200
@@ -317,6 +335,9 @@ def add_access_by_department(item_id, department):
     Result:
         url
     """
+
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
     view_only = request.args.get('view_only', default="true")
     if view_only == "true":
@@ -349,6 +370,9 @@ def remove_access_by_department(item_id, department):
         url
     """
 
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
     try:
         dataStoreController.edit_access(
             item_id,
@@ -371,6 +395,9 @@ def rename_item(item_id):
         - item_id: id of item to rename
     """
 
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
     new_name = request.args.get('new_name', type=str)
     if new_name is not None:
         result = dataStoreController.rename_item('test@mail.ru', item_id, new_name)
@@ -387,8 +414,7 @@ def move_item(item_id):
     """
     Path:
         - item_id: id of item to move
-    Body:
-        - new_path: new path to item
+        - target_directory: new target directory of item
     """
 
     target_directory = request.args.get('target_directory', type=str)
@@ -438,8 +464,7 @@ def copy_item(item_id):
     """
     Path:
         - item_id: id of item to move
-    Body:
-        - new_path: new path to item
+        - target_directory: new target directory of item
     """
 
     target_directory = request.args.get('target_directory', type=str)

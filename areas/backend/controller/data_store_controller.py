@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Optional, BinaryIO
 from uuid import UUID
 
+from app_states_for_test import ScopeTypeEnum
 from core.accesses import BaseAccess
 from core.base_storage_item import BaseStorageItem
 from core.files import File
@@ -23,15 +24,21 @@ class AccessClassEnum(Enum):
 
 class DataStoreController:
 
-    def __init__(self):
-        self.data_store_service = DataStoreService()
-        self.access_service = AccessService()
+    def __init__(self, server_state):
+        self.server_state = server_state
+        self.scope = ScopeTypeEnum.Prod
+        self.data_store_service = DataStoreService(server_state)
+        self.access_service = AccessService(server_state)
 
     """
         ==================
         Data Store Service
         ==================
     """
+
+    def set_scope(self, scope: ScopeTypeEnum):
+        self.access_service.set_scope(scope)
+        self.data_store_service.set_scope(scope)
 
     def search_in_cloud(self, user_mail: str, file_name: str) -> list[tuple[BaseStorageItem, str]]:
         return self.data_store_service.search_in_cloud(user_mail, file_name)
@@ -40,7 +47,8 @@ class DataStoreController:
         return self.data_store_service.rename_item_by_id(item_id=item_id, user_mail=user_mail, new_name=new_name)
 
     def move_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
-        return self.data_store_service.move_item(item_id=item_id, user_mail=user_mail, target_directory_id=target_directory_id)
+        return self.data_store_service.move_item(item_id=item_id, user_mail=user_mail,
+                                                 target_directory_id=target_directory_id)
 
     def get_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         return self.data_store_service.get_user_file_by_id(user_mail, item_id)
@@ -52,7 +60,8 @@ class DataStoreController:
         return self.data_store_service.delete_item(user_mail="test", item_id=item_id)
 
     def copy_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
-        return self.data_store_service.copy_item(item_id=item_id, user_mail=user_mail, target_directory_id=target_directory_id)
+        return self.data_store_service.copy_item(item_id=item_id, user_mail=user_mail,
+                                                 target_directory_id=target_directory_id)
 
     """
         ==============

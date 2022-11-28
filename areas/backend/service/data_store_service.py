@@ -3,6 +3,7 @@ import uuid
 from copy import deepcopy
 from uuid import UUID
 
+from app_states_for_test import ScopeTypeEnum
 from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess
 from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
@@ -16,8 +17,13 @@ import logging
 
 
 class DataStoreService:
-    def __init__(self):
-        self.data_store_storage_repo = DataStoreStorageRepository()
+    def __init__(self, server_state):
+        self.server_state = server_state
+        self.data_store_storage_repo = DataStoreStorageRepository(server_state)
+        self.scope = ScopeTypeEnum.Prod
+
+    def set_scope(self, scope: ScopeTypeEnum):
+        self.data_store_storage_repo.set_scope(scope)
 
     def search_in_cloud(self, user_mail: str, query: str) -> list[tuple[BaseStorageItem, str]]:
         """
@@ -262,7 +268,7 @@ class DataStoreService:
         user_mail = "test_mail@mail.com"
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            result = self.data_store_storage_repo.db.get_file_by_item_id(item.id)
+            result = self.data_store_storage_repo.get_db().get_file_by_item_id(item.id)
             # TODO для папки
             return [result, item]
         else:
