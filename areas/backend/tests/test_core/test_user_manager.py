@@ -1,3 +1,6 @@
+import uuid
+from uuid import UUID
+
 import pytest
 
 from core.user import User
@@ -15,7 +18,7 @@ def user():
 
 @pytest.fixture()
 def user_manager():
-    return UserManager()
+    return UserManager(users=None)
 
 
 class TestUserManager:
@@ -37,10 +40,11 @@ class TestUserManager:
 
     def test_get_user(self, user_manager, user):
         user_manager.add_user(user)
-        assert user_manager.get_user(user.email) == user
+        assert user_manager.get_user(user.get_id()) == user
         assert user_manager.get_user_by_email(user.email) == user
 
-        assert user_manager.get_user("asd@asd.asd") is None
+        with pytest.raises(UserNotFoundError):
+            new_user = user_manager.get_user(uuid.uuid4())
 
         with pytest.raises(TypeError):
             user_manager.get_user(42)

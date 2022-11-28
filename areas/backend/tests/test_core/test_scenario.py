@@ -31,7 +31,7 @@ def admin():
 
 @pytest.fixture()
 def user_manager():
-    return UserManager()
+    return UserManager(users=None)
 
 
 @pytest.fixture()

@@ -795,9 +795,6 @@
       },
       "access": {
         "properties": {
-          "level": {
-            "type": "string"
-          },
           "class": {
             "type": "string"
           },

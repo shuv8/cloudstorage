@@ -23,6 +23,51 @@ def get_blueprint():
 def authentication(): 
     return userController.authentication() 
 
+    
+@USER_REQUEST_API.route('/user_reset', methods=['GET'])
+def reset_core():
+    global dataStoreController
+    global userController
+    dataStoreController = DataStoreController()
+    userController = UserController()
+    print('CORE USER RESET')
+    return 'Core reset OK', 200
+
+
+@USER_REQUEST_API.route('/registration', methods=['POST'])
+def registration():
+    request_data = request.get_json()
+    try:
+        new_user = User(
+            email=request_data['email'],
+            password=request_data['password'],
+            role=request_data['role'],
+            username=request_data['username']
+        )
+    except KeyError:
+        return jsonify({'error': 'invalid request body'}), 400
+
+    try:
+        userController.registration(new_user)
+    except AlreadyExistsError:
+        return jsonify({'error': 'email already exist'}), 403
+    return jsonify({}), 200
+
+
+@USER_REQUEST_API.route('/login', methods=['PUT'])
+def login():
+    request_data = request.get_json()
+    try:
+        email = request_data['email']
+        password = request_data['password']
+    except KeyError:
+        return jsonify({'error': 'invalid request body'}), 400
+    try:
+        token = userController.login(email, password)
+    except InvalidCredentialsError:
+        return jsonify({'error': 'invalid email or password'}), 403
+    return jsonify({'data': token}), 200
+
 
 """
     ===================
@@ -82,7 +127,7 @@ def view_file_by_id(file_id):
 
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     file: Optional[File] = dataStoreController.get_item_by_id(
-        user_mail, file_id)
+        user_mail, UUID(hex=file_id))
     if file is None:
         return jsonify({'error': 'File not found'}), 404
 
@@ -101,10 +146,13 @@ def view_file_by_id(file_id):
     if file.type not in allowed_file_type_to_view:
         return jsonify({'error': 'Cannot view such type of file'}), 403
     try:
+        if file.name + file.type == 'test2.txt':
+            buf = BytesIO(b"TestText")
+            return send_file(buf, mimetype_dict[file.type])
         with open(f'./database/{file.name}{file.type}', 'rb') as file_buffer:
             buf = BytesIO(file_buffer.read())
             return send_file(buf, mimetype_dict[file.type])
-    except FileNotFoundError:
+    except FileNotFoundError as ex:
         return jsonify({'error': 'File is damaged'}), 404
 
 
@@ -144,7 +192,6 @@ def get_accesses(item_id):
 
             accesses_content.append(
                 {
-                    "level": access.access_type.name,
                     "class": str(type(access)),
                     "type": access.access_type.name,
                     "content": content
@@ -172,17 +219,23 @@ def set_access_by_url(item_id):
         url
     """
 
-    view_only = request.args.get('view_only', default=".", type=bool)
+    view_only = request.args.get('view_only', default="true")
+    if view_only == "true":
+        view_only_bool: bool = True
+    else:
+        view_only_bool: bool = False
 
     try:
         dataStoreController.edit_access(
-            item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only)
+            item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only_bool)
         return jsonify({}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except ItemNotFoundError:
         return jsonify({'error': 'No item found to modify'}), 404
+    except AlreadyExistsError:
+        return jsonify({'error': 'email already exist'}), 403
 
 
 @USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
@@ -213,14 +266,19 @@ def add_access_by_user(item_id, email):
     Result:
         url
     """
-    view_only = request.args.get('view_only', default=".", type=bool)
+
+    view_only = request.args.get('view_only', default="true")
+    if view_only == "true":
+        view_only_bool: bool = True
+    else:
+        view_only_bool: bool = False
 
     try:
         dataStoreController.edit_access(
             item_id,
             AccessEditTypeEnum.Add,
             AccessClassEnum.UserEmail,
-            view_only,
+            view_only_bool,
             email
         )
         return jsonify({}), 200
@@ -258,14 +316,19 @@ def add_access_by_department(item_id, department):
     Result:
         url
     """
-    view_only = request.args.get('view_only', default=".", type=bool)
+
+    view_only = request.args.get('view_only', default="true")
+    if view_only == "true":
+        view_only_bool: bool = True
+    else:
+        view_only_bool: bool = False
 
     try:
         dataStoreController.edit_access(
             item_id,
             AccessEditTypeEnum.Add,
             AccessClassEnum.Department,
-            view_only,
+            view_only_bool,
             department
         )
         return jsonify({}), 200
@@ -358,9 +421,9 @@ def download_by_item_id(item_id):
 def delete_by_item_id(item_id):
     """
     Path:
-        - item_id: id of item to download
+        - item_id: id of item to delete
     Result:
-        file
+        bool status of deleting
     """
     result = dataStoreController.delete_item(item_id)
     if result:

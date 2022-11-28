@@ -9,7 +9,7 @@ from core.directory import Directory
 from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
-from exceptions.exceptions import ItemNotFoundError
+from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
 import logging
@@ -151,7 +151,7 @@ class DataStoreService:
 
         for access in item.accesses:
             if type(access) == UrlAccess:
-                return
+                raise AlreadyExistsError
 
         item.add_access(new_access)
 
@@ -266,7 +266,7 @@ class DataStoreService:
             # TODO для папки
             return [result, item]
         else:
-            return None
+            return [None, None]
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
         user_mail = "test_mail@mail.com"

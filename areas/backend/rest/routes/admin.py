@@ -23,6 +23,16 @@ def authentication():
     return userController.authentication() 
 
 
+@ADMIN_REQUEST_API.route('/admin_reset', methods=['GET'])
+def reset_core():
+    global dataStoreController
+    global userController
+    dataStoreController = DataStoreController()
+    userController = UserController()
+    print('CORE ADMIN RESET')
+    return 'Core reset OK', 200
+
+
 """
     ===================
     Block with Department
@@ -68,7 +78,7 @@ def add_new_department():
     try:
         new_department = Department(department_name=request_data['department_name'], users=None)
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
 
     try:
         userController.add_new_department(new_department)
@@ -92,7 +102,7 @@ def delete_department():
     try:
         new_department = Department(department_name=request_data['department_name'], users=None)
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
 
     try:
         userController.delete_department_by_name(new_department.department_name)

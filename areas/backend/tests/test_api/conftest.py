@@ -20,6 +20,14 @@ def api_log_client():
     return APIClient(base_url=f'http://{app_host}:{app_port}', log_file=logs_path)
 
 
+@pytest.fixture(scope='function', autouse=True)
+def reset_core(api_log_client):
+    response = api_log_client._request('GET', f'http://{app_host}:{app_port}' + '/user_reset')
+    assert response.status_code == 200
+    response = api_log_client._request('GET', f'http://{app_host}:{app_port}' + '/admin_reset')
+    assert response.status_code == 200
+
+
 def wait_ready(host, port):
     started = False
     st = time.time()
@@ -36,8 +44,8 @@ def wait_ready(host, port):
 
 def pytest_configure(config):
     if not hasattr(config, 'workerinput'):
-        app_stderr_path = os.path.join(repo_root, 'tmp', 'app_stderr')
-        app_stdout_path = os.path.join(repo_root, 'tmp', 'app_stdout')
+        app_stderr_path = os.path.join(repo_root, 'tmp', 'app_stderr.txt')
+        app_stdout_path = os.path.join(repo_root, 'tmp', 'app_stdout.txt')
         app_stderr = open(app_stderr_path, 'w')
         app_stdout = open(app_stdout_path, 'w')
         env = os.environ.copy()
