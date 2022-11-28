@@ -19,7 +19,8 @@ def get_blueprint():
 
 
 @ADMIN_REQUEST_API.before_request
-def authentication(): userController.authentication() 
+def authentication(): 
+    return userController.authentication() 
 
 
 """
