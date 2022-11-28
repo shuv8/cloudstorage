@@ -92,13 +92,13 @@ class DataStoreService:
 
     @private
     def get_item_in_directory_by_id(self, directory: Directory, id_: UUID) -> Optional[BaseStorageItem]:
-        if directory.id == id_:
+        if str(directory.id) == str(id_):
             return directory
 
         directory_manager = directory.directory_manager
 
         for directory_ in directory_manager.items:
-            if directory_.id == id_:
+            if str(directory_.id) == str(id_):
                 return directory_
             item = self.get_item_in_directory_by_id(directory=directory_, id_=id_, )
             if item is not None:
@@ -117,7 +117,7 @@ class DataStoreService:
             id_: UUID
     ) -> Optional[BaseStorageItem]:
         for file in file_manager.items:
-            if file.id == id_:
+            if str(file.id) == str(id_):
                 return file
         return None
 
