@@ -73,7 +73,7 @@ def add_new_department():
     try:
         new_department = Department(department_name=request_data['department_name'], users=None)
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
 
     try:
         userController.add_new_department(new_department)
@@ -97,7 +97,7 @@ def delete_department():
     try:
         new_department = Department(department_name=request_data['department_name'], users=None)
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
 
     try:
         userController.delete_department_by_name(new_department.department_name)
