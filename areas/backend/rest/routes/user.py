@@ -396,9 +396,9 @@ def download_by_item_id(item_id):
 def delete_by_item_id(item_id):
     """
     Path:
-        - item_id: id of item to download
+        - item_id: id of item to delete
     Result:
-        file
+        bool status of deleting
     """
     result = dataStoreController.delete_item(item_id)
     if result:
