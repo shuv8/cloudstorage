@@ -20,6 +20,16 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
+@USER_REQUEST_API.route('/user_reset', methods=['GET'])
+def reset_core():
+    global dataStoreController
+    global userController
+    dataStoreController = DataStoreController()
+    userController = UserController()
+    print('CORE USER RESET')
+    return 'Core reset OK', 200
+
+
 @USER_REQUEST_API.route('/registration', methods=['POST'])
 def registration():
     request_data = request.get_json()

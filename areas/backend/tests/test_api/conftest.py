@@ -20,6 +20,14 @@ def api_log_client():
     return APIClient(base_url=f'http://{app_host}:{app_port}', log_file=logs_path)
 
 
+@pytest.fixture(scope='function', autouse=True)
+def reset_core(api_log_client):
+    response = api_log_client._request('GET', f'http://{app_host}:{app_port}' + '/user_reset')
+    assert response.status_code == 200
+    response = api_log_client._request('GET', f'http://{app_host}:{app_port}' + '/admin_reset')
+    assert response.status_code == 200
+
+
 def wait_ready(host, port):
     started = False
     st = time.time()
