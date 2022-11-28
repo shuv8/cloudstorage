@@ -52,6 +52,8 @@ class DataBaseTemporaryMock:
              _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71'),
         File(name="test", _type=".txt",
              _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
+        File(name="test2", _type=".txt",
+             _id='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'),
     ]
 
     user_cloud_space_2_.get_directory_manager().items = [
@@ -60,7 +62,9 @@ class DataBaseTemporaryMock:
 
     users = {
         "bb01bafc-21f1-4af8-89f9-79aa0de840c8": user_1_,
-        "5786c9ba-776f-4d53-804b-e5f87a01ec1f": user_2_
+        "5786c9ba-776f-4d53-804b-e5f87a01ec1f": user_2_,
+        user_1_.email: user_1_,
+        user_2_.email: user_2_
     }
 
     user_manager = UserManager([user_1_, user_2_])

@@ -1,107 +1,154 @@
-2022-11-28 19:39:33.215292
+2022-11-28 21:48:23.669926
 [REQUEST]:
 	Method - DELETE
 	URL - http://127.0.0.1:5000/delete/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72
 	Body - None
 [RESPONSE]:
 	Response code - 200
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '21', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '21', 'Connection': 'close'}
 	Body - {"delete":"success"}
 
 
 
-2022-11-28 19:39:33.219603
+2022-11-28 21:48:23.675968
 [REQUEST]:
 	Method - DELETE
 	URL - http://127.0.0.1:5000/delete/xyz9cd7f-9ffd-42b0-bce4-eb14b51n1jn1
 	Body - None
 [RESPONSE]:
 	Response code - 200
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '21', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '21', 'Connection': 'close'}
 	Body - {"delete":"success"}
 
 
 
-2022-11-28 19:39:33.223592
+2022-11-28 21:48:23.681969
 [REQUEST]:
 	Method - DELETE
 	URL - http://127.0.0.1:5000/delete/aaa
 	Body - None
 [RESPONSE]:
 	Response code - 400
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '32', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '32', 'Connection': 'close'}
 	Body - {"error":"Wrong try to delete"}
 
 
 
-2022-11-28 19:39:33.266480
+2022-11-28 21:48:23.874930
 [REQUEST]:
 	Method - GET
 	URL - http://127.0.0.1:5000/download/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71
 	Body - None
 [RESPONSE]:
 	Response code - 200
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT, Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Disposition': 'attachment; filename=image.png', 'Content-Type': 'image/png', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT, Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Disposition': 'attachment; filename=image.png', 'Content-Type': 'image/png', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked', 'Connection': 'close'}
 	Body - 
 
 
-2022-11-28 19:39:33.270774
+2022-11-28 21:48:23.880968
 [REQUEST]:
 	Method - GET
 	URL - http://127.0.0.1:5000/download/aaa
 	Body - None
 [RESPONSE]:
 	Response code - 400
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '38', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '38', 'Connection': 'close'}
 	Body - {"error":"No such fail or directory"}
 
 
 
-2022-11-28 19:39:33.274797
+2022-11-28 21:48:23.887931
 [REQUEST]:
 	Method - PUT
 	URL - http://127.0.0.1:5000/rename/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71?new_name=test_name
 	Body - None
 [RESPONSE]:
 	Response code - 200
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '25', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '25', 'Connection': 'close'}
 	Body - {"new_name":"test_name"}
 
 
 
-2022-11-28 19:39:33.279718
+2022-11-28 21:48:23.893926
 [REQUEST]:
 	Method - PUT
 	URL - http://127.0.0.1:5000/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51n1jn1?new_name=test_name
 	Body - None
 [RESPONSE]:
 	Response code - 200
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '25', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '25', 'Connection': 'close'}
 	Body - {"new_name":"test_name"}
 
 
 
-2022-11-28 19:39:33.283679
+2022-11-28 21:48:23.899925
 [REQUEST]:
 	Method - PUT
 	URL - http://127.0.0.1:5000/rename/aaa?new_name=test_name
 	Body - None
 [RESPONSE]:
 	Response code - 404
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '28', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '28', 'Connection': 'close'}
 	Body - {"error":"Can't find item"}
 
 
 
-2022-11-28 19:39:33.286670
+2022-11-28 21:48:23.903925
 [REQUEST]:
 	Method - PUT
 	URL - http://127.0.0.1:5000/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51n1jn1?wrong_param=test_name
 	Body - None
 [RESPONSE]:
 	Response code - 400
-	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.11.0', 'Date': 'Mon, 28 Nov 2022 16:39:33 GMT', 'Content-Type': 'application/json', 'Content-Length': '66', 'Connection': 'close'}
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '66', 'Connection': 'close'}
 	Body - {"error":"No new name presented. Use query parameter 'new_name'"}
 
+
+
+2022-11-28 21:48:23.909926
+[REQUEST]:
+	Method - GET
+	URL - http://127.0.0.1:5000/file/abd9cd7f-9ffd-42b0-b2d4-eb14b51a6d73/view
+	Body - None
+[RESPONSE]:
+	Response code - 404
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '27', 'Connection': 'close'}
+	Body - {"error":"File not found"}
+
+
+
+2022-11-28 21:48:23.915926
+[REQUEST]:
+	Method - GET
+	URL - http://127.0.0.1:5000/file/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/view
+	Body - None
+[RESPONSE]:
+	Response code - 403
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '42', 'Connection': 'close'}
+	Body - {"error":"Cannot view such type of file"}
+
+
+
+2022-11-28 21:48:23.922927
+[REQUEST]:
+	Method - GET
+	URL - http://127.0.0.1:5000/file/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71/view
+	Body - None
+[RESPONSE]:
+	Response code - 404
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '28', 'Connection': 'close'}
+	Body - {"error":"File is damaged"}
+
+
+
+2022-11-28 21:48:23.928968
+[REQUEST]:
+	Method - GET
+	URL - http://127.0.0.1:5000/file/abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72/view
+	Body - None
+[RESPONSE]:
+	Response code - 200
+	Headers - {'Server': 'Werkzeug/2.2.2 Python/3.9.6', 'Date': 'Mon, 28 Nov 2022 18:48:23 GMT, Mon, 28 Nov 2022 18:48:23 GMT', 'Content-Type': 'text/plain; charset=utf-8', 'Content-Length': '8', 'Cache-Control': 'no-cache', 'Connection': 'close'}
+	Body - TestText
 
 
