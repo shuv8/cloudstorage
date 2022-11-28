@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from uuid import UUID, uuid4
 
 from core.role import Role
 from core.space_manager import SpaceManager
@@ -15,16 +16,21 @@ class User:
             email: Optional[str],
             password: Optional[str],
             username: Optional[str],
+            _id: UUID = uuid4(),
             role: Role = Role.Client,
             space_manager: Optional[SpaceManager] = None,
             _department_manager: Optional[department_manager.DepartmentManager] = None
     ):
+        self.__id: UUID = _id
         self.__email: str = email
         self.__password: str = password
         self.__username: str = username
         self.__role: Role = role
         self.__space_manager: SpaceManager = space_manager or SpaceManager(spaces=None)
         self.__department_manager: department_manager.DepartmentManager = _department_manager
+
+    def get_id(self) -> UUID:
+        return self.__id
 
     def get_email(self) -> str:
         return self.__email

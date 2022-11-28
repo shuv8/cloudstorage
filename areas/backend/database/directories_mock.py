@@ -1,24 +1,24 @@
-from typing import BinaryIO, Optional
-import uuid
-from uuid import UUID
+from typing import BinaryIO
+from uuid import UUID, uuid4
 
 from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
-from core.user import User
 from core.user_cloud_space import UserCloudSpace, SpaceType
 from core.department_manager import DepartmentManager
 from core.department import Department
+from core.user_manager import UserManager
+from core.user import User
 
 
 class DataBaseTemporaryMock:
     user_cloud_space_1_ = UserCloudSpace(
-        _id=uuid.uuid4(),
+        _id=uuid4(),
         space_type=SpaceType.Regular
     )
 
     user_cloud_space_2_ = UserCloudSpace(
-        _id=uuid.uuid4(),
+        _id=uuid4(),
         space_type=SpaceType.Shared
     )
 
@@ -59,9 +59,11 @@ class DataBaseTemporaryMock:
     ]
 
     users = {
-        "test_mail@mail.com": user_1_,
-        "test2_mail@mail.com": user_2_
+        "bb01bafc-21f1-4af8-89f9-79aa0de840c8": user_1_,
+        "5786c9ba-776f-4d53-804b-e5f87a01ec1f": user_2_
     }
+
+    user_manager = UserManager([user_1_, user_2_])
 
     department_1 = Department('Test_department_1', [user_1_, user_2_])
     department_2 = Department('Test_department_2', None)
@@ -89,14 +91,15 @@ class DataBaseTemporaryMock:
     def get_space_by_user_mail(self, mail: str) -> SpaceManager:
         return self.users[mail].space_manager
 
-    def create_user(self, new_user: User):
-        self.users[new_user.email] = new_user
+    def add_new_user(self, new_user: User):
+        self.user_manager.add_user(new_user)
+        self.users[new_user.get_id()] = new_user
 
-    def get_user_by_email(self, email: str) -> Optional[User]:
-        if email in self.users:
-            return self.users[email]
+    def get_user(self, id: UUID):
+        return self.user_manager.get_user(id)
 
-        return None
+    def get_user_by_email(self, email: str):
+        return self.user_manager.get_user_by_email(email)
 
     @staticmethod
     def get_file_by_item_id(item_id: UUID) -> BinaryIO:

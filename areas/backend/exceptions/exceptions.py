@@ -8,3 +8,6 @@ class ItemNotFoundError(Exception):
 
 class AlreadyExistsError(Exception):
     pass
+
+class InvalidCredentialsError(Exception):
+    pass
