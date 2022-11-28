@@ -6,6 +6,7 @@ from io import BytesIO
 from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from core.files import File
+from core.user import User
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
