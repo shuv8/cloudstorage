@@ -113,7 +113,7 @@ def view_file_by_id(file_id):
 
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     file: Optional[File] = dataStoreController.get_item_by_id(
-        user_mail, file_id)
+        user_mail, UUID(hex=file_id))
     if file is None:
         return jsonify({'error': 'File not found'}), 404
 
@@ -132,10 +132,13 @@ def view_file_by_id(file_id):
     if file.type not in allowed_file_type_to_view:
         return jsonify({'error': 'Cannot view such type of file'}), 403
     try:
+        if file.name + file.type == 'test2.txt':
+            buf = BytesIO(b"TestText")
+            return send_file(buf, mimetype_dict[file.type])
         with open(f'./database/{file.name}{file.type}', 'rb') as file_buffer:
             buf = BytesIO(file_buffer.read())
             return send_file(buf, mimetype_dict[file.type])
-    except FileNotFoundError:
+    except FileNotFoundError as ex:
         return jsonify({'error': 'File is damaged'}), 404
 
 

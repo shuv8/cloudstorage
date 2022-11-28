@@ -36,8 +36,8 @@ def wait_ready(host, port):
 
 def pytest_configure(config):
     if not hasattr(config, 'workerinput'):
-        app_stderr_path = os.path.join(repo_root, 'tmp', 'app_stderr')
-        app_stdout_path = os.path.join(repo_root, 'tmp', 'app_stdout')
+        app_stderr_path = os.path.join(repo_root, 'tmp', 'app_stderr.txt')
+        app_stdout_path = os.path.join(repo_root, 'tmp', 'app_stdout.txt')
         app_stderr = open(app_stderr_path, 'w')
         app_stdout = open(app_stdout_path, 'w')
         env = os.environ.copy()
