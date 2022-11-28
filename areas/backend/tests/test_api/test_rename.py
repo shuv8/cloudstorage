@@ -7,7 +7,7 @@ class TestRename:
 
     def test_rename_file(self, api_log_client):
         response = api_log_client._request('PUT', url + f'/rename/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'
-                                                        f'?new_name=test_name')
+                                                        f'?new_name=test_name&&scope=separate')
         assert response.status_code == 200
         assert response.text == '{"new_name":"test_name"}\n'
 

@@ -6,11 +6,12 @@ from controller.user_controller import UserController
 from core.department import Department
 from exceptions.exceptions import AlreadyExistsError
 from core.department_manager import DepartmentNotFoundError
+import app_state
 
 ADMIN_REQUEST_API = Blueprint('request_admin_api', __name__)
 
-dataStoreController = DataStoreController()
-userController = UserController()
+dataStoreController = DataStoreController(app_state.state)
+userController = UserController(app_state.state)
 
 
 def get_blueprint():
@@ -22,8 +23,8 @@ def get_blueprint():
 def reset_core():
     global dataStoreController
     global userController
-    dataStoreController = DataStoreController()
-    userController = UserController()
+    dataStoreController = DataStoreController(app_state.state)
+    userController = UserController(app_state.state)
     print('CORE ADMIN RESET')
     return 'Core reset OK', 200
 

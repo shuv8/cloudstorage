@@ -5,7 +5,7 @@ import pytest
 url = f'http://127.0.0.1:5000'
 
 
-class TestRename:
+class TestAccesses:
 
     @pytest.mark.order1
     def test_get_access(self, api_log_client):

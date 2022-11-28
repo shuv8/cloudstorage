@@ -7,7 +7,7 @@ import requests
 
 class APIClient:
 
-    def __init__(self, base_url: Optional[str],  log_file: str):
+    def __init__(self, base_url: Optional[str], log_file: str):
         self.base_url = base_url
         self.log_file = open(log_file, 'w')
 
