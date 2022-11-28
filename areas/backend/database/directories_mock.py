@@ -12,72 +12,74 @@ from core.user import User
 
 
 class DataBaseTemporaryMock:
-    user_cloud_space_1_ = UserCloudSpace(
-        _id=uuid4(),
-        space_type=SpaceType.Regular
-    )
 
-    user_cloud_space_2_ = UserCloudSpace(
-        _id=uuid4(),
-        space_type=SpaceType.Shared
-    )
+    def __init__(self):
+        self.user_cloud_space_1_ = UserCloudSpace(
+            _id=uuid4(),
+            space_type=SpaceType.Regular
+        )
 
-    space_manager_ = SpaceManager(
-        spaces=[user_cloud_space_1_, user_cloud_space_2_]
-    )
+        self.user_cloud_space_2_ = UserCloudSpace(
+            _id=uuid4(),
+            space_type=SpaceType.Shared
+        )
 
-    user_1_ = User(
-        email="test_mail@mail.com",
-        password="password",
-        username="username",
-        space_manager=space_manager_
-    )
+        self.space_manager_ = SpaceManager(
+            spaces=[self.user_cloud_space_1_, self.user_cloud_space_2_]
+        )
 
-    user_2_ = User(
-        email="test2_mail@mail.com",
-        password="password",
-        username="username",
-    )
+        self.user_1_ = User(
+            email="test_mail@mail.com",
+            password="password",
+            username="username",
+            space_manager=self.space_manager_
+        )
 
-    user_cloud_space_1_.get_directory_manager().items = [
-        Directory(name="wow", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51n1jn1'),
-        Directory(name='second', _id='xyz9cd7f-9ffd-42b0-bce4-eb14b51n1jn1')
-    ]
+        self.user_2_ = User(
+            email="test2_mail@mail.com",
+            password="password",
+            username="username",
+        )
 
-    user_cloud_space_1_.get_directory_manager().file_manager.items = [
-        File(name="wow3", _type=".type",
-             _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
-        File(name="test6", _type=".e"),
-        File(name="image", _type=".png",
-             _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71'),
-        File(name="test", _type=".txt",
-             _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
-        File(name="test2", _type=".txt",
-             _id='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'),
-    ]
+        self.user_cloud_space_1_.get_directory_manager().items = [
+            Directory(name="wow", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51n1jn1'),
+            Directory(name='second', _id='xyz9cd7f-9ffd-42b0-bce4-eb14b51n1jn1')
+        ]
 
-    user_cloud_space_2_.get_directory_manager().items = [
-        Directory(name="test1")
-    ]
+        self.user_cloud_space_1_.get_directory_manager().file_manager.items = [
+            File(name="wow3", _type=".type",
+                 _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
+            File(name="test6", _type=".e"),
+            File(name="image", _type=".png",
+                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71'),
+            File(name="test", _type=".txt",
+                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
+            File(name="test2", _type=".txt",
+                 _id='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'),
+        ]
 
-    users = {
-        "bb01bafc-21f1-4af8-89f9-79aa0de840c8": user_1_,
-        "5786c9ba-776f-4d53-804b-e5f87a01ec1f": user_2_,
-        user_1_.email: user_1_,
-        user_2_.email: user_2_
-    }
+        self.user_cloud_space_2_.get_directory_manager().items = [
+            Directory(name="test1")
+        ]
 
-    user_manager = UserManager([user_1_, user_2_])
+        self.users = {
+            "bb01bafc-21f1-4af8-89f9-79aa0de840c8": self.user_1_,
+            "5786c9ba-776f-4d53-804b-e5f87a01ec1f": self.user_2_,
+            self.user_1_.email: self.user_1_,
+            self.user_2_.email: self.user_2_
+        }
 
-    department_1 = Department('Test_department_1', [user_1_, user_2_])
-    department_2 = Department('Test_department_2', None)
+        self.user_manager = UserManager([self.user_1_, self.user_2_])
 
-    departments = {
-        "Test_department_1": department_1,
-        "Test_department_2": department_2
-    }
+        department_1 = Department('Test_department_1', [self.user_1_, self.user_2_])
+        department_2 = Department('Test_department_2', None)
 
-    department_manager = DepartmentManager([department_1, department_2])
+        self.departments = {
+            "Test_department_1": department_1,
+            "Test_department_2": department_2
+        }
+
+        self.department_manager = DepartmentManager([department_1, department_2])
 
     def get_department_list(self):
         return self.department_manager.get_departments()
