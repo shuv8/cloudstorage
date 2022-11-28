@@ -1,12 +1,11 @@
 from flask import Flask, make_response, jsonify
 from flask_swagger_ui import get_swaggerui_blueprint
 
-from rest.routes import auth, user, admin
 import app_state
 
 app_state.init_state()
 
-from rest.routes import user, admin
+from rest.routes import auth, user, admin
 
 app = Flask(__name__)
 

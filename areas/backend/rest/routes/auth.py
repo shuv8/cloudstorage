@@ -4,16 +4,18 @@ from controller.data_store_controller import DataStoreController
 from controller.user_controller import UserController
 from core.user import User
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
+import app_state
 
-
-dataStoreController = DataStoreController()
-userController = UserController()
+dataStoreController = DataStoreController(app_state.state)
+userController = UserController(app_state.state)
 
 AUTH_REQUEST_API = Blueprint('request_auth_api', __name__)
+
 
 def get_blueprint():
     """Return the blueprint for the main app module"""
     return AUTH_REQUEST_API
+
 
 @AUTH_REQUEST_API.route('/registration', methods=['POST'])
 def registration():
@@ -31,7 +33,7 @@ def registration():
     try:
         userController.registration(new_user)
     except AlreadyExistsError:
-        return jsonify({'error': 'email already exist'}), 403 
+        return jsonify({'error': 'email already exist'}), 403
     return jsonify({}), 200
 
 

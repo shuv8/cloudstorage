@@ -182,8 +182,7 @@ def get_accesses(item_id):
         scope = request.args.get('scope', default="prod", type=str)
         dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
-        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(
-            item_id) or list()
+        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(item_id) or list()
 
         accesses_content = []
         for access in accesses:
