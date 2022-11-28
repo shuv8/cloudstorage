@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List
 
 from core.department import Department
 from core.user import User
@@ -9,10 +9,10 @@ class UserController:
     def __init__(self):
         self.user_service = UserService()
 
-    def registration(self, new_user: User) -> Optional[str]:
-        return self.user_service.registration(new_user)
+    def registration(self, new_user: User) -> None:
+        self.user_service.registration(new_user)
 
-    def login(self, email: str, password: str):
+    def login(self, email: str, password: str) -> str:
         return self.user_service.login(email, password)
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:

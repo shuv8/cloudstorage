@@ -7,6 +7,7 @@ from io import BytesIO
 from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from core.files import File
+from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -22,9 +23,6 @@ def get_blueprint():
 @USER_REQUEST_API.route('/registration', methods=['POST'])
 def registration():
     request_data = request.get_json()
-
-    new_user: Optional[User] = None
-
     try:
         new_user = User(
             email=request_data['email'],
@@ -32,34 +30,29 @@ def registration():
             role=request_data['role'],
             username=request_data['username']
         )
-    except:
+    except KeyError:
         return jsonify({'error': 'invalid request body'}), 400
 
-    err = userController.registration(new_user)
-    if err:
-        return jsonify({'error': err}), 400
-
-    return jsonify({'error': None}), 200
+    try:
+        userController.registration(new_user)
+    except AlreadyExistsError:
+        return jsonify({'error': 'email already exist'}), 403 
+    return jsonify({}), 200
 
 
 @USER_REQUEST_API.route('/login', methods=['PUT'])
 def login():
     request_data = request.get_json()
-
-    email: Optional[str] = None
-    password: Optional[str] = None
-
     try:
         email = request_data['email']
         password = request_data['password']
-    except:
-        return jsonify({'data': None, 'error': 'invalid request body'}), 400
-
-    token, err = userController.login(email, password)
-    if err:
-        return jsonify({'data': None, 'error': err}), 400
-
-    return jsonify({'data': token, 'error': None}), 200
+    except KeyError:
+        return jsonify({'error': 'invalid request body'}), 400
+    try:
+        token = userController.login(email, password)
+    except InvalidCredentialsError:
+        return jsonify({'error': 'invalid email or password'}), 403
+    return jsonify({'data': token}), 200
 
 
 """

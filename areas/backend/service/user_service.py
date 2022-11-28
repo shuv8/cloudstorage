@@ -1,10 +1,12 @@
-import bcrypt
-import jwt
 from typing import List
+
+from bcrypt import checkpw, gensalt, hashpw
+from jwt import encode
 
 from core.department import Department
 from core.department_manager import DepartmentNotFoundError
-from exceptions.exceptions import AlreadyExistsError
+from core.user_manager import UserNotFoundError
+from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
 from core.user import User
 from repository.user_storage_repository import UserRepository
 
@@ -13,29 +15,28 @@ class UserService:
     def __init__(self):
         self.user_repo = UserRepository()
 
-    def registration(self, new_user: User):
-        if self.user_repo.get_user_by_email(new_user.email):
-            return "email already exist"
+    def registration(self, new_user: User) -> None:
+        try:
+            self.user_repo.get_user_by_email(new_user.email)
+            raise AlreadyExistsError
+        except UserNotFoundError:
+            hash = hashpw(
+                str(new_user.password).encode(), gensalt()
+            )
+            new_user.password = hash.decode()
+            self.user_repo.add_new_user(new_user)
 
-        salt = bcrypt.gensalt()
-        new_user.password = bcrypt.hashpw(
-            new_user.password.encode(), salt).decode()
-
-        return self.user_repo.create_user(new_user)
-
-    def login(self, email: str, password: str):
-        user = self.user_repo.get_user_by_email(email)
-
-        if not user:
-            return None, "incorrect email or password"
-
-        if not bcrypt.checkpw(password.encode(), user.password.encode()):
-            return None, "incorrect email or password"
-
-        token = jwt.encode({"email": user.email, "hash": user.password},
-                           "SUPER-SECRET-KEY", algorithm="HS256")  # TODO: get secret from env
-
-        return token, None
+    def login(self, email: str, password: str) -> str:
+        try:
+            user = self.user_repo.get_user_by_email(email)
+            print(user.email)
+            if checkpw(password.encode(), str(user.password).encode()) is False:
+                raise InvalidCredentialsError
+            # TODO: get secret from env
+            token = encode({"id": str(user.get_id())}, "SUPER-SECRET-KEY", algorithm="HS256")  
+            return token
+        except UserNotFoundError:
+            raise InvalidCredentialsError
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
         departments = self.user_repo.get_departments()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
+from uuid import UUID
 
 from core import user
 
@@ -10,8 +11,8 @@ class UserNotFoundError(Exception):
 
 
 class UserManager:
-    def __init__(self):
-        self.__users: List[user.User] = []
+    def __init__(self, users: Optional[List[user.User]]):
+        self.__users = users or list()
 
     def get_users(self) -> list:
         return self.__users
@@ -30,11 +31,12 @@ class UserManager:
         else:
             raise TypeError
 
-    def get_user(self, email: str) -> user.User:
-        if isinstance(email, str):
-            for i in range(len(self.__users)):
-                if self.__users[i].get_email() == email:
-                    return self.__users[i]
+    def get_user(self, id: UUID) -> user.User:
+        if isinstance(id, UUID):
+            for user_ in self.__users:
+                if user_.get_id() == id:
+                    return user_
+            raise UserNotFoundError
         else:
             raise TypeError
 

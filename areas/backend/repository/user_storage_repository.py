@@ -1,4 +1,6 @@
-from typing import Optional, List
+from typing import List
+
+from uuid import UUID
 
 from core.user import User
 from database.directories_mock import DataBaseTemporaryMock
@@ -8,11 +10,14 @@ from core.department import Department
 class UserRepository:
     db = DataBaseTemporaryMock()
 
-    def create_user(self, new_user: User):
-        self.db.create_user(new_user)
+    def get_user(self, id: UUID) -> User:
+        return self.db.get_user(id)
 
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    def get_user_by_email(self, email: str) -> User:
         return self.db.get_user_by_email(email)
+
+    def add_new_user(self, new_user: User) -> None:
+        self.db.add_new_user(new_user)
 
     def get_departments(self) -> List[Department]:
         return self.db.get_department_list()
