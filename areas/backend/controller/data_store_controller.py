@@ -68,7 +68,7 @@ class DataStoreController:
             item_id: UUID,
             edit_type: AccessEditTypeEnum,
             access_class: AccessClassEnum,
-            view_only: Optional[bool] = None,
+            view_only: Optional[bool] = True,
             name: Optional[str] = None,
     ):
         try:
