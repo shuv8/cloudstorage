@@ -1,6 +1,5 @@
 """The Endpoints to manage the USER_REQUESTS"""
 from controller.user_controller import UserController
-from core.user import User
 from flask import jsonify, Blueprint, request, send_file
 from io import BytesIO
 
@@ -20,39 +19,9 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
-@USER_REQUEST_API.route('/registration', methods=['POST'])
-def registration():
-    request_data = request.get_json()
-    try:
-        new_user = User(
-            email=request_data['email'],
-            password=request_data['password'],
-            role=request_data['role'],
-            username=request_data['username']
-        )
-    except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
-
-    try:
-        userController.registration(new_user)
-    except AlreadyExistsError:
-        return jsonify({'error': 'email already exist'}), 403 
-    return jsonify({}), 200
-
-
-@USER_REQUEST_API.route('/login', methods=['PUT'])
-def login():
-    request_data = request.get_json()
-    try:
-        email = request_data['email']
-        password = request_data['password']
-    except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
-    try:
-        token = userController.login(email, password)
-    except InvalidCredentialsError:
-        return jsonify({'error': 'invalid email or password'}), 403
-    return jsonify({'data': token}), 200
+@USER_REQUEST_API.before_request
+def authentication(): 
+    return userController.authentication() 
 
 
 """

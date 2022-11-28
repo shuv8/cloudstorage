@@ -1,7 +1,8 @@
 from typing import List
+from uuid import UUID
 
 from bcrypt import checkpw, gensalt, hashpw
-from jwt import encode
+from jwt import InvalidTokenError, decode, encode
 
 from core.department import Department
 from core.department_manager import DepartmentNotFoundError
@@ -37,6 +38,15 @@ class UserService:
             return token
         except UserNotFoundError:
             raise InvalidCredentialsError
+
+    def authentication(self, token: str) -> UUID:
+        try:
+            payload = decode(token, "SUPER-SECRET-KEY", ["HS256"])
+            id = UUID(payload["id"])
+            self.user_repo.get_user(id)
+            return id
+        except:
+            raise InvalidTokenError
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
         departments = self.user_repo.get_departments()

@@ -18,6 +18,10 @@ def get_blueprint():
     return ADMIN_REQUEST_API
 
 
+@ADMIN_REQUEST_API.before_request
+def authentication(): userController.authentication() 
+
+
 """
     ===================
     Block with Department
