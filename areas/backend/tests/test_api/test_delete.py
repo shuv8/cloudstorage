@@ -9,7 +9,7 @@ class TestDelete:
         assert response.text == '{"delete":"success"}\n'
 
     def test_delete_directory(self, api_log_client):
-        response = api_log_client._request('DELETE', url + f'/delete/xyz9cd7f-9ffd-42b0-bce4-eb14b51n1jn1')
+        response = api_log_client._request('DELETE', url + f'/delete/4c3b76d1-fe24-4fdf-afdf-7c38adbdab14')
         assert response.status_code == 200
         assert response.text == '{"delete":"success"}\n'
 

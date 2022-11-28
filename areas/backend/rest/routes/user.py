@@ -1,4 +1,6 @@
 """The Endpoints to manage the USER_REQUESTS"""
+import uuid
+
 from controller.user_controller import UserController
 from core.user import User
 from flask import jsonify, Blueprint, request, send_file
@@ -412,9 +414,11 @@ def move_item(item_id):
         - target_directory: new target directory of item
     """
 
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.move_item('test@mail.ru', item_id, target_directory)
+        result = dataStoreController.move_item('test@mail.ru', item_id, uuid.UUID(target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:
@@ -464,7 +468,7 @@ def copy_item(item_id):
 
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.copy_item('test@mail.ru', item_id, target_directory)
+        result = dataStoreController.copy_item('test@mail.ru', item_id, uuid.UUID(target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:
