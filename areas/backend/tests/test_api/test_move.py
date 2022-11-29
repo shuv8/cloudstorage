@@ -7,7 +7,8 @@ class TestMove:
 
     def test_move_file(self, api_log_client):
         response = api_log_client._request('PUT', url + f'/move/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'
-                                                        f'?target_directory=4c3b76d1-fe24-4fdf-afdf-7c38adbdab14&&scope=separate')
+                                                        f'?target_directory=4c3b76d1-fe24-4fdf-afdf-7c38adbdab14'
+                                                        f'&&scope=test')
         print(response.reason)
         assert response.status_code == 200
         assert response.text == '{"new_directory":"second"}\n'

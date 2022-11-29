@@ -19,6 +19,7 @@ class UserService:
         self.scope = ScopeTypeEnum.Prod
 
     def set_scope(self, scope: ScopeTypeEnum):
+        self.scope = scope
         self.user_repo.set_scope(scope)
 
     def registration(self, new_user: User) -> None:

@@ -15,6 +15,7 @@ class UserController:
         self.scope = ScopeTypeEnum.Prod
 
     def set_scope(self, scope: ScopeTypeEnum):
+        self.scope = scope
         self.user_service.set_scope(scope)
 
     def registration(self, new_user: User) -> None:

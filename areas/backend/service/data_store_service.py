@@ -23,6 +23,7 @@ class DataStoreService:
         self.scope = ScopeTypeEnum.Prod
 
     def set_scope(self, scope: ScopeTypeEnum):
+        self.scope = scope
         self.data_store_storage_repo.set_scope(scope)
 
     def search_in_cloud(self, user_mail: str, query: str) -> list[tuple[BaseStorageItem, str]]:
@@ -97,7 +98,7 @@ class DataStoreService:
         return files_with_path
 
     @private
-    def get_item_in_directory_by_id(self, directory: Directory, id_: UUID) -> Optional[BaseStorageItem]:
+    def get_item_in_directory_by_id(self, directory: Directory, id_: UUID, recursive=True) -> Optional[BaseStorageItem]:
         if str(directory.id) == str(id_):
             return directory
 
@@ -106,9 +107,11 @@ class DataStoreService:
         for directory_ in directory_manager.items:
             if str(directory_.id) == str(id_):
                 return directory_
-            item = self.get_item_in_directory_by_id(directory=directory_, id_=id_, )
-            if item is not None:
-                return item
+
+            if recursive:
+                item = self.get_item_in_directory_by_id(directory=directory_, id_=id_, recursive=recursive)
+                if item is not None:
+                    return item
 
         file = self.get_file_in_directory_by_id(file_manager=directory.directory_manager.file_manager, id_=id_)
         if file is not None:
@@ -257,18 +260,23 @@ class DataStoreService:
             )
             if file is not None:
                 return space.get_directory_manager()
-            for directory in space.get_directory_manager().items:
 
-                item = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
+            directories_for_search = space.get_directory_manager().items
+
+            while len(directories_for_search):
+                directory = directories_for_search.pop(0)
+                item = self.get_item_in_directory_by_id(directory=directory, id_=item_id, recursive=False)
                 if item is not None:
                     return directory.get_directory_manager()
+                else:
+                    directories_for_search.extend(directory.directory_manager.items)
         return None
 
     def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
         user_mail = "test_mail@mail.com"
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            result = self.data_store_storage_repo.get_db().get_file_by_item_id(item.id)
+            result = self.data_store_storage_repo.get_file_by_item_id(item.id)
             # TODO для папки
             return [result, item]
         else:

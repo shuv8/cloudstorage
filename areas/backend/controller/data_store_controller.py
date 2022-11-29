@@ -37,6 +37,7 @@ class DataStoreController:
     """
 
     def set_scope(self, scope: ScopeTypeEnum):
+        self.scope = scope
         self.access_service.set_scope(scope)
         self.data_store_service.set_scope(scope)
 

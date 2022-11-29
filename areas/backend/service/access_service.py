@@ -16,6 +16,7 @@ class AccessService:
 
     def set_scope(self, scope: ScopeTypeEnum):
         self.scope = scope
+        self.data_store_service.set_scope(scope)
 
     def get_accesses_for_item(self, item_id: UUID) -> list[BaseAccess]:
         user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
