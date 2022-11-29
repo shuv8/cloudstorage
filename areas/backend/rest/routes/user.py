@@ -440,7 +440,7 @@ def move_item(item_id):
 
 @USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
 @token_required
-def download_by_item_id(user: User, item_id):
+def download_by_item_id(item_id):
     """
     Path:
         - item_id: id of item to download

@@ -10,7 +10,7 @@ from requests import ConnectionError
 from tests.test_api.api_client.client import APIClient
 
 repo_root = os.path.abspath(os.path.join(__file__, os.path.pardir))
-app_path = os.path.dirname(__file__).replace('tests\\test_api', 'web_server.py')
+app_path = os.path.dirname(__file__).replace('tests/test_api', 'web_server.py')
 app_host = '127.0.0.1'
 app_port = '5000'
 
