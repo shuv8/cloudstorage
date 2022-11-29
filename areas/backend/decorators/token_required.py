@@ -15,8 +15,8 @@ def token_required(f):
             token = request.headers.get('token')
             if token is None:
                 return jsonify({'error': 'unauthorised'}), 401
-            user = userController.authentication(token)
-            return f(user, *args, **kwargs)
+            userController.authentication(token)
+            return f(*args, **kwargs)
         except InvalidTokenError:
             return jsonify({'error': 'invalid token'}), 403
 
