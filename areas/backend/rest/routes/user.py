@@ -7,6 +7,7 @@ from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from core.files import File
 from core.user import User
+from decorators.token_required import token_required
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
 import app_state
 
@@ -21,11 +22,6 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
-@USER_REQUEST_API.before_request
-def authentication(): 
-    return userController.authentication() 
-
-    
 @USER_REQUEST_API.route('/user_reset', methods=['GET'])
 def reset_core():
     global dataStoreController
@@ -79,6 +75,7 @@ def login():
 
 
 @USER_REQUEST_API.route('/search', methods=['GET'])
+@token_required
 def search_for():
     """
     Query:
@@ -121,6 +118,7 @@ def search_for():
 
 
 @USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
+@token_required
 def view_file_by_id(file_id):
     """
     Path:
@@ -171,6 +169,7 @@ def view_file_by_id(file_id):
 
 
 @USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
+@token_required
 def get_accesses(item_id):
     """
     Path:
@@ -217,6 +216,7 @@ def get_accesses(item_id):
 
 
 @USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
+@token_required
 def set_access_by_url(item_id):
     """
     Path:
@@ -248,6 +248,7 @@ def set_access_by_url(item_id):
 
 
 @USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
+@token_required
 def reset_access_by_url(item_id):
     """
     Path:
@@ -271,6 +272,7 @@ def reset_access_by_url(item_id):
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
+@token_required
 def add_access_by_user(item_id, email):
     """
     Path:
@@ -305,6 +307,7 @@ def add_access_by_user(item_id, email):
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['DELETE'])
+@token_required
 def remove_access_by_user(item_id, email):
     """
     Path:
@@ -327,6 +330,7 @@ def remove_access_by_user(item_id, email):
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
+@token_required
 def add_access_by_department(item_id, department):
     """
     Path:
@@ -361,6 +365,7 @@ def add_access_by_department(item_id, department):
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['DELETE'])
+@token_required
 def remove_access_by_department(item_id, department):
     """
     Path:
@@ -388,6 +393,7 @@ def remove_access_by_department(item_id, department):
 
 
 @USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])
+@token_required
 def rename_item(item_id):
     """
     Path:
@@ -409,6 +415,7 @@ def rename_item(item_id):
 
 
 @USER_REQUEST_API.route('/move/<item_id>', methods=['PUT'])
+@token_required
 def move_item(item_id):
     """
     Path:
@@ -428,7 +435,8 @@ def move_item(item_id):
 
 
 @USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
-def download_by_item_id(item_id):
+@token_required
+def download_by_item_id(user: User, item_id):
     """
     Path:
         - item_id: id of item to download
@@ -444,6 +452,7 @@ def download_by_item_id(item_id):
 
 
 @USER_REQUEST_API.route('/delete/<item_id>', methods=['DELETE'])
+@token_required
 def delete_by_item_id(item_id):
     """
     Path:
@@ -459,6 +468,7 @@ def delete_by_item_id(item_id):
 
 
 @USER_REQUEST_API.route('/copy/<item_id>', methods=['POST'])
+@token_required
 def copy_item(item_id):
     """
     Path:

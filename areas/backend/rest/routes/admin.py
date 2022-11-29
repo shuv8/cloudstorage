@@ -4,6 +4,7 @@ from flask import jsonify, Blueprint, request
 from controller.data_store_controller import *
 from controller.user_controller import UserController
 from core.department import Department
+from decorators.token_required import token_required
 from exceptions.exceptions import AlreadyExistsError
 from core.department_manager import DepartmentNotFoundError
 import app_state
@@ -17,11 +18,6 @@ userController = UserController(app_state.state)
 def get_blueprint():
     """Return the blueprint for the main app module"""
     return ADMIN_REQUEST_API
-
-
-@ADMIN_REQUEST_API.before_request
-def authentication(): 
-    return userController.authentication() 
 
 
 @ADMIN_REQUEST_API.route('/admin_reset', methods=['GET'])
@@ -42,6 +38,7 @@ def reset_core():
 
 
 @ADMIN_REQUEST_API.route('/department', methods=['GET'])
+@token_required
 def get_department_list():
     """
     Query:
@@ -66,6 +63,7 @@ def get_department_list():
 
 
 @ADMIN_REQUEST_API.route('/department', methods=['POST'])
+@token_required
 def add_new_department():
     """
     Request Body:
@@ -90,6 +88,7 @@ def add_new_department():
 
 
 @ADMIN_REQUEST_API.route('/department', methods=['DELETE'])
+@token_required
 def delete_department():
     """
     Request Body:

@@ -36,7 +36,6 @@ class UserService:
     def login(self, email: str, password: str) -> str:
         try:
             user = self.user_repo.get_user_by_email(email)
-            print(user.email)
             if checkpw(password.encode(), str(user.password).encode()) is False:
                 raise InvalidCredentialsError
             # TODO: get secret from env
@@ -45,12 +44,11 @@ class UserService:
         except UserNotFoundError:
             raise InvalidCredentialsError
 
-    def authentication(self, token: str) -> UUID:
+    def authentication(self, token: str) -> User:
         try:
             payload = decode(token, "SUPER-SECRET-KEY", ["HS256"])
             id = UUID(payload["id"])
-            self.user_repo.get_user(id)
-            return id
+            return self.user_repo.get_user(id)
         except:
             raise InvalidTokenError
 

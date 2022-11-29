@@ -1,8 +1,5 @@
 from typing import List
 
-from flask import jsonify, request
-from jwt import InvalidTokenError
-
 from app_states_for_test import ScopeTypeEnum
 from core.department import Department
 from core.user import User
@@ -25,15 +22,8 @@ class UserController:
     def login(self, email: str, password: str) -> str:
         return self.user_service.login(email, password)
 
-    def authentication(self) -> None:
-        try:
-            token = request.headers.get('token')
-            if token is None:
-                return jsonify({'error': 'unauthorised'}), 401
-            id = self.user_service.authentication(token)
-            request.headers.set('id', id)
-        except InvalidTokenError:
-            return jsonify({'error': 'invalid token'}), 403
+    def authentication(self, token: str) -> User:
+        return self.user_service.authentication(token)
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
         return self.user_service.get_all_departments(page, limit)
