@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import sys
@@ -17,7 +18,10 @@ app_port = '5000'
 @pytest.fixture(scope='session')
 def api_log_client():
     logs_path = os.path.join(repo_root, 'tmp', 'logs')
-    return APIClient(base_url=f'http://{app_host}:{app_port}', log_file=logs_path)
+    base_url=f'http://{app_host}:{app_port}'
+    data = {'email': 'test_mail@mail.com', 'password': 'password'}
+    token = requests.post(f'{base_url}/login', json=data)
+    return APIClient(base_url, log_file=logs_path, token=token)
 
 
 @pytest.fixture(scope='function', autouse=True)
