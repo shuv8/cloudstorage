@@ -418,7 +418,7 @@ def move_item(item_id):
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.move_item('test@mail.ru', item_id, uuid.UUID(target_directory))
+        result = dataStoreController.move_item('test@mail.ru', item_id, uuid.UUID(hex=target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:
@@ -468,7 +468,7 @@ def copy_item(item_id):
 
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.copy_item('test@mail.ru', item_id, uuid.UUID(target_directory))
+        result = dataStoreController.copy_item('test@mail.ru', item_id, uuid.UUID(hex=target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:
