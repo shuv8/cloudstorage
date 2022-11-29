@@ -4,14 +4,16 @@ import uuid
 import pytest
 from accessify import private
 
+from app_state import ServerDatabase
 from app_states_for_test import ScopeTypeEnum
 from core.files import File
 from core.space_manager import SpaceManager
 
 
 class DataStoreStorageRepository:
-    def __init__(self, server_state):
-        self.server_state = server_state
+    def __init__(self, server_state: ServerDatabase):
+        self.server_state = server_state.prod
+        self.test_server_state = server_state.test
         self.scope = ScopeTypeEnum.Prod
 
     def set_scope(self, scope: ScopeTypeEnum):
@@ -20,9 +22,12 @@ class DataStoreStorageRepository:
     @private
     def get_db(self):
         if "pytest" in sys.modules:
-            return ScopeTypeEnum.return_state_by_scope(self.scope, self.server_state)
+            return ScopeTypeEnum.return_state_by_scope(self.scope, self.server_state, self.test_server_state)
         else:
             return self.server_state
+
+    def get_file_by_item_id(self, item_id: uuid.UUID) -> SpaceManager:
+        return self.get_db().get_file_by_item_id(item_id)
 
     def get_root_dir_by_user_mail(self, user_mail: str) -> SpaceManager:
         return self.get_db().get_space_by_user_mail(user_mail)

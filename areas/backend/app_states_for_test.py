@@ -11,6 +11,7 @@ class ScopeTypeEnum(Enum):
     Access = 2
     Search = 3
     Separate = 4
+    Test = 5
 
     @staticmethod
     def get_class_by_str(scope: Optional[str] = None):
@@ -26,16 +27,22 @@ class ScopeTypeEnum(Enum):
         if scope == "separate":
             return ScopeTypeEnum.Separate
 
+        if scope == "test":
+            return ScopeTypeEnum.Test
+
         if scope == None:
             return ScopeTypeEnum.Default
 
     @staticmethod
-    def return_state_by_scope(scope, default=DataBaseTemporary()):
+    def return_state_by_scope(scope, default=DataBaseTemporary(), test=None):
         if scope == ScopeTypeEnum.Default:
             return default
 
         if scope == ScopeTypeEnum.Prod:
             return default
+
+        if scope == ScopeTypeEnum.Test:
+            return test
 
         if scope == ScopeTypeEnum.Separate:
             return DataBaseTemporary()

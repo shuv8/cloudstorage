@@ -1,6 +1,9 @@
+from collections import namedtuple
+
 from database.database import DataBaseTemporary
 
-mock_web_app_state = DataBaseTemporary()
+ServerDatabase = namedtuple("Database", "prod test")
+mock_web_app_state = ServerDatabase(DataBaseTemporary(), DataBaseTemporary())
 
 
 def init_state():
