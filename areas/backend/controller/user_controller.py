@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import List
 
 from app_states_for_test import ScopeTypeEnum
@@ -23,6 +22,9 @@ class UserController:
 
     def login(self, email: str, password: str) -> str:
         return self.user_service.login(email, password)
+
+    def authentication(self, token: str) -> User:
+        return self.user_service.authentication(token)
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
         return self.user_service.get_all_departments(page, limit)

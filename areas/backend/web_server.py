@@ -27,7 +27,6 @@ app.register_blueprint(SWAGGER_UI_BLUEPRINT, url_prefix=SWAGGER_URL)
 
 # ROUTES
 
-
 app.register_blueprint(user.get_blueprint())
 app.register_blueprint(admin.get_blueprint())
 

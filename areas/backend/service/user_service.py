@@ -1,7 +1,8 @@
 from typing import List
+from uuid import UUID
 
 from bcrypt import checkpw, gensalt, hashpw
-from jwt import encode
+from jwt import InvalidTokenError, decode, encode
 
 from app_states_for_test import ScopeTypeEnum
 from core.department import Department
@@ -36,7 +37,6 @@ class UserService:
     def login(self, email: str, password: str) -> str:
         try:
             user = self.user_repo.get_user_by_email(email)
-            print(user.email)
             if checkpw(password.encode(), str(user.password).encode()) is False:
                 raise InvalidCredentialsError
             # TODO: get secret from env
@@ -44,6 +44,14 @@ class UserService:
             return token
         except UserNotFoundError:
             raise InvalidCredentialsError
+
+    def authentication(self, token: str) -> User:
+        try:
+            payload = decode(token, "SUPER-SECRET-KEY", ["HS256"])
+            id = UUID(payload["id"])
+            return self.user_repo.get_user(id)
+        except:
+            raise InvalidTokenError
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
         departments = self.user_repo.get_departments()
