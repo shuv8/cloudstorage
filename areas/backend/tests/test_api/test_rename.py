@@ -12,7 +12,7 @@ class TestRename:
         assert response.text == '{"new_name":"test_name"}\n'
 
     def test_rename_directory(self, api_log_client):
-        response = api_log_client._request('PUT', url + f'/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51n1jn1'
+        response = api_log_client._request('PUT', url + f'/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'
                                                         f'?new_name=test_name')
         assert response.status_code == 200
         assert response.text == '{"new_name":"test_name"}\n'
@@ -22,7 +22,7 @@ class TestRename:
                                                         f'?new_name=test_name')
         assert response.status_code == 404
         assert response.text == '{"error":"Can\'t find item"}\n'
-        response = api_log_client._request('PUT', url + f'/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51n1jn1'
+        response = api_log_client._request('PUT', url + f'/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'
                                                         f'?wrong_param=test_name')
         assert response.status_code == 400
         assert response.text == '{"error":"No new name presented. Use query parameter \'new_name\'"}\n'
