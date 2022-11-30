@@ -31,10 +31,10 @@ class TestBase:
         result = json.loads(response.text)['items']
         assert len(result) == 2
 
-        assert result[0]["entity"] == "directory"
+        assert result[0]["entity"] == "Directory"
         assert result[0]["name"] == "test1"
 
-        assert result[1]["entity"] == "file"
+        assert result[1]["entity"] == "File"
         assert result[1]["name"] == "test2"
         assert result[1]["type"] == ".ty"
 
@@ -48,9 +48,9 @@ class TestBase:
         result = json.loads(response.text)['items']
         assert len(result) == 2
 
-        assert result[0]["entity"] == "file"
-        assert result[0]["name"] == "test42"
-        assert result[0]["type"] == ".ty"
-
-        assert result[0]["entity"] == "directory"
+        assert result[0]["entity"] == "Directory"
         assert result[0]["name"] == "test4242"
+
+        assert result[1]["entity"] == "File"
+        assert result[1]["name"] == "test42"
+        assert result[1]["type"] == ".ty"

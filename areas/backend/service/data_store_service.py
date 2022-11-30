@@ -121,7 +121,7 @@ class DataStoreService:
                 file_and_directories_with_paths.append((directory_, path))
             file_and_directories_with_paths.extend(
                 self.search_in_directory(
-                    root=directory_,
+                    directory=directory_,
                     query=query,
                     path=path + directory_.name + "/"
                 )

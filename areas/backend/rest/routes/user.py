@@ -111,7 +111,7 @@ def search_for():
             {
                 "name": item.name,
                 "path": path,
-                "type": str(type(item)),
+                "type": item.__class__.__name__,
                 "id": str(item.id)
             }
         )
@@ -198,7 +198,7 @@ def get_space_content(space_id):
                         "id": str(item.get_id()),
                         "name": item.name,
                         "type": item.type,
-                        "entity": "file",
+                        "entity": item.__class__.__name__,
                     }
                 )
             if type(item) == Directory:
@@ -207,7 +207,7 @@ def get_space_content(space_id):
                         "id": str(item.get_id()),
                         "name": item.name,
                         "type": "",
-                        "entity": "directory",
+                        "entity": item.__class__.__name__,
                     }
                 )
 
@@ -252,7 +252,7 @@ def get_dir_in_space_content(space_id, dir_id):
                         "id": str(item.get_id()),
                         "name": item.name,
                         "type": item.type,
-                        "entity": "file",
+                        "entity": item.__class__.__name__,
                     }
                 )
             if type(item) == Directory:
@@ -260,7 +260,7 @@ def get_dir_in_space_content(space_id, dir_id):
                     {
                         "id": str(item.get_id()),
                         "name": item.name,
-                        "entity": "folder",
+                        "entity": item.__class__.__name__,
                     }
                 )
 
