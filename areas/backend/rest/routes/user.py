@@ -597,9 +597,9 @@ def download_by_item_id(item_id):
             file_name = file.name
             return send_file(result, download_name=file_name, as_attachment=True), 200
         else:
-            return jsonify({'error': 'No such file or directory'}), 400
+            return jsonify({'error': 'Wrong try to download'}), 400
     else:
-        return jsonify({'error': 'No such file or directory'}), 400
+        return jsonify({'error': 'No such file or directory'}), 404
 
 
 @USER_REQUEST_API.route('/delete/<item_id>', methods=['DELETE'])
@@ -615,7 +615,7 @@ def delete_by_item_id(item_id):
     if result:
         return jsonify({'delete': 'success'}), 200
     else:
-        return jsonify({'error': 'Wrong try to delete'}), 400
+        return jsonify({'error': 'No such file or directory'}), 404
 
 
 @USER_REQUEST_API.route('/copy/<item_id>', methods=['POST'])
