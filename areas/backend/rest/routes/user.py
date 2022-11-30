@@ -13,6 +13,7 @@ from core.user import User
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
+from core.directory import Directory
 import app_state
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
@@ -589,10 +590,16 @@ def download_by_item_id(item_id):
     """
     result, file = dataStoreController.download_item(item_id)
     if result is not None:
-        file_name = file.name + file.type
-        return send_file(result, download_name=file_name, as_attachment=True), 200
+        if isinstance(file, File):
+            file_name = file.name + file.type
+            return send_file(result, download_name=file_name, as_attachment=True), 200
+        elif isinstance(file, Directory):
+            file_name = file.name
+            return send_file(result, download_name=file_name, as_attachment=True), 200
+        else:
+            return jsonify({'error': 'Wrong try to download'}), 400
     else:
-        return jsonify({'error': 'No such fail or directory'}), 400
+        return jsonify({'error': 'No such file or directory'}), 404
 
 
 @USER_REQUEST_API.route('/delete/<item_id>', methods=['DELETE'])
@@ -608,7 +615,7 @@ def delete_by_item_id(item_id):
     if result:
         return jsonify({'delete': 'success'}), 200
     else:
-        return jsonify({'error': 'Wrong try to delete'}), 400
+        return jsonify({'error': 'No such file or directory'}), 404
 
 
 @USER_REQUEST_API.route('/copy/<item_id>', methods=['POST'])

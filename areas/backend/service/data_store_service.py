@@ -332,7 +332,7 @@ class DataStoreService:
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             result = self.data_store_storage_repo.get_file_by_item_id(item.id)
-            # TODO для папки
+            # Пока оставил так, вроде норм, потом мб надо будет поправить
             return [result, item]
         else:
             return [None, None]
