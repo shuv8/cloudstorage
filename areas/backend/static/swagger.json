@@ -120,6 +120,112 @@
         }
       }
     },
+    "/get_spaces": {
+      "get": {
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/space"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_space/{space_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/item"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_dir/{space_id}/<dir_id>": {
+      "get": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dir_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/item"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/file/{file_id}/view": {
       "get": {
         "parameters": [
@@ -776,6 +882,35 @@
             "type": "string"
           },
           "id": {
+            "type": "string"
+          }
+        }
+      },
+      "space": {
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "item": {
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "entity": {
             "type": "string"
           }
         }

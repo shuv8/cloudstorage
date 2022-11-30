@@ -10,6 +10,7 @@ from core.directory import Directory
 from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
+from core.user_cloud_space import UserCloudSpace
 from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
@@ -34,6 +35,60 @@ class DataStoreService:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
         founded_items: list[tuple[BaseStorageItem, str]] = self.search_in_spaces(space_manager, query)
         return founded_items
+
+    def get_spaces(self, user_mail: str) -> list[UserCloudSpace]:
+        return self.data_store_storage_repo.get_user_spaces(user_mail)
+
+    def get_space_content(self, user_mail: str, space_id: UUID) -> list[BaseStorageItem]:
+        space: UserCloudSpace = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+
+        if space is None:
+            raise ItemNotFoundError
+
+        items: list[BaseStorageItem] = []
+        items.extend(space.get_directory_manager().items)
+        items.extend(space.get_directory_manager().file_manager.items)
+
+        return items
+
+    def get_dir_content(self, user_mail: str, space_id: UUID, dir_id: UUID) -> list[BaseStorageItem]:
+        space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+
+        if space is None:
+            raise ItemNotFoundError
+
+        directory = self.get_user_dir_in_space(space, dir_id)
+
+        if directory is None:
+            raise ItemNotFoundError
+
+        items: list[BaseStorageItem] = []
+        items.extend(directory.get_directory_manager().items)
+        items.extend(directory.get_directory_manager().file_manager.items)
+
+        return items
+
+    def get_user_dir_in_space(self, space: UserCloudSpace, dir_id: UUID) -> Optional[Directory]:
+        for directory in space.get_directory_manager().items:
+            if directory.id == dir_id:
+                return directory
+            else:
+                possible_dir = self.get_user_dir_in_another_dir(directory, dir_id)
+                if possible_dir is not None:
+                    return possible_dir
+
+        return None
+
+    def get_user_dir_in_another_dir(self, directory: Directory, dir_id: UUID) -> Optional[Directory]:
+        for directory in directory.get_directory_manager().items:
+            if directory.id == dir_id:
+                return directory
+            else:
+                possible_dir = self.get_user_dir_in_another_dir(directory, dir_id)
+                if possible_dir is not None:
+                    return possible_dir
+
+        return None
 
     @private
     def search_in_spaces(self, space_manager: SpaceManager, query: str) -> list[tuple[BaseStorageItem, str]]:
@@ -220,7 +275,7 @@ class DataStoreService:
 
         if item is None:
             raise ItemNotFoundError
-        
+
         return item.accesses
 
     def rename_item_by_id(self, user_mail: str, item_id: UUID, new_name: str):
