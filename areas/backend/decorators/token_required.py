@@ -12,7 +12,7 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         try:
-            token = request.headers.get('token')
+            token = request.cookies.get('token')
             if token is None:
                 return jsonify({'error': 'unauthorised'}), 401
             userController.authentication(token)

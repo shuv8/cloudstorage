@@ -7,10 +7,10 @@ import requests
 
 class APIClient:
 
-    def __init__(self, base_url: Optional[str], log_file: str, token: str):
+    def __init__(self, base_url: Optional[str], log_file: str, cookies):
         self.base_url = base_url
         self.log_file = open(log_file, 'w')
-        self.token = token
+        self.cookies = cookies
 
     def __del__(self):
         self.log_file.close()
@@ -21,10 +21,7 @@ class APIClient:
     def _request(self, method, location, headers=None,
                  data=None, files=None, json=None):
         url = urljoin(self.base_url, location)
-        if not isinstance(headers, dict):
-            headers = dict()
-        headers.update({"token": self.token})
-        response = requests.request(method=method, url=url, headers=headers,
+        response = requests.request(method=method, url=url, headers=headers, cookies=self.cookies, 
                                     data=data, files=files, json=json)
         self.log_file.write(
             f'{datetime.datetime.now()}\n'
