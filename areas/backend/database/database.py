@@ -30,14 +30,14 @@ class DataBaseTemporary:
 
         self.user_1_ = User(
             email="test_mail@mail.com",
-            password="password",
+            password="$2b$12$ikBnpSAHmRPfgOAh9HvQ/.KNLk/mAV5rGH7xRMcVmh9ozrjApsYIC",
             username="username",
             space_manager=self.space_manager_
         )
 
         self.user_2_ = User(
             email="test2_mail@mail.com",
-            password="password",
+            password="$2b$12$ikBnpSAHmRPfgOAh9HvQ/.KNLk/mAV5rGH7xRMcVmh9ozrjApsYIC",
             username="username",
         )
 
