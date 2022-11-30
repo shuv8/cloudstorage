@@ -10,7 +10,7 @@ from requests import ConnectionError
 from tests.test_api.api_client.client import APIClient
 
 repo_root = os.path.abspath(os.path.join(__file__, os.path.pardir))
-# app_path = os.path.dirname(__file__).replace('tests/test_api', 'web_server.py')
+# app_path = os.path.dirname(__file__).replace('tests\\test_api', 'web_server.py')
 app_host = '127.0.0.1'
 app_port = '5000'
 
@@ -27,7 +27,7 @@ def api_log_client():
     }
     requests.post(f'{base_url}/registration', json=registration_data)
     login_data = {
-        'email': registration_data['email'], 
+        'email': registration_data['email'],
         'password': registration_data['password']
     }
     login_result = requests.put(f'{base_url}/login', json=login_data)
