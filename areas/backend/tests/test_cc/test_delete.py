@@ -1,7 +1,6 @@
 import pytest
 
 
-@pytest.mark.skip
 class TestDeleteController:
 
     def test_delete_file(self, app_client):

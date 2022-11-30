@@ -9,11 +9,11 @@ class TestDelete:
         assert response.text == '{"delete":"success"}\n'
 
     def test_delete_directory(self, api_log_client):
-        response = api_log_client._request('DELETE', url + f'/delete/4c3b76d1-fe24-4fdf-afdf-7c38adbdab14')
+        response = api_log_client._request('DELETE', url + f'/delete/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')
         assert response.status_code == 200
         assert response.text == '{"delete":"success"}\n'
 
     def test_delete_negative(self, api_log_client):
         response = api_log_client._request('DELETE', url + f'/delete/aaa')
-        assert response.status_code == 400
-        assert response.text == '{"error":"Wrong try to delete"}\n'
+        assert response.status_code == 404
+        assert response.text == '{"error":"No such file or directory"}\n'

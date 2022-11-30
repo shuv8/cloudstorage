@@ -43,7 +43,8 @@ class DataBaseTemporary:
 
         self.user_cloud_space_1_.get_directory_manager().items = [
             Directory(name="wow", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')),
-            Directory(name='second', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14'))
+            Directory(name='second', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14')),
+            Directory(name='delete', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab15')),
         ]
 
         self.user_cloud_space_1_.get_directory_manager().file_manager.items = [
