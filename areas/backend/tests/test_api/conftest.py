@@ -10,7 +10,7 @@ from requests import ConnectionError
 from tests.test_api.api_client.client import APIClient
 
 repo_root = os.path.abspath(os.path.join(__file__, os.path.pardir))
-app_path = os.path.dirname(__file__).replace('tests/test_api', 'web_server.py')
+# app_path = os.path.dirname(__file__).replace('tests/test_api', 'web_server.py')
 app_host = '127.0.0.1'
 app_port = '5000'
 
@@ -58,6 +58,11 @@ def wait_ready(host, port):
 
 def pytest_configure(config):
     if not hasattr(config, 'workerinput'):
+        if sys.platform.startswith('win'):
+            app_path = os.path.dirname(__file__).replace('tests\\test_api', 'web_server.py')
+        else:
+            app_path = os.path.dirname(__file__).replace('tests/test_api', 'web_server.py')
+
         app_stderr_path = os.path.join(repo_root, 'tmp', 'app_stderr.txt')
         app_stdout_path = os.path.join(repo_root, 'tmp', 'app_stdout.txt')
         app_stderr = open(app_stderr_path, 'w')
