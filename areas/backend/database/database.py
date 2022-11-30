@@ -56,6 +56,8 @@ class DataBaseTemporary:
                  _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
             File(name="test2", _type=".txt",
                  _id='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'),
+            File(name="test3", _type=".txt",
+                 _id='abd9cd7d-9ffd-41b0-d1e4-eb14b51a6d72'),
         ]
 
         self.user_cloud_space_2_.get_directory_manager().items = [
