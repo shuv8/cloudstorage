@@ -19,7 +19,7 @@ class DatabaseForAccessTests:
         )
 
         self.user_cloud_space_2_ = UserCloudSpace(
-            _id=uuid4(),
+            _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
             space_type=SpaceType.Shared
         )
 
@@ -41,20 +41,20 @@ class DatabaseForAccessTests:
         )
 
         self.user_cloud_space_1_.get_directory_manager().items = [
-            Directory(name="wow", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
-            Directory(name='second', _id='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14')
+            Directory(name="wow", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')),
+            Directory(name='second', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14'))
         ]
 
         self.user_cloud_space_1_.get_directory_manager().file_manager.items = [
             File(name="wow3", _type=".type",
-                 _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
+                 _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73')),
             File(name="34653467", _type=".e"),
             File(name="image", _type=".png",
-                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71')),
             File(name="67456", _type=".txt",
-                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72')),
             File(name="test2", _type=".txt",
-                 _id='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72')),
         ]
 
         self.user_cloud_space_2_.get_directory_manager().items = [
@@ -82,6 +82,9 @@ class DatabaseForAccessTests:
 
     def get_user_manager(self):
         return self.user_manager
+
+    def get_space_manager_by_user_mail(self, mail: str) -> SpaceManager:
+        return self.users[mail].space_manager
 
     def get_department_list(self):
         return self.department_manager.get_departments()
@@ -146,20 +149,20 @@ class DataBaseTemporaryMock:
         )
 
         self.user_cloud_space_1_.get_directory_manager().items = [
-            Directory(name="wow", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
-            Directory(name='second', _id='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14')
+            Directory(name="wow", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')),
+            Directory(name='second', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14'))
         ]
 
         self.user_cloud_space_1_.get_directory_manager().file_manager.items = [
             File(name="wow3", _type=".type",
-                 _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
+                 _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73')),
             File(name="test6", _type=".e"),
             File(name="image", _type=".png",
-                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71')),
             File(name="test", _type=".txt",
-                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72')),
             File(name="test2", _type=".txt",
-                 _id='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'))
         ]
 
         self.user_cloud_space_2_.get_directory_manager().items = [

@@ -1,4 +1,4 @@
-from typing import BinaryIO
+from typing import BinaryIO, Optional
 from uuid import UUID, uuid4
 
 from core.directory import Directory
@@ -20,7 +20,7 @@ class DataBaseTemporary:
         )
 
         self.user_cloud_space_2_ = UserCloudSpace(
-            _id=uuid4(),
+            _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
             space_type=SpaceType.Shared
         )
 
@@ -42,26 +42,38 @@ class DataBaseTemporary:
         )
 
         self.user_cloud_space_1_.get_directory_manager().items = [
-            Directory(name="wow", _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
-            Directory(name='second', _id='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14')
+            Directory(name="wow", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')),
+            Directory(name='second', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14'))
         ]
 
         self.user_cloud_space_1_.get_directory_manager().file_manager.items = [
             File(name="wow3", _type=".type",
-                 _id='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73'),
+                 _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73')),
             File(name="test6", _type=".e"),
             File(name="image", _type=".png",
-                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71')),
             File(name="test", _type=".txt",
-                 _id='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72')),
             File(name="test2", _type=".txt",
-                 _id='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72'),
+                 _id=UUID(hex='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72')),
             File(name="test3", _type=".txt",
-                 _id='abd9cd7d-9ffd-41b0-d1e4-eb14b51a6d72'),
+                 _id=UUID(hex='abd9cd7d-9ffd-41b0-d1e4-eb14b51a6d72')),
         ]
 
         self.user_cloud_space_2_.get_directory_manager().items = [
-            Directory(name="test1")
+            Directory(name="test1", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa4'))
+        ]
+
+        self.user_cloud_space_2_.get_directory_manager().file_manager.items = [
+            File(name="test2", _type=".ty"),
+        ]
+
+        self.user_cloud_space_2_.get_directory_manager().items[0].get_directory_manager().file_manager.items = [
+            File(name="test42", _type=".ty"),
+        ]
+
+        self.user_cloud_space_2_.get_directory_manager().items[0].get_directory_manager().items = [
+            Directory(name="test4242", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa5'))
         ]
 
         self.users = {
@@ -99,8 +111,17 @@ class DataBaseTemporary:
     def delete_department_by_name(self, department_name: str):
         self.department_manager.remove_department_by_department_name(department_name)
 
-    def get_space_by_user_mail(self, mail: str) -> SpaceManager:
+    def get_space_manager_by_user_mail(self, mail: str) -> SpaceManager:
         return self.users[mail].space_manager
+
+    def get_spaces_by_user_mail(self, mail: str) -> list[UserCloudSpace]:
+        return self.get_space_manager_by_user_mail(mail).get_spaces()
+
+    def get_space_content_by_user_mail(self, mail: str, space_id: UUID) -> UserCloudSpace:
+        spaces = self.get_spaces_by_user_mail(mail)
+        for space in spaces:
+            if space.get_id() == space_id:
+                return space
 
     def add_new_user(self, new_user: User):
         self.user_manager.add_user(new_user)

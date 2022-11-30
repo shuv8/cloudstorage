@@ -7,8 +7,10 @@ from io import BytesIO
 
 from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from core.directory import Directory
 from core.files import File
 from core.user import User
+from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
 import app_state
@@ -109,7 +111,7 @@ def search_for():
             {
                 "name": item.name,
                 "path": path,
-                "type": str(type(item)),
+                "type": item.__class__.__name__,
                 "id": str(item.id)
             }
         )
@@ -119,6 +121,156 @@ def search_for():
             "items": items_content
         }
     ), 200
+
+
+@USER_REQUEST_API.route('/get_spaces', methods=['GET'])
+@token_required
+def get_spaces():
+    """
+    Query:
+        - query: get all spaces
+    Result:
+        {
+            spaces: [{
+              space
+            }]
+        }
+    """
+
+    # query date
+    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
+    items: list[UserCloudSpace] = dataStoreController.get_spaces(user_mail)
+
+    spaces_content = []
+    for item in items:
+
+        space_name = "Main"
+        if item.get_space_type() == SpaceType.Shared:
+            space_name = item.get_directory_manager().items[0].name  # We have only 1 root folder in shared space
+
+        spaces_content.append(
+            {
+                "type": str(item.get_space_type().name),
+                "name": space_name,
+                "id": str(item.get_id()),
+            }
+        )
+
+    return jsonify(
+        {
+            "spaces": spaces_content
+        }
+    ), 200
+
+
+@USER_REQUEST_API.route('/get_space/<space_id>', methods=['GET'])
+@token_required
+def get_space_content(space_id):
+    """
+    Query:
+        - space_id: id of space to view
+    Result:
+        {
+            items: [{
+              files and dirs in space
+            }]
+        }
+    """
+
+    # query date
+    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
+    try:
+        items: list[BaseStorageItem] = dataStoreController.get_space_content(user_mail, UUID(space_id))
+
+        items_content = []
+        for item in items:
+            if type(item) == File:
+                items_content.append(
+                    {
+                        "id": str(item.get_id()),
+                        "name": item.name,
+                        "type": item.type,
+                        "entity": item.__class__.__name__,
+                    }
+                )
+            if type(item) == Directory:
+                items_content.append(
+                    {
+                        "id": str(item.get_id()),
+                        "name": item.name,
+                        "type": "",
+                        "entity": item.__class__.__name__,
+                    }
+                )
+
+        return jsonify(
+            {
+                "items": items_content
+            }
+        ), 200
+    except ItemNotFoundError:
+        return jsonify("Can't find space with that ID"), 404
+
+
+@USER_REQUEST_API.route('/get_dir/<space_id>/<dir_id>', methods=['GET'])
+@token_required
+def get_dir_in_space_content(space_id, dir_id):
+    """
+    Query:
+        - space_id: id of space to search in
+        - dir_id: id of dir to view
+    Result:
+        {
+            items: [{
+              files and dirs in dir
+            }]
+        }
+    """
+
+    # query date
+    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
+    try:
+        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user_mail, UUID(space_id), UUID(dir_id))
+
+        items_content = []
+        for item in items:
+            if type(item) == File:
+                items_content.append(
+                    {
+                        "id": str(item.get_id()),
+                        "name": item.name,
+                        "type": item.type,
+                        "entity": item.__class__.__name__,
+                    }
+                )
+            if type(item) == Directory:
+                items_content.append(
+                    {
+                        "id": str(item.get_id()),
+                        "name": item.name,
+                        "entity": item.__class__.__name__,
+                    }
+                )
+
+        return jsonify(
+            {
+                "items": items_content
+            }
+        ), 200
+    except ItemNotFoundError:
+        return jsonify("Can't find space with that ID"), 404
 
 
 @USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
@@ -215,8 +367,6 @@ def get_accesses(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
@@ -245,8 +395,6 @@ def set_access_by_url(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'No item found to modify'}), 404
     except AlreadyExistsError:
         return jsonify({'error': 'email already exist'}), 403
 
@@ -271,8 +419,6 @@ def reset_access_by_url(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
@@ -306,8 +452,6 @@ def add_access_by_user(item_id, email):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['DELETE'])
@@ -329,8 +473,6 @@ def remove_access_by_user(item_id, email):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
@@ -364,8 +506,6 @@ def add_access_by_department(item_id, department):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['DELETE'])
@@ -392,8 +532,6 @@ def remove_access_by_department(item_id, department):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'No item found to modify'}), 404
 
 
 @USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])
