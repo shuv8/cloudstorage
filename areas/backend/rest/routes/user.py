@@ -2,7 +2,7 @@
 import uuid
 
 from controller.user_controller import UserController
-from flask import jsonify, Blueprint, request, send_file
+from flask import jsonify, Blueprint, make_response, request, send_file
 from io import BytesIO
 
 from controller.data_store_controller import *
@@ -64,9 +64,11 @@ def login():
         return jsonify({'error': 'invalid request body'}), 400
     try:
         token = userController.login(email, password)
+        response = make_response()
+        response.set_cookie('token', token)
+        return response
     except InvalidCredentialsError:
         return jsonify({'error': 'invalid email or password'}), 403
-    return jsonify({'data': token}), 200
 
 
 """
