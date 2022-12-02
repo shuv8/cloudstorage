@@ -597,8 +597,6 @@ def download_by_item_id(item_id):
         elif isinstance(file, Directory):
             file_name = file.name
             return send_file(result, download_name=file_name, as_attachment=True), 200
-        else:
-            return jsonify({'error': 'Wrong try to download'}), 400
     else:
         return jsonify({'error': 'No such file or directory'}), 404
 
@@ -612,6 +610,10 @@ def delete_by_item_id(item_id):
     Result:
         bool status of deleting
     """
+
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
     result = dataStoreController.delete_item(item_id)
     if result:
         return jsonify({'delete': 'success'}), 200

@@ -365,7 +365,7 @@ class DataStoreService:
             if target_directory is not None and isinstance(target_directory, Directory):
                 if isinstance(item, Directory):
                     new_directory = deepcopy(item)
-                    self.copy_directory(directory=item)
+                    self.copy_directory(directory=new_directory)
                     target_directory.directory_manager.add_items([new_directory])
                 elif isinstance(item, File):
                     new_item = deepcopy(item)
