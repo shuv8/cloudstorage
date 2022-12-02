@@ -18,18 +18,10 @@ app_port = '5000'
 @pytest.fixture(scope='session')
 def api_log_client():
     logs_path = os.path.join(repo_root, 'tmp', 'logs')
-    base_url=f'http://{app_host}:{app_port}'
+    base_url = f'http://{app_host}:{app_port}'
     login_data = {'email': 'test_mail@mail.com', 'password': 'password'}
     login_result = requests.put(f'{base_url}/login', json=login_data)
     return APIClient(base_url, log_file=logs_path, cookies=login_result.cookies)
-
-
-@pytest.fixture(scope='function', autouse=True)
-def reset_core(api_log_client):
-    response = api_log_client._request('GET', f'http://{app_host}:{app_port}' + '/user_reset')
-    assert response.status_code == 200
-    response = api_log_client._request('GET', f'http://{app_host}:{app_port}' + '/admin_reset')
-    assert response.status_code == 200
 
 
 def wait_ready(host, port):
