@@ -26,13 +26,13 @@ class UserRepository:
     """
 
     def get_user_from_db_by_id(self, _id: UUID):
-        from database.users.user_model import UserORM
-        user: UserORM = UserORM.query.filter_by(id=str(_id)).first()
+        from database.users.user_model import UserModel
+        user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
         return user
 
     def get_user_from_db_by_email(self, email: str) -> User:
-        from database.users.user_model import UserORM
-        user: UserORM = UserORM.query.filter_by(email=email).first()
+        from database.users.user_model import UserModel
+        user: UserModel = UserModel.query.filter_by(email=email).first()
         if user is None:
             raise UserNotFoundError
         return User(
@@ -45,8 +45,8 @@ class UserRepository:
 
     def add_new_user_to_db(self, new_user: User) -> None:
         from app_db import db
-        from database.users.user_model import UserORM
-        user: UserORM = UserORM(
+        from database.users.user_model import UserModel
+        user: UserModel = UserModel(
             id=str(new_user.get_id()),
             email=new_user.email,
             username=new_user.username,

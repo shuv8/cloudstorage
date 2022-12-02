@@ -72,7 +72,7 @@ if __name__ == '__main__':
     db = SQLAlchemy(app)
     app_db.init_db(db)
     with app.app_context():
-        from database.users.user_model import UserORM
+        from database.users.user_model import UserModel
         db.create_all()
 
     app.run()  # TODO USE PRODUCTION SERVER
