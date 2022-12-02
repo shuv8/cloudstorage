@@ -87,7 +87,7 @@ class TestUserScenario:
 
         department_manager.add_department(department)
 
-        # Let's add the user to the department
+        # Let's add users to the department
 
         department_manager.add_users_to_department([user, admin], department.department_name)
 

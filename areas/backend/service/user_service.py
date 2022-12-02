@@ -25,18 +25,18 @@ class UserService:
 
     def registration(self, new_user: User) -> None:
         try:
-            self.user_repo.get_user_by_email(new_user.email)
+            self.user_repo.get_user_from_db_by_email(new_user.email)
             raise AlreadyExistsError
         except UserNotFoundError:
             hash = hashpw(
                 str(new_user.password).encode(), gensalt()
             )
             new_user.password = hash.decode()
-            self.user_repo.add_new_user(new_user)
+            self.user_repo.add_new_user_to_db(new_user)
 
     def login(self, email: str, password: str) -> str:
         try:
-            user = self.user_repo.get_user_by_email(email)
+            user = self.user_repo.get_user_from_db_by_email(email)
             if checkpw(password.encode(), str(user.password).encode()) is False:
                 raise InvalidCredentialsError
             # TODO: get secret from env
@@ -48,8 +48,8 @@ class UserService:
     def authentication(self, token: str) -> User:
         try:
             payload = decode(token, "SUPER-SECRET-KEY", ["HS256"])
-            id = UUID(payload["id"])
-            return self.user_repo.get_user(id)
+            _id = UUID(hex=payload["id"])
+            return self.user_repo.get_user_from_db_by_id(_id)
         except:
             raise InvalidTokenError
 
@@ -71,4 +71,3 @@ class UserService:
 
     def delete_department_by_name(self, department_name: str) -> None:
         self.user_repo.delete_department_by_name(department_name)
-

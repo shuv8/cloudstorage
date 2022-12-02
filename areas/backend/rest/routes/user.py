@@ -9,11 +9,11 @@ from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from core.directory import Directory
 from core.files import File
+from core.role import Role
 from core.user import User
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
-from core.directory import Directory
 import app_state
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
@@ -44,7 +44,7 @@ def registration():
         new_user = User(
             email=request_data['email'],
             password=request_data['password'],
-            role=request_data['role'],
+            role=Role.get_enum_from_value(request_data['role']),
             username=request_data['username']
         )
     except KeyError:
