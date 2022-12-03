@@ -12,11 +12,54 @@ from core.department import Department
 
 import pytest
 
+from core.user_manager import UserNotFoundError
+
+
 class UserRepository:
     def __init__(self, server_state: ServerDatabase):
         self.server_state = server_state.prod
         self.test_server_state = server_state.test
         self.scope = ScopeTypeEnum.Prod
+
+    """
+        New methods
+    """
+
+    def get_user_from_db_by_id(self, _id: UUID):
+        from database.users.user_model import UserModel
+        user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
+        return user
+
+    def get_user_from_db_by_email(self, email: str) -> User:
+        from database.users.user_model import UserModel
+        user: UserModel = UserModel.query.filter_by(email=email).first()
+        if user is None:
+            raise UserNotFoundError
+        return User(
+            _id=UUID(hex=user.id),
+            email=user.email,
+            username=user.username,
+            password=user.passwordHash,
+            role=user.role
+        )
+
+    def add_new_user_to_db(self, new_user: User) -> None:
+        from app_db import db
+        from database.users.user_model import UserModel
+        user: UserModel = UserModel(
+            id=str(new_user.get_id()),
+            email=new_user.email,
+            username=new_user.username,
+            passwordHash=new_user.password,
+            role=new_user.role
+        )
+
+        db.session.add(user)
+        db.session.commit()
+
+    """
+        Old methods
+    """
 
     @private
     def get_db(self):
