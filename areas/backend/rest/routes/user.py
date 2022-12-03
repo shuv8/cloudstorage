@@ -264,6 +264,28 @@ def get_dir_in_space_content(space_id, dir_id):
         return jsonify("Can't find space with that ID"), 404
 
 
+@USER_REQUEST_API.route('/file', methods=['POST'])
+def add_new_file():
+    request_data = request.get_json()
+    try:
+        space_id = request_data['space_id']
+        dir_id = request_data['dir_id']
+        new_file_name = request_data['new_file_name']
+        new_file_type = request_data['new_file_type']
+        new_file_data = request_data['new_file_data']
+    except KeyError:
+        return jsonify({'error': 'invalid request body'}), 400
+    try:
+        user_email = "test_mail@mail.com"
+        new_file_id = dataStoreController.add_new_file(user_email, space_id, dir_id, new_file_name, new_file_type, new_file_data)
+    except ItemNotFoundError:
+        return jsonify({'error': 'incorrect directory'}), 404
+    except AlreadyExistsError:
+        # TODO: ответ должен содержать предложение о замене существующего файла
+        return jsonify({'error': 'file name alreay exists'}), 409
+    return jsonify({'id': new_file_id}), 200
+    
+
 @USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
 @token_required
 def view_file_by_id(file_id):

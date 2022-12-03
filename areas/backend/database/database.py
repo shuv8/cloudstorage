@@ -9,6 +9,7 @@ from core.department_manager import DepartmentManager
 from core.department import Department
 from core.user_manager import UserManager
 from core.user import User
+from exceptions.exceptions import ItemNotFoundError
 
 
 class DataBaseTemporary:
@@ -20,7 +21,7 @@ class DataBaseTemporary:
         )
 
         self.user_cloud_space_2_ = UserCloudSpace(
-            _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
+            _id='498cc561-e56e-4754-9262-0497876bd25a',
             space_type=SpaceType.Shared
         )
 
@@ -62,7 +63,7 @@ class DataBaseTemporary:
         ]
 
         self.user_cloud_space_2_.get_directory_manager().items = [
-            Directory(name="test1", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa4'))
+            Directory(name="test1", _id='7388a81f-a6b3-4c7f-aeae-9dd1a1e4074a')
         ]
 
         self.user_cloud_space_2_.get_directory_manager().file_manager.items = [
@@ -133,6 +134,21 @@ class DataBaseTemporary:
 
     def get_user_by_email(self, email: str):
         return self.user_manager.get_user_by_email(email)
+
+    def add_new_file(self, user_email: str, space_id: UUID, dir_id: UUID, file: File) -> UUID:
+        user = self.user_manager.get_user_by_email(user_email)
+        spaces = user.get_space_manager().get_spaces()
+        for _space in spaces:
+            if _space.get_id() == space_id:
+                current_space = _space
+                break
+        for _dir in current_space.get_directory_manager().get_items():
+            if _dir.get_id() == dir_id:
+                current_dir = _dir
+                break
+        current_dir.get_directory_manager().get_file_manager().add_item(file)
+        return file.get_id()
+        
 
     @staticmethod
     def get_file_by_item_id(item_id: UUID) -> BinaryIO:
