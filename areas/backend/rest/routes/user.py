@@ -277,7 +277,7 @@ def add_new_file():
         return jsonify({'error': 'invalid request body'}), 400
     try:
         user_email = "test_mail@mail.com"
-        new_file_id = dataStoreController.add_new_file(user_email, space_id, dir_id, new_file_name, new_file_type, new_file_data)
+        new_file_id = dataStoreController.add_new_file(user_email, UUID(space_id), UUID(dir_id), new_file_name, new_file_type, new_file_data)
     except ItemNotFoundError:
         return jsonify({'error': 'incorrect directory'}), 404
     except AlreadyExistsError:

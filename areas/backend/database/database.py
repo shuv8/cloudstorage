@@ -21,7 +21,7 @@ class DataBaseTemporary:
         )
 
         self.user_cloud_space_2_ = UserCloudSpace(
-            _id='498cc561-e56e-4754-9262-0497876bd25a',
+            _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
             space_type=SpaceType.Shared
         )
 
@@ -63,7 +63,7 @@ class DataBaseTemporary:
         ]
 
         self.user_cloud_space_2_.get_directory_manager().items = [
-            Directory(name="test1", _id='7388a81f-a6b3-4c7f-aeae-9dd1a1e4074a')
+            Directory(name="test1", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa4'))
         ]
 
         self.user_cloud_space_2_.get_directory_manager().file_manager.items = [
