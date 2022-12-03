@@ -772,9 +772,6 @@
         ],
         "summary": "TO DO",
         "responses": {
-          "400": {
-            "description": "Failed. Bad post data."
-          },
           "404": {
             "description": "No such file or directory."
           },

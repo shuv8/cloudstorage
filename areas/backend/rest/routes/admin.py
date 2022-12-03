@@ -20,16 +20,6 @@ def get_blueprint():
     return ADMIN_REQUEST_API
 
 
-@ADMIN_REQUEST_API.route('/admin_reset', methods=['GET'])
-def reset_core():
-    global dataStoreController
-    global userController
-    dataStoreController = DataStoreController(app_state.state)
-    userController = UserController(app_state.state)
-    print('CORE ADMIN RESET')
-    return 'Core reset OK', 200
-
-
 """
     ===================
     Block with Department

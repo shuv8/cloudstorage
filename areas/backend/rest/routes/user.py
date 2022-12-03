@@ -27,16 +27,6 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
-@USER_REQUEST_API.route('/user_reset', methods=['GET'])
-def reset_core():
-    global dataStoreController
-    global userController
-    dataStoreController = DataStoreController(app_state.state)
-    userController = UserController(app_state.state)
-    print('CORE USER RESET')
-    return 'Core reset OK', 200
-
-
 @USER_REQUEST_API.route('/registration', methods=['POST'])
 def registration():
     request_data = request.get_json()
@@ -597,8 +587,6 @@ def download_by_item_id(item_id):
         elif isinstance(file, Directory):
             file_name = file.name
             return send_file(result, download_name=file_name, as_attachment=True), 200
-        else:
-            return jsonify({'error': 'Wrong try to download'}), 400
     else:
         return jsonify({'error': 'No such file or directory'}), 404
 
@@ -612,6 +600,10 @@ def delete_by_item_id(item_id):
     Result:
         bool status of deleting
     """
+
+    scope = request.args.get('scope', default="prod", type=str)
+    dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+
     result = dataStoreController.delete_item(item_id)
     if result:
         return jsonify({'delete': 'success'}), 200
