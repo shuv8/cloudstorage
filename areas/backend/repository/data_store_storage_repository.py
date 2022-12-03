@@ -40,6 +40,7 @@ class DataStoreStorageRepository:
         file_id = self.get_db().add_new_file(user_email, space_id, dir_id, new_file)
         with open(f'storage/{file_id}{new_file.get_type()}', "wb") as fh:
             fh.write(base64.decodebytes(str.encode(new_file_data)))
+        return file_id
 
     def get_file_by_item_id(self, item_id: uuid.UUID) -> SpaceManager:
         return self.get_db().get_file_by_item_id(item_id)
