@@ -12,7 +12,7 @@ from core.files import File
 from core.role import Role
 from core.user import User
 from core.user_cloud_space import SpaceType
-from decorators.token_required import token_required
+from decorators.token_required import token_required, get_user_by_token
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
 import app_state
 
@@ -297,6 +297,7 @@ def view_file_by_id(file_id):
     """
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
+    user = get_user_by_token()
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     file: Optional[File] = dataStoreController.get_item_by_id(
         user_mail, UUID(hex=file_id))
