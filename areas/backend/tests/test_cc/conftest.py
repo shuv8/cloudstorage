@@ -1,4 +1,6 @@
 import pytest
+
+from core.user_cloud_space import SpaceType
 from web_server import create_app
 from bcrypt import gensalt, hashpw
 
@@ -18,7 +20,7 @@ def client():
 def admin_user():
     from app_db import get_current_db
     db_ = get_current_db(app_testing)
-    from database.users.user_model import UserModel
+    from database.users.user_model import UserModel, DirectoryModel, UserSpaceModel, FileModel
     from core.role import Role
     test_user = UserModel(
         id="bb01bafc-21f1-4af8-89f9-79aa0de840c8",
@@ -27,6 +29,40 @@ def admin_user():
         passwordHash=hashpw(str('password').encode(), gensalt()).decode(),
         role=Role.Admin
     )
+
+    # Create start directory
+    test_file = FileModel(
+        id="abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72",
+        name="file_for",
+        type=".vasya",
+    )
+
+    # Create start directory
+    test_dir = DirectoryModel(
+        id="bb01bafc-21f1-4af8-89f9-79aa0de840c0",
+        name="Root",
+        is_root=True,
+    )
+
+    # Create start directory
+    test_dir_2 = DirectoryModel(
+        id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
+        name="Bla",
+    )
+    db_.session.add(test_file)
+
+    test_dir.files.append(test_file)
+    test_dir.inner_directories.append(test_dir_2)
+    db_.session.add(test_dir)
+
+    test_space = UserSpaceModel(
+        id="bb01bafc-21f1-4af8-89f9-79aa0de840a2",
+        user_id=test_user.id,
+        space_type=SpaceType.Regular,
+    )
+    test_space.root_directory = test_dir
+
+    db_.session.add(test_space)
     db_.session.add(test_user)
     db_.session.commit()
     return test_user
@@ -84,4 +120,3 @@ def app_client_user(client, fill_db):
     login_data = {'email': 'user@mail.com', 'password': 'password'}
     client.put('/login', json=login_data)
     yield client
-

@@ -1,9 +1,8 @@
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from core.role import Role
 from app_db import get_current_db
 from core.user_cloud_space import SpaceType
 from flask import current_app
-
 
 db = get_current_db(current_app)
 
@@ -41,20 +40,6 @@ class DepartmentModel(db.Model):
     name = db.Column('department_name', db.String)
 
 
-class UserSpaceModel(db.Model):
-    __tablename__ = 'user_space'
-
-    id = db.Column('space_id', db.String, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
-    parent_id = db.Column('parent_id', db.String, db.ForeignKey('user_space.space_id'), nullable=True)
-    space_type = db.Column(db.Enum(SpaceType))
-    name = db.Column('department_name', db.String)
-
-    parent = db.relationship("UserSpaceModel", back_populates="children")
-    children = db.relationship("UserSpaceModel")
-    # add: directory
-
-
 class DirectoryModel(db.Model):
     __tablename__ = 'directory'
 
@@ -63,9 +48,18 @@ class DirectoryModel(db.Model):
     is_root = db.Column('is_root', db.Boolean)
     parent_id = db.Column('parent_id', db.String, db.ForeignKey('directory.directory_id'), nullable=True)
 
-    parent = db.relationship("DirectoryModel", back_populates="inner_directories")
-    inner_directories = relationship('DirectoryModel', remote_side=[id], uselist=True)
-    files = db.relationship("FileModel", backref="directory")
+    inner_directories = db.relationship(
+        'DirectoryModel',
+        remote_side=[id],
+        uselist=True,
+        backref="directory"
+    )
+
+    files = db.relationship(
+        'FileModel',
+        uselist=True,
+        backref="directory"
+    )
 
     # add access
 
@@ -76,8 +70,19 @@ class FileModel(db.Model):
     id = db.Column('file_id', db.String, primary_key=True)
     name = db.Column('name', db.String)
     type = db.Column(db.String(100))
-    directory_id = db.Column('directory_id', db.String, db.ForeignKey('directory.directory_id'))
 
-    parent = db.relationship("DirectoryModel", back_populates="files")
+    parent_id = db.Column('parent_id', db.String, db.ForeignKey("directory.directory_id"))
 
     # add access
+
+
+
+class UserSpaceModel(db.Model):
+    __tablename__ = 'user_space'
+
+    id = db.Column('space_id', db.String, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
+    space_type = db.Column(db.Enum(SpaceType))
+
+    root_directory_id = db.Column(db.String, db.ForeignKey('directory.directory_id'))
+    root_directory: DirectoryModel = db.relationship("DirectoryModel", backref=backref("user_space", uselist=False))
