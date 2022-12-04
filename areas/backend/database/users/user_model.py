@@ -54,7 +54,6 @@ class UserSpaceModel(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
     parent_id = db.Column('parent_id', db.String, db.ForeignKey('user_space.space_id'), nullable=True)
     space_type = db.Column(db.Enum(SpaceType))
-    name = db.Column('department_name', db.String)
 
     parent = db.relationship("UserSpaceModel", back_populates="children")
     children = db.relationship("UserSpaceModel")
