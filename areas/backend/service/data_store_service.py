@@ -287,10 +287,10 @@ class DataStoreService:
         return item.accesses
 
     def rename_item_by_id(self, user_mail: str, item_id: UUID, new_name: str):
-        user_mail = 'test_mail@mail.com'  # TODO: real email
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             item.name = new_name
+            self.data_store_storage_repo.edit_item_name(item)
             return item.name
         else:
             return None

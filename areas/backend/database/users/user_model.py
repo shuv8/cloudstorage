@@ -59,6 +59,7 @@ class DirectoryModel(db.Model):
     __tablename__ = 'directory'
 
     id = db.Column('directory_id', db.String, primary_key=True)
+    name = db.Column('name', db.String)
     is_root = db.Column('is_root', db.Boolean)
     parent_id = db.Column('parent_id', db.String, db.ForeignKey('directory.directory_id'), nullable=True)
 
@@ -73,6 +74,7 @@ class FileModel(db.Model):
     __tablename__ = 'file'
 
     id = db.Column('file_id', db.String, primary_key=True)
+    name = db.Column('name', db.String)
     type = db.Column(db.String(100))
     directory_id = db.Column('directory_id', db.String, db.ForeignKey('directory.directory_id'))
 

@@ -5,6 +5,7 @@ from typing import BinaryIO, Optional
 
 import pytest
 from accessify import private
+from sqlalchemy import update
 
 from app_state import ServerDatabase
 from app_states_for_test import ScopeTypeEnum
@@ -12,6 +13,10 @@ from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace
+from flask import current_app
+from app_db import get_current_db
+
+db = get_current_db(current_app)
 
 
 class DataStoreStorageRepository:
@@ -58,3 +63,22 @@ class DataStoreStorageRepository:
         )
         # TODO: разобраться с айдишниками и их сравнением
         return new_id  # return new file id
+
+    def edit_item_name(self, item):
+        if isinstance(item, File):
+            from database.users.user_model import FileModel
+            # TODO: temporary adding to db
+            if FileModel.query.filter_by(id=str(item.id)).first() is None:
+                file: FileModel = FileModel(
+                    id = str(item.id),
+                    name = item.name,
+                    type=item.type
+                )
+                db.session.add(file)
+                db.session.commit()
+            # --- end of adding ---
+            db.session.execute(update(FileModel).where(FileModel.id == str(item.id)).values(name=item.name))
+        elif isinstance(item, Directory):
+            from database.users.user_model import DirectoryModel
+            db.session.execute(update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(name=item.name))
+        db.session.commit()

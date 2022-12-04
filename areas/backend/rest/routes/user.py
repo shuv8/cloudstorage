@@ -562,7 +562,8 @@ def rename_item(item_id):
 
     new_name = request.args.get('new_name', type=str)
     if new_name is not None:
-        result = dataStoreController.rename_item('test@mail.ru', item_id, new_name)
+        user = get_user_by_token()
+        result = dataStoreController.rename_item(user.email, item_id, new_name)
         if result is not None:
             return jsonify({'new_name': result}), 200
         else:
