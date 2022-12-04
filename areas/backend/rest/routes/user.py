@@ -298,7 +298,6 @@ def view_file_by_id(file_id):
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
     user = get_user_by_token()
-    print(user.email)
     user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     file: Optional[File] = dataStoreController.get_item_by_id(
         user_mail, UUID(hex=file_id))
