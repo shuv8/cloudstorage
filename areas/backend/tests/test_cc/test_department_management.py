@@ -83,3 +83,8 @@ class TestDepartmentManagement:
             if elem['department_name'] == data['department_name']:
                 flag = True
         assert not flag
+
+    def test_access_denied(self, app_client_user):
+        response = app_client_user.get(f'/department')
+        assert response.status_code == 403
+        assert response.text == '{"error":"access denied"}\n'
