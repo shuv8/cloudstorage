@@ -31,9 +31,30 @@ def admin_user():
     db_.session.commit()
 
 
+@pytest.fixture(scope='function')
+def add_departments():
+    from app_db import get_current_db
+    db_ = get_current_db(app_testing)
+    from database.users.user_model import DepartmentModel
+    test_dep_1 = DepartmentModel(name='Test_department_1')
+    test_dep_2 = DepartmentModel(name='Test_department_2')
+    db_.session.add_all([test_dep_1, test_dep_2])
+    db_.session.commit()
+    return [test_dep_1, test_dep_2]
+
+
+@pytest.fixture(scope='function')
+def fill_db(add_departments, admin_user):
+    data = {
+        'departments': add_departments,
+        'admin': admin_user
+    }
+    return data
+
+
 @pytest.fixture
-def app_client_admin(client, admin_user):
+def app_client_admin(client, fill_db):
     login_data = {'email': 'test_mail@mail.com', 'password': 'password'}
-    response = client.put('/login', json=login_data)
+    client.put('/login', json=login_data)
     yield client
 
