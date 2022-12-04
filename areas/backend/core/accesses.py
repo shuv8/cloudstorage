@@ -6,6 +6,12 @@ class Access(Enum):
     Edit = 2
 
 
+class AccessType(Enum):
+    Url = 1
+    User = 2
+    Department = 3
+
+
 class BaseAccess:
     def __init__(self, access_type: Access = Access.View) -> None:
         self.__access_type = access_type

@@ -37,6 +37,12 @@ def admin_user():
         type=".vasya",
     )
 
+    test_file_2 = FileModel(
+        id="abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73",
+        name="test_file_for",
+        type=".test",
+    )
+
     # Create start directory
     test_dir = DirectoryModel(
         id="bb01bafc-21f1-4af8-89f9-79aa0de840c0",
@@ -44,13 +50,13 @@ def admin_user():
         is_root=True,
     )
 
-    # Create start directory
     test_dir_2 = DirectoryModel(
         id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
         name="Bla",
     )
     db_.session.add(test_file)
 
+    test_dir_2.files.append(test_file_2)
     test_dir.files.append(test_file)
     test_dir.inner_directories.append(test_dir_2)
     db_.session.add(test_dir)

@@ -1,4 +1,6 @@
 from sqlalchemy.orm import relationship, backref
+
+from core.accesses import Access, AccessType
 from core.role import Role
 from app_db import get_current_db
 from core.user_cloud_space import SpaceType
@@ -40,6 +42,18 @@ class DepartmentModel(db.Model):
     name = db.Column('department_name', db.String)
 
 
+class AccessModel(db.Model):
+    __tablename__ = 'access'
+
+    id = db.Column('access_id', db.Integer, primary_key=True, autoincrement=True)
+    access_level = db.Column(db.Enum(Access))
+    access_type = db.Column(db.Enum(AccessType))
+    value = db.Column(db.String)
+
+    parent_file_id = db.Column('parent_file_id', db.String, db.ForeignKey("file.file_id"), nullable=True)
+    parent_id = db.Column('parent_id', db.String, db.ForeignKey("directory.directory_id"), nullable=True)
+
+
 class DirectoryModel(db.Model):
     __tablename__ = 'directory'
 
@@ -61,7 +75,11 @@ class DirectoryModel(db.Model):
         backref="directory"
     )
 
-    # add access
+    accesses: list[AccessModel] = db.relationship(
+        'AccessModel',
+        uselist=True,
+        backref="directory"
+    )
 
 
 class FileModel(db.Model):
@@ -73,8 +91,11 @@ class FileModel(db.Model):
 
     parent_id = db.Column('parent_id', db.String, db.ForeignKey("directory.directory_id"))
 
-    # add access
-
+    accesses: list[AccessModel] = db.relationship(
+        'AccessModel',
+        uselist=True,
+        backref="file"
+    )
 
 
 class UserSpaceModel(db.Model):
