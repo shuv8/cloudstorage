@@ -89,13 +89,13 @@ def search_for():
     """
 
     # query date
-    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+    user = get_user_by_token()
     query = request.args.get('query', default=".", type=str)
 
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
-    items: list[tuple[BaseStorageItem, str]] = dataStoreController.search_in_cloud(user_mail, query)
+    items: list[tuple[BaseStorageItem, str]] = dataStoreController.search_in_cloud(user.email, query)
     items_content = []
     for (item, path) in items:
         items_content.append(
@@ -129,12 +129,12 @@ def get_spaces():
     """
 
     # query date
-    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+    user = get_user_by_token()
 
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
-    items: list[UserCloudSpace] = dataStoreController.get_spaces(user_mail)
+    items: list[UserCloudSpace] = dataStoreController.get_spaces(user.email)
 
     spaces_content = []
     for item in items:
@@ -173,13 +173,13 @@ def get_space_content(space_id):
     """
 
     # query date
-    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+    user = get_user_by_token()
 
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
     try:
-        items: list[BaseStorageItem] = dataStoreController.get_space_content(user_mail, UUID(space_id))
+        items: list[BaseStorageItem] = dataStoreController.get_space_content(user.email, UUID(space_id))
 
         items_content = []
         for item in items:
@@ -227,13 +227,13 @@ def get_dir_in_space_content(space_id, dir_id):
     """
 
     # query date
-    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
+    user = get_user_by_token()
 
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
     try:
-        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user_mail, UUID(space_id), UUID(dir_id))
+        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user.email, UUID(space_id), UUID(dir_id))
 
         items_content = []
         for item in items:
@@ -298,9 +298,8 @@ def view_file_by_id(file_id):
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
     user = get_user_by_token()
-    user_mail = "test_mail@mail.com"  # TODO NEED REAL USER MAIL FORM AUTH
     file: Optional[File] = dataStoreController.get_item_by_id(
-        user_mail, UUID(hex=file_id))
+        user.email, UUID(hex=file_id))
     if file is None:
         return jsonify({'error': 'File not found'}), 404
 
@@ -562,7 +561,8 @@ def rename_item(item_id):
 
     new_name = request.args.get('new_name', type=str)
     if new_name is not None:
-        result = dataStoreController.rename_item('test@mail.ru', item_id, new_name)
+        user = get_user_by_token()
+        result = dataStoreController.rename_item(user.email, item_id, new_name)
         if result is not None:
             return jsonify({'new_name': result}), 200
         else:
@@ -580,11 +580,12 @@ def move_item(item_id):
         - target_directory: new target directory of item
     """
 
+    user = get_user_by_token()
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.move_item('test@mail.ru', item_id, uuid.UUID(hex=target_directory))
+        result = dataStoreController.move_item(user.email, item_id, uuid.UUID(hex=target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:
@@ -643,9 +644,10 @@ def copy_item(item_id):
         - target_directory: new target directory of item
     """
 
+    user = get_user_by_token()
     target_directory = request.args.get('target_directory', type=str)
     if target_directory is not None:
-        result = dataStoreController.copy_item('test@mail.ru', item_id, uuid.UUID(hex=target_directory))
+        result = dataStoreController.copy_item(user.email, item_id, uuid.UUID(hex=target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:

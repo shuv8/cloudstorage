@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSearch:
+class TestAccesses:
 
     def test_get_access(self, app_client_admin):
         response = app_client_admin.get(path=f'/accesses/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73')
