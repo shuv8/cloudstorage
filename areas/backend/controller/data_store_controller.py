@@ -54,6 +54,9 @@ class DataStoreController:
     def get_dir_content(self, user_mail: str, space_id: UUID, dir_id: UUID) -> list[BaseStorageItem]:
         return self.data_store_service.get_dir_content(user_mail, space_id, dir_id)
 
+    def add_new_file(self, user_email: str, space_id: UUID, dir_id: UUID, new_file_name: str, new_file_type: str, new_file_data: str) -> UUID:
+        return self.data_store_service.add_new_file(user_email, space_id, dir_id, new_file_name, new_file_type, new_file_data)
+
     def rename_item(self, user_mail: str, item_id: UUID, new_name: str):
         return self.data_store_service.rename_item_by_id(item_id=item_id, user_mail=user_mail, new_name=new_name)
 

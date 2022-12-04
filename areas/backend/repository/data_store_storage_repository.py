@@ -1,12 +1,14 @@
+import base64
 import sys
 import uuid
-from typing import Optional
+from typing import BinaryIO, Optional
 
 import pytest
 from accessify import private
 
 from app_state import ServerDatabase
 from app_states_for_test import ScopeTypeEnum
+from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace
@@ -33,6 +35,12 @@ class DataStoreStorageRepository:
             return ScopeTypeEnum.return_state_by_scope(self.scope, self.server_state, self.test_server_state)
         else:
             return self.server_state
+    
+    def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file: File, new_file_data: str) -> uuid.UUID:
+        file_id = self.get_db().add_new_file(user_email, space_id, dir_id, new_file)
+        with open(f'storage/{file_id}{new_file.get_type()}', "wb") as fh:
+            fh.write(base64.decodebytes(str.encode(new_file_data)))
+        return file_id
 
     def get_file_by_item_id(self, item_id: uuid.UUID) -> SpaceManager:
         return self.get_db().get_file_by_item_id(item_id)

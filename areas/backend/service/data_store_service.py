@@ -185,6 +185,14 @@ class DataStoreService:
                 return file
         return None
 
+    def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file_name: str, new_file_type: str, new_file_data: str) -> UUID:
+        dir_content = self.get_dir_content(user_email, space_id, dir_id)
+        for _item in dir_content:
+            if _item.name == new_file_name:
+                raise AlreadyExistsError
+        new_file = File(new_file_name, new_file_type)
+        return self.data_store_storage_repo.add_new_file(user_email, space_id, dir_id, new_file, new_file_data)
+
     def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
 

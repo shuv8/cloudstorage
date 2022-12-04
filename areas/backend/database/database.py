@@ -9,6 +9,7 @@ from core.department_manager import DepartmentManager
 from core.department import Department
 from core.user_manager import UserManager
 from core.user import User
+from exceptions.exceptions import ItemNotFoundError
 
 
 class DataBaseTemporary:
@@ -133,6 +134,21 @@ class DataBaseTemporary:
 
     def get_user_by_email(self, email: str):
         return self.user_manager.get_user_by_email(email)
+
+    def add_new_file(self, user_email: str, space_id: UUID, dir_id: UUID, file: File) -> UUID:
+        user = self.user_manager.get_user_by_email(user_email)
+        spaces = user.get_space_manager().get_spaces()
+        for _space in spaces:
+            if _space.get_id() == space_id:
+                current_space = _space
+                break
+        for _dir in current_space.get_directory_manager().get_items():
+            if _dir.get_id() == dir_id:
+                current_dir = _dir
+                break
+        current_dir.get_directory_manager().get_file_manager().add_item(file)
+        return file.get_id()
+        
 
     @staticmethod
     def get_file_by_item_id(item_id: UUID) -> BinaryIO:
