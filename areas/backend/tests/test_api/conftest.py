@@ -19,7 +19,10 @@ app_port = '5000'
 def api_log_client():
     logs_path = os.path.join(repo_root, 'tmp', 'logs')
     base_url = f'http://{app_host}:{app_port}'
-    login_data = {'email': 'test_mail@mail.com', 'password': 'password'}
+    registration_data = {'email': 'admin@mail.com', 'password': 'password', 'username': 'admin', 'role': 1}
+    res = requests.post(f'{base_url}/registration', json=registration_data)
+
+    login_data = {'email': 'admin@mail.com', 'password': 'password'}
     login_result = requests.put(f'{base_url}/login', json=login_data)
     return APIClient(base_url, log_file=logs_path, cookies=login_result.cookies)
 
