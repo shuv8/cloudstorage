@@ -33,11 +33,10 @@ def create_app(testing=False, db_uri=app_db.SQLALCHEMY_DATABASE_URI):
         app.register_blueprint(user.get_blueprint())
         app.register_blueprint(admin.get_blueprint())
         app.register_blueprint(SWAGGER_UI_BLUEPRINT, url_prefix=SWAGGER_URL)
-        if not testing:
-            from database.users.user_model import UserModel, DepartmentModel, DirectoryModel, FileModel, \
-                UserDepartment, UserSpaceModel
-            db.create_all()
-            db.session.commit()
+        from database.users.user_model import UserModel, DepartmentModel, DirectoryModel, FileModel, \
+            UserDepartment, UserSpaceModel
+        db.create_all()
+        db.session.commit()
 
     @app.errorhandler(400)
     def handle_400_error(_error):

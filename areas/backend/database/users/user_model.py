@@ -2,16 +2,10 @@ from sqlalchemy.orm import relationship
 from core.role import Role
 from app_db import get_current_db
 from core.user_cloud_space import SpaceType
-from sqlalchemy.orm import DeclarativeMeta
-
-#
-# user_department = db.Table('user_department',
-#                            db.Column('user_id', db.String, db.ForeignKey('user.user_id')),
-#                            db.Column('department_id', db.Integer, db.ForeignKey('department.department_id'))
-#                            )
+from flask import current_app
 
 
-db = get_current_db()
+db = get_current_db(current_app)
 
 
 class UserDepartment(db.Model):
