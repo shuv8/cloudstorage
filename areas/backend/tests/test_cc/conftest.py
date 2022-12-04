@@ -17,31 +17,10 @@ def client():
 
 
 @pytest.fixture(scope='function')
-def admin_user():
+def user_space():
     from app_db import get_current_db
     db_ = get_current_db(app_testing)
-    from database.users.user_model import UserModel, DirectoryModel, UserSpaceModel, FileModel
-    from core.role import Role
-    test_user = UserModel(
-        id="bb01bafc-21f1-4af8-89f9-79aa0de840c8",
-        email='admin@mail.com',
-        username='admin',
-        passwordHash=hashpw(str('password').encode(), gensalt()).decode(),
-        role=Role.Admin
-    )
-
-    # Create start directory
-    test_file = FileModel(
-        id="abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72",
-        name="file_for",
-        type=".vasya",
-    )
-
-    test_file_2 = FileModel(
-        id="abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73",
-        name="test_file_for",
-        type=".test",
-    )
+    from database.users.user_model import DirectoryModel, UserSpaceModel, FileModel
 
     # Create start directory
     test_dir = DirectoryModel(
@@ -50,10 +29,26 @@ def admin_user():
         is_root=True,
     )
 
+    # Create file in start directory
+    test_file = FileModel(
+        id="abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72",
+        name="file_for",
+        type=".vasya",
+    )
+
+    # Create inner directory in test_dir
     test_dir_2 = DirectoryModel(
         id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
         name="Bla",
     )
+
+    # Create file in test_dir_2
+    test_file_2 = FileModel(
+        id="abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73",
+        name="test_file_for",
+        type=".test",
+    )
+
     db_.session.add(test_file)
 
     test_dir_2.files.append(test_file_2)
@@ -63,12 +58,29 @@ def admin_user():
 
     test_space = UserSpaceModel(
         id="bb01bafc-21f1-4af8-89f9-79aa0de840a2",
-        user_id=test_user.id,
         space_type=SpaceType.Regular,
     )
     test_space.root_directory = test_dir
-
     db_.session.add(test_space)
+
+    return test_space
+
+
+@pytest.fixture(scope='function')
+def admin_user(user_space):
+    from app_db import get_current_db
+    db_ = get_current_db(app_testing)
+    from database.users.user_model import UserModel
+    from core.role import Role
+    test_user = UserModel(
+        id="bb01bafc-21f1-4af8-89f9-79aa0de840c8",
+        email='admin@mail.com',
+        username='admin',
+        passwordHash=hashpw(str('password').encode(), gensalt()).decode(),
+        role=Role.Admin
+    )
+    test_user.spaces.append(user_space)
+
     db_.session.add(test_user)
     db_.session.commit()
     return test_user
