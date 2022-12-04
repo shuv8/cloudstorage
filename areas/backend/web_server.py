@@ -5,12 +5,13 @@ from flask_sqlalchemy import SQLAlchemy
 import app_state
 import app_db
 
+
 app_state.init_state()
 
 from rest.routes import user, admin
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cloud.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = app_db.SQLALCHEMY_DATABASE_URI
 
 """ ----------------
     swagger specific 
@@ -70,9 +71,12 @@ def handle_500_error(_error):
 
 if __name__ == '__main__':
     db = SQLAlchemy(app)
-    app_db.init_db(db)
+    app.db = db
+    # app_db.init_db(db)
     with app.app_context():
-        from database.users.user_model import UserModel
+        from database.users.user_model import UserModel, DepartmentModel, DirectoryModel, FileModel,\
+            UserDepartment, UserSpaceModel
         db.create_all()
+        db.session.commit()
 
     app.run()  # TODO USE PRODUCTION SERVER

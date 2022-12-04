@@ -21,3 +21,8 @@ def token_required(f):
             return jsonify({'error': 'invalid token'}), 403
 
     return decorated
+
+
+def get_user_by_token():
+    token = request.cookies.get('token')
+    return userController.authentication(token)

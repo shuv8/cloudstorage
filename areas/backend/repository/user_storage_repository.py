@@ -1,6 +1,5 @@
 import sys
 from typing import List
-
 from uuid import UUID
 
 from accessify import private
@@ -44,7 +43,8 @@ class UserRepository:
         )
 
     def add_new_user_to_db(self, new_user: User) -> None:
-        from app_db import db
+        from app_db import get_current_db
+        db = get_current_db()
         from database.users.user_model import UserModel
         user: UserModel = UserModel(
             id=str(new_user.get_id()),
