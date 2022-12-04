@@ -16,12 +16,15 @@ class User:
             email: Optional[str],
             password: Optional[str],
             username: Optional[str],
-            _id: UUID = uuid4(),
+            _id: Optional[UUID] = None,
             role: Role = Role.Client,
             space_manager: Optional[SpaceManager] = None,
             _department_manager: Optional[department_manager.DepartmentManager] = None
     ):
-        self.__id: UUID = _id
+        if _id is None:
+            self.__id: UUID = uuid4()
+        else:
+            self.__id: UUID = _id
         self.__email: str = email
         self.__password: str = password
         self.__username: str = username
