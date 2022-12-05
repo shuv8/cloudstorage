@@ -600,7 +600,8 @@ def download_by_item_id(item_id):
     Result:
         file
     """
-    result, file = dataStoreController.download_item(item_id)
+    user = get_user_by_token()
+    result, file = dataStoreController.download_item(user.email, item_id)
     if result is not None:
         if isinstance(file, File):
             file_name = file.name + file.type
@@ -625,7 +626,8 @@ def delete_by_item_id(item_id):
     scope = request.args.get('scope', default="prod", type=str)
     dataStoreController.set_scope(ScopeTypeEnum.get_class_by_str(scope))
 
-    result = dataStoreController.delete_item(item_id)
+    user = get_user_by_token()
+    result = dataStoreController.delete_item(user.email, item_id)
     if result:
         return jsonify({'delete': 'success'}), 200
     else:
