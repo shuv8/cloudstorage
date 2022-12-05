@@ -5,6 +5,7 @@ from typing import BinaryIO, Optional
 
 from accessify import private
 from sqlalchemy import update
+from sqlalchemy import delete
 
 from app_state import ServerDatabase
 from app_states_for_test import ScopeTypeEnum
@@ -189,4 +190,12 @@ class DataStoreStorageRepository:
         elif isinstance(item, Directory):
             directory: DirectoryModel = DirectoryModel.query.filter_by(id = str(item.id)).first()
             directory.accesses = accesses
+        self.db.session.commit()
+
+    def delete_item_from_db(self, item):
+        if isinstance(item, File):
+            self.db.session.execute(delete(FileModel).where(FileModel.id == str(item.id)))
+        elif isinstance(item, Directory):
+            self.db.session.execute(
+                delete(DirectoryModel).where(DirectoryModel.id == str(item.id)))
         self.db.session.commit()
