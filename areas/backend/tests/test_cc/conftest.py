@@ -75,7 +75,7 @@ def user_space():
         db_.session.add(test_dir)
 
         test_space = UserSpaceModel(
-            id="bb01bafc-21f1-4af8-89f9-79aa0de840a2",
+            id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
             space_type=SpaceType.Regular,
         )
         test_space.root_directory = test_dir
