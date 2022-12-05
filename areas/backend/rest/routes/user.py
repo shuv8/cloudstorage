@@ -31,17 +31,14 @@ def get_blueprint():
 def registration():
     request_data = request.get_json()
     try:
-        new_user = User(
-            email=request_data['email'],
-            password=request_data['password'],
-            role=Role.get_enum_from_value(request_data['role']),
-            username=request_data['username']
-        )
+        email=request_data['email']
+        password=request_data['password']
+        role=Role.get_enum_from_value(request_data['role'])
+        username=request_data['username']
     except KeyError:
         return jsonify({'error': 'invalid request body'}), 400
-
     try:
-        userController.registration(new_user)
+        userController.registration(email, password, role, username)
     except AlreadyExistsError:
         return jsonify({'error': 'email already exist'}), 403
     return jsonify({}), 200

@@ -14,7 +14,7 @@ class Directory(BaseStorageItem):
             self,
             name: str,
             accesses: Optional[list[BaseAccess]] = None,
-            _id: Optional[uuid.UUID] = None,
+            _id: uuid.UUID = uuid.uuid4(),
     ):
         super().__init__(name, accesses, _id)
 

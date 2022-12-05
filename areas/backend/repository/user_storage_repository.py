@@ -51,7 +51,21 @@ class UserRepository:
         )
 
     def add_new_user_to_db(self, new_user: User) -> None:
-        from database.users.user_model import UserModel
+        from database.users.user_model import UserModel, UserSpaceModel, DirectoryModel
+        space_manager = new_user.get_space_manager()
+        root_space = space_manager.get_spaces()[0]
+        directory_manager = root_space.get_directory_manager()
+        root_directory = directory_manager.get_items()[0]
+        directory: DirectoryModel = DirectoryModel(
+            id=str(root_directory.get_id()),
+            name="root",
+            is_root=True,
+        )
+        space: UserSpaceModel = UserSpaceModel(
+            id=str(root_space.get_id()),
+            space_type=root_space.get_space_type(),
+        )
+        space.root_directory = directory
         user: UserModel = UserModel(
             id=str(new_user.get_id()),
             email=new_user.email,
@@ -59,8 +73,11 @@ class UserRepository:
             passwordHash=new_user.password,
             role=new_user.role
         )
+        user.spaces.append(space)
 
         db.session.add(user)
+        db.session.add(space)
+        db.session.add(directory)
         db.session.commit()
 
     """

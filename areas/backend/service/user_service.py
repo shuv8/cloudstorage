@@ -5,8 +5,15 @@ from bcrypt import checkpw, gensalt, hashpw
 from jwt import InvalidTokenError, decode, encode
 
 from app_states_for_test import ScopeTypeEnum
+from core.accesses import Access, BaseAccess
 from core.department import Department
 from core.department_manager import DepartmentNotFoundError
+from core.directory import Directory
+from core.directory_manager import DirectoryManager
+from core.files import FileManager
+from core.role import Role
+from core.space_manager import SpaceManager
+from core.user_cloud_space import SpaceType, UserCloudSpace
 from core.user_manager import UserNotFoundError
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
 from core.user import User
@@ -23,11 +30,38 @@ class UserService:
         self.scope = scope
         self.user_repo.set_scope(scope)
 
-    def registration(self, new_user: User) -> None:
+    def registration(self, email: str, password: str, role: Role, username: str) -> None:
         try:
-            self.user_repo.get_user_from_db_by_email(new_user.email)
+            self.user_repo.get_user_from_db_by_email(email)
             raise AlreadyExistsError
         except UserNotFoundError:
+            directory = Directory(
+                accesses=[
+                    BaseAccess(access_type=Access.View),
+                    BaseAccess(access_type=Access.Edit),
+                ],
+                name="root"
+            )
+            directory_manager = DirectoryManager(
+                items=[directory],
+                file_manager=FileManager(
+                    items=[]
+                )
+            )
+            space = UserCloudSpace(
+                space_type=SpaceType.Regular,
+                directory_manager=directory_manager
+            )
+            space_manager = SpaceManager(
+                spaces=[space]
+            )
+            new_user = User(
+                email=email,
+                password=password,
+                role=role,
+                username=username,
+                space_manager=space_manager
+            )
             hash = hashpw(
                 str(new_user.password).encode(), gensalt()
             )

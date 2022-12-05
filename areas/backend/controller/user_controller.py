@@ -2,6 +2,7 @@ from typing import List
 
 from app_states_for_test import ScopeTypeEnum
 from core.department import Department
+from core.role import Role
 from core.user import User
 from service.user_service import UserService
 
@@ -17,8 +18,8 @@ class UserController:
         self.scope = scope
         self.user_service.set_scope(scope)
 
-    def registration(self, new_user: User) -> None:
-        self.user_service.registration(new_user)
+    def registration(self, email: str, password: str, role: Role, username: str) -> None:
+        self.user_service.registration(email, password, role, username)
 
     def login(self, email: str, password: str) -> str:
         return self.user_service.login(email, password)
