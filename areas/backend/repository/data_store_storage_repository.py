@@ -58,7 +58,7 @@ class DataStoreStorageRepository:
 
     def fill_directory_with_data(self, directory: DirectoryModel) -> Directory:
         partly_root_directory = Directory(
-            _id=directory.id,
+            _id=uuid.UUID(directory.id),
             name=directory.name,
         )
 
