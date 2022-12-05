@@ -11,6 +11,7 @@ from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace
+from decorators.token_required import get_user_by_token
 from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
@@ -152,7 +153,6 @@ class DataStoreService:
         files_with_path = [(file, path + file.name + file.type) for file in file_manager.items if query in file.name]
         return files_with_path
 
-    @private
     def get_item_in_directory_by_id(self, directory: Directory, id_: UUID, recursive=True) -> Optional[BaseStorageItem]:
         if str(directory.id) == str(id_):
             return directory
@@ -226,6 +226,7 @@ class DataStoreService:
                 raise AlreadyExistsError
 
         item.add_access(new_access)
+        self.data_store_storage_repo.update_item_access(item)
 
     def remove_url_access_for_file(self, user_mail: str, item_id: UUID):
         item = self.get_user_file_by_id(user_mail, item_id)
@@ -236,6 +237,7 @@ class DataStoreService:
         for access in item.accesses:
             if type(access) == UrlAccess:
                 item.accesses.remove(access)
+                self.data_store_storage_repo.update_item_access(item)
                 break
 
     def add_email_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
@@ -245,6 +247,7 @@ class DataStoreService:
             raise ItemNotFoundError
 
         item.add_access(new_access)
+        self.data_store_storage_repo.update_item_access(item)
 
     def remove_email_access_for_file(self, user_mail: str, item_id: UUID, email: str):
         item = self.get_user_file_by_id(user_mail, item_id)
@@ -256,6 +259,7 @@ class DataStoreService:
             if type(access) == UserAccess:
                 if access.get_email() == email:
                     item.accesses.remove(access)
+                    self.data_store_storage_repo.update_item_access(item)
                     break
 
     def add_department_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
@@ -265,6 +269,7 @@ class DataStoreService:
             raise ItemNotFoundError
 
         item.add_access(new_access)
+        self.data_store_storage_repo.update_item_access(item)
 
     def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department: str):
         item = self.get_user_file_by_id(user_mail, item_id)
@@ -276,6 +281,7 @@ class DataStoreService:
             if type(access) == DepartmentAccess:
                 if access.get_department_name() == department:
                     item.accesses.remove(access)
+                    self.data_store_storage_repo.update_item_access(item)
                     break
 
     def get_accesses_for_item(self, user_mail: str, item_id: UUID) -> list[BaseAccess]:
@@ -287,16 +293,15 @@ class DataStoreService:
         return item.accesses
 
     def rename_item_by_id(self, user_mail: str, item_id: UUID, new_name: str):
-        user_mail = 'test_mail@mail.com'  # TODO: real email
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             item.name = new_name
+            self.data_store_storage_repo.edit_item_name(item)
             return item.name
         else:
             return None
 
     def move_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
-        user_mail = 'test_mail@mail.com'  # TODO: real email
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             target_directory = self.get_user_file_by_id(user_mail, target_directory_id)
@@ -366,7 +371,6 @@ class DataStoreService:
             return False
 
     def copy_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
-        user_mail = 'test_mail@mail.com'  # TODO: real email
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             target_directory = self.get_user_file_by_id(user_mail, target_directory_id)
