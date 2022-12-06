@@ -1,0 +1,14 @@
+before_script:
+  - python --version
+  - cd areas/backend
+  - pip install -r requirements.txt
+
+stages:
+  - Test
+
+pytest:
+  stage: Test
+  script:
+  - python -m pytest ./tests/test_cc
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
