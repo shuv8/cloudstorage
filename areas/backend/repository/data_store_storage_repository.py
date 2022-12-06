@@ -40,13 +40,6 @@ class DataStoreStorageRepository:
             if space.get_id() == space_id:
                 return space
 
-    @private
-    def get_db(self):
-        if "pytest" in sys.modules:
-            return ScopeTypeEnum.return_state_by_scope(self.scope, self.server_state, self.test_server_state)
-        else:
-            return self.server_state
-
     def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file: File,
                      new_file_data: str) -> uuid.UUID:
 
@@ -67,8 +60,12 @@ class DataStoreStorageRepository:
             fh.write(base64.decodebytes(str.encode(new_file_data)))
         return new_file.id
 
-    def get_file_by_item_id(self, item_id: uuid.UUID) -> SpaceManager:
-        return self.get_db().get_file_by_item_id(item_id)
+    def get_file_by_item_id(self, item_id: uuid.UUID) -> BinaryIO:
+        file: FileModel = FileModel.query.filter_by(id=str(item_id)).first()
+
+        _file = BinaryIO()
+        return _file
+
 
     def fill_directory_with_data(self, directory: DirectoryModel) -> Directory:
         partly_root_directory = Directory(
@@ -121,8 +118,8 @@ class DataStoreStorageRepository:
 
         return partly_root_directory
 
-    def get_root_dir_by_user_mail(self, user_mail: str) -> SpaceManager:
 
+    def get_root_dir_by_user_mail(self, user_mail: str) -> SpaceManager:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         user_space_models: list[UserSpaceModel] = UserSpaceModel.query.filter_by(user_id=user.id).all()
 
@@ -149,6 +146,7 @@ class DataStoreStorageRepository:
 
         return space_manager
 
+
     def copy_file(self, file):
         new_id = uuid.uuid4()
         self.server_state.user_cloud_space_1_.get_directory_manager().file_manager.add_item(
@@ -160,6 +158,7 @@ class DataStoreStorageRepository:
         # TODO: разобраться с айдишниками и их сравнением
         return new_id  # return new file id
 
+
     def edit_item_name(self, item):
         if isinstance(item, File):
             self.db.session.execute(update(FileModel).where(FileModel.id == str(item.id)).values(name=item.name))
@@ -167,6 +166,7 @@ class DataStoreStorageRepository:
             self.db.session.execute(
                 update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(name=item.name))
         self.db.session.commit()
+
 
     def add_shared_scope(self, item: BaseStorageItem, access: BaseAccess):
         if type(access) is UrlAccess:
@@ -200,6 +200,7 @@ class DataStoreStorageRepository:
         elif type(access) is DepartmentAccess:
             pass
         self.db.session.commit()
+
 
     def update_item_access(self, item: BaseStorageItem):
         accesses: list[AccessModel] = []
@@ -237,6 +238,7 @@ class DataStoreStorageRepository:
             directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
             directory.accesses = accesses
         self.db.session.commit()
+
 
     def delete_item_from_db(self, item):
         if isinstance(item, File):
