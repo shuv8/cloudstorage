@@ -182,7 +182,7 @@
         }
       }
     },
-    "/get_dir/{space_id}/<dir_id>": {
+    "/get_dir/{space_id}/{dir_id}": {
       "get": {
         "parameters": [
           {
