@@ -12,4 +12,4 @@ class Role(Enum):
         if str(value) == "2":
             return Role.Client
         else:
-            raise NotImplemented
+            raise NotImplementedError
