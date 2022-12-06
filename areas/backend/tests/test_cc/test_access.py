@@ -39,23 +39,25 @@ class TestAccesses:
         assert response.status_code == 403
 
     def test_add_remove_access_mail_view(self, app_client_user):
-        response = app_client_user.put(path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/test_mail@mail.com')
+
+        response = app_client_user.put(path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/admin@mail.com')
         assert response.status_code == 200
         response = app_client_user.get(path=f'/accesses/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73')
         assert response.status_code == 200
-        response = app_client_user.delete(path='/remove_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/test_mail@mail.com')
+
+        response = app_client_user.delete(path='/remove_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/admin@mail.com')
         assert response.status_code == 200
-        response = app_client_user.put(path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70/email/test_mail@mail.com')
+        response = app_client_user.put(path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70/email/admin@mail.com')
         assert response.status_code == 401
-        response = app_client_user.delete(path='/remove_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70/email/test_mail@mail.com')
+        response = app_client_user.delete(path='/remove_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70/email/admin@mail.com')
         assert response.status_code == 401
 
     def test_add_remove_access_mail_view_2(self, app_client_user):
-        response = app_client_user.put(path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/test_mail@mail.com?view_only=false')
+        response = app_client_user.put(path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/admin@mail.com?view_only=false')
         assert response.status_code == 200
         response = app_client_user.get(path=f'/accesses/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73')
         assert response.status_code == 200
-        response = app_client_user.delete(path='/remove_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/test_mail@mail.com')
+        response = app_client_user.delete(path='/remove_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73/email/admin@mail.com')
         assert response.status_code == 200
 
     def test_add_remove_access_department_view(self, app_client_user):

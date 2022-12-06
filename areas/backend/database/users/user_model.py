@@ -16,6 +16,13 @@ class UserDepartment(db.Model):
     department_id = db.Column(db.String, db.ForeignKey("department.department_id"), primary_key=True)
 
 
+class FileDirectory(db.Model):
+    __tablename__ = "file_directory"
+
+    file_id = db.Column(db.String, db.ForeignKey("file.file_id"), primary_key=True)
+    directory_id = db.Column(db.String, db.ForeignKey("directory.directory_id"), primary_key=True)
+
+
 class UserModel(db.Model):
     __tablename__ = 'user'
 
@@ -62,6 +69,12 @@ class DirectoryModel(db.Model):
     is_root = db.Column('is_root', db.Boolean)
     parent_id = db.Column('parent_id', db.String, db.ForeignKey('directory.directory_id'), nullable=True)
 
+    spaces = db.relationship(
+        'UserSpaceModel',
+        uselist=True,
+        backref="directory"
+    )
+
     inner_directories = db.relationship(
         'DirectoryModel',
         remote_side=[id],
@@ -69,9 +82,14 @@ class DirectoryModel(db.Model):
         backref="directory"
     )
 
+    # files = db.relationship(
+    #     'FileModel',
+    #     uselist=True,
+    #     backref="directory"
+    # )
     files = db.relationship(
-        'FileModel',
-        uselist=True,
+        "FileModel",
+        secondary=FileDirectory.__table__,
         backref="directory"
     )
 
@@ -88,8 +106,6 @@ class FileModel(db.Model):
     id = db.Column('file_id', db.String, primary_key=True)
     name = db.Column('name', db.String)
     type = db.Column(db.String(100))
-
-    parent_id = db.Column('parent_id', db.String, db.ForeignKey("directory.directory_id"))
 
     accesses: list[AccessModel] = db.relationship(
         'AccessModel',

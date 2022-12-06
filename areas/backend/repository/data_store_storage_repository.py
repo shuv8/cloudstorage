@@ -14,7 +14,7 @@ from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
-from core.user_cloud_space import UserCloudSpace
+from core.user_cloud_space import UserCloudSpace, SpaceType
 from flask import current_app
 from app_db import get_current_db
 
@@ -49,10 +49,23 @@ class DataStoreStorageRepository:
 
     def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file: File,
                      new_file_data: str) -> uuid.UUID:
-        file_id = self.get_db().add_new_file(user_email, space_id, dir_id, new_file)
-        with open(f'storage/{file_id}{new_file.get_type()}', "wb") as fh:
+
+        directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(dir_id)).first()
+
+        file = FileModel(
+            id=str(new_file.id),
+            name=new_file.name,
+            type=new_file.type,
+        )
+
+        self.db.session.add(file)
+        directory.files.append(file)
+
+        self.db.session.commit()
+
+        with open(f'storage/{new_file.id}{new_file.get_type()}', "wb") as fh:
             fh.write(base64.decodebytes(str.encode(new_file_data)))
-        return file_id
+        return new_file.id
 
     def get_file_by_item_id(self, item_id: uuid.UUID) -> SpaceManager:
         return self.get_db().get_file_by_item_id(item_id)
@@ -155,6 +168,39 @@ class DataStoreStorageRepository:
                 update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(name=item.name))
         self.db.session.commit()
 
+    def add_shared_scope(self, item: BaseStorageItem, access: BaseAccess):
+        if type(access) is UrlAccess:
+            pass
+        elif type(access) is UserAccess:
+            user: UserModel = UserModel.query.filter_by(email=access.get_email()).first()
+
+            new_space = UserSpaceModel(
+                id=str(uuid.uuid4().hex),
+                space_type=SpaceType.Shared,
+            )
+            self.db.session.add(new_space)
+
+            if isinstance(item, File):
+                file: FileModel = FileModel.query.filter_by(id=str(item.id)).first()
+                directory = DirectoryModel(
+                    id=str(uuid.uuid4().hex),
+                    name="Root",
+                    is_root=True,
+                )
+                self.db.session.add(directory)
+                new_space.root_directory = directory
+                new_space.root_directory.files = [file]
+            elif isinstance(item, Directory):
+                directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
+                new_space.root_directory = directory
+
+            user.spaces.append(new_space)
+
+
+        elif type(access) is DepartmentAccess:
+            pass
+        self.db.session.commit()
+
     def update_item_access(self, item: BaseStorageItem):
         accesses: list[AccessModel] = []
 
@@ -185,10 +231,10 @@ class DataStoreStorageRepository:
                 )
 
         if isinstance(item, File):
-            file: FileModel = FileModel.query.filter_by(id = str(item.id)).first()
+            file: FileModel = FileModel.query.filter_by(id=str(item.id)).first()
             file.accesses = accesses
         elif isinstance(item, Directory):
-            directory: DirectoryModel = DirectoryModel.query.filter_by(id = str(item.id)).first()
+            directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
             directory.accesses = accesses
         self.db.session.commit()
 

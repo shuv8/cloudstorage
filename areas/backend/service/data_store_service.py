@@ -186,6 +186,9 @@ class DataStoreService:
         return None
 
     def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file_name: str, new_file_type: str, new_file_data: str) -> UUID:
+        if not (self.is_user_file(user_email, dir_id)):
+            raise ItemNotFoundError
+
         dir_content = self.get_dir_content(user_email, space_id, dir_id)
         for _item in dir_content:
             if _item.name == new_file_name:
@@ -248,6 +251,7 @@ class DataStoreService:
 
         item.add_access(new_access)
         self.data_store_storage_repo.update_item_access(item)
+        self.data_store_storage_repo.add_shared_scope(item, new_access)
 
     def remove_email_access_for_file(self, user_mail: str, item_id: UUID, email: str):
         item = self.get_user_file_by_id(user_mail, item_id)
