@@ -397,3 +397,4 @@ class DataStoreService:
             file.id = _id
         for subdirectory in directory.directory_manager.items:
             self.copy_directory(subdirectory)
+
