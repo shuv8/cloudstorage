@@ -6,10 +6,18 @@ before_script:
   - pip install -r requirements.txt
 
 stages:
-  - Test
+  - CoreTests
+  - CCTests
 
-pytest:
-  stage: Test
+test_core:
+  stage: CoreTests
+  script:
+  - python3 -m pytest ./tests/test_core
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+
+test_cc:
+  stage: CCTests
   script:
   - python3 -m pytest ./tests/test_cc
   rules:
