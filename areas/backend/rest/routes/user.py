@@ -208,6 +208,31 @@ def get_space_content(space_id):
         return jsonify("Can't find space with that ID"), 404
 
 
+@USER_REQUEST_API.route('/directory', methods=['POST'])
+@token_required
+def add_new_directory():
+    request_data = request.get_json()
+    try:
+        space_id=request_data['space_id']
+        parent_id=request_data['parent_id']
+        new_directory_name=request_data['new_directory_name']
+    except KeyError:
+        return jsonify({'error': 'invalid request body'}), 400
+    try:
+        user = get_user_by_token()
+        directory_id = dataStoreController.add_new_directory(
+            user_email=user.get_email(),
+            space_id=UUID(space_id),
+            parent_id=UUID(parent_id),
+            new_directory_name=new_directory_name
+        )
+    except AlreadyExistsError:
+        return jsonify({'error': 'directory name already exist'}), 403
+    except ItemNotFoundError:
+        return jsonify({'error': 'not allowed'}), 405
+    return jsonify({'id': directory_id}), 200
+
+
 @USER_REQUEST_API.route('/get_dir/<space_id>/<dir_id>', methods=['GET'])
 @token_required
 def get_dir_in_space_content(space_id, dir_id):

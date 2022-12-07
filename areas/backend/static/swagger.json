@@ -182,6 +182,36 @@
         }
       }
     },
+    "/directory": {
+      "post": {
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Create new directory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/new_directory"
+              },
+              "example": {
+                "space_id": "31277789-2a0a-49d5-a10f-60ca66faf4e2",
+                "parent_id": "a3699d10-54ec-485e-a436-febefaf20c3a",
+                "new_directory_name": "mega new dir"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/get_dir/{space_id}/{dir_id}": {
       "get": {
         "parameters": [
@@ -949,6 +979,19 @@
             "type": "string"
           },
           "entity": {
+            "type": "string"
+          }
+        }
+      },
+      "new_directory": {
+        "properties": {
+          "space_id": {
+            "type": "string"
+          },
+          "parent_id": {
+            "type": "string"
+          },
+          "new_directory_name": {
             "type": "string"
           }
         }

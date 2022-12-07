@@ -66,6 +66,18 @@ class DataStoreStorageRepository:
         _file = BinaryIO()
         return _file
 
+    def add_new_directory(self, new_directory: Directory, parent_id: uuid.UUID) -> uuid.UUID:
+        new_directory_model = DirectoryModel(
+            id=str(new_directory.get_id()),
+            name=new_directory.get_name(),
+        )
+        
+        parent_drectory = DirectoryModel.query.filter_by(id=str(parent_id)).first()
+        parent_drectory.inner_directories.append(new_directory_model)
+
+        self.db.session.commit()
+
+        return new_directory.get_id()
 
     def fill_directory_with_data(self, directory: DirectoryModel) -> Directory:
         partly_root_directory = Directory(

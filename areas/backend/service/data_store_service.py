@@ -52,6 +52,15 @@ class DataStoreService:
 
         return items
 
+    def add_new_directory(self, user_email: str, space_id: UUID, 
+        parent_dir_id: uuid.UUID, new_directory_name: str) -> UUID:
+        items = self.get_dir_content(user_email, space_id, parent_dir_id)
+        for item in items:
+            if item.get_name() == new_directory_name:
+                raise AlreadyExistsError
+        new_directory = Directory(name=new_directory_name)
+        return self.data_store_storage_repo.add_new_directory(new_directory, parent_dir_id)
+
     def get_dir_content(self, user_mail: str, space_id: UUID, dir_id: UUID) -> list[BaseStorageItem]:
         space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
 
