@@ -324,13 +324,14 @@ class DataStoreService:
         if item is not None:
             target_directory = self.get_user_file_by_id(user_mail, target_directory_id)
             if target_directory is not None and isinstance(target_directory, Directory):
-                source_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
-                if isinstance(item, Directory):
-                    source_directory_manager.remove_dir(item.name)
-                    target_directory.directory_manager.add_items([item])
-                elif isinstance(item, File):
-                    source_directory_manager.file_manager.remove_item(item)
-                    target_directory.directory_manager.file_manager.add_item(item)
+                # source_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
+                # if isinstance(item, Directory):
+                #     source_directory_manager.remove_dir(item.name)
+                #     target_directory.directory_manager.add_items([item])
+                # elif isinstance(item, File):
+                #     source_directory_manager.file_manager.remove_item(item)
+                #     target_directory.directory_manager.file_manager.add_item(item)
+                self.data_store_storage_repo.move_item_in_db(item, target_directory)
                 return target_directory.name
         else:
             return None
@@ -395,20 +396,20 @@ class DataStoreService:
             if target_directory is not None and isinstance(target_directory, Directory):
                 if isinstance(item, Directory):
                     new_directory = deepcopy(item)
-                    self.copy_directory(directory=new_directory)
+                    new_directory.id = self.copy_directory(new_directory, target_directory.id)
                     target_directory.directory_manager.add_items([new_directory])
                 elif isinstance(item, File):
                     new_item = deepcopy(item)
-                    new_item.id = self.data_store_storage_repo.copy_file(item)
+                    new_item.id = self.data_store_storage_repo.copy_file(item, target_directory.id)
                     target_directory.directory_manager.file_manager.add_item(new_item)
                 return target_directory.name
         return None
 
-    def copy_directory(self, directory: Directory):
-        directory.id = uuid.uuid4()
+    def copy_directory(self, directory: Directory, target_directory_id):
+        new_dir_id = self.data_store_storage_repo.copy_directory(directory, target_directory_id)
         for file in directory.directory_manager.file_manager.items:
-            _id = self.data_store_storage_repo.copy_file(file)
+            _id = self.data_store_storage_repo.copy_file(file, new_dir_id)
             file.id = _id
         for subdirectory in directory.directory_manager.items:
-            self.copy_directory(subdirectory)
-
+            self.copy_directory(subdirectory, new_dir_id)
+        return new_dir_id
