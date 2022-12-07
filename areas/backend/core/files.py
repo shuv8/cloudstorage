@@ -13,9 +13,9 @@ class File(BaseStorageItem):
             _id: Optional[uuid.UUID] = None,
             accesses: Optional[list[BaseAccess]] = None,
     ):
+        _id = _id or uuid.uuid4()
         super().__init__(name, accesses, _id)
         self.__type = _type
-        self._id = _id or uuid.uuid4()
 
     def get_type(self) -> str:
         return self.__type

@@ -21,7 +21,7 @@ class User:
             space_manager: Optional[SpaceManager] = None,
             _department_manager: Optional[department_manager.DepartmentManager] = None
     ):
-        self.__id: UUID = uuid4() if _id is None else _id
+        self.__id: UUID = _id or uuid4()
         self.__email: str = email
         self.__password: str = password
         self.__username: str = username
