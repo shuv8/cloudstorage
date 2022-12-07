@@ -19,7 +19,7 @@ from core.user_cloud_space import UserCloudSpace, SpaceType
 from flask import current_app
 from app_db import get_current_db
 
-from database.users.user_model import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel
+from database.users.user_model import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory
 
 
 class DataStoreStorageRepository:
@@ -257,4 +257,13 @@ class DataStoreStorageRepository:
         elif isinstance(item, Directory):
             self.db.session.execute(
                 delete(DirectoryModel).where(DirectoryModel.id == str(item.id)))
+        self.db.session.commit()
+
+    def move_item_in_db(self, item, target_directory):
+        if isinstance(item, File):
+            self.db.session.execute(update(FileDirectory).where(
+                FileDirectory.file_id == str(item.id)).values(directory_id=str(target_directory.id)))
+        elif isinstance(item, Directory):
+            self.db.session.execute(update(DirectoryModel).where(
+                DirectoryModel.id == str(item.id)).values(parent_id=str(target_directory.id)))
         self.db.session.commit()

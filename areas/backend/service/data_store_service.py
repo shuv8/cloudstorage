@@ -331,6 +331,7 @@ class DataStoreService:
                 elif isinstance(item, File):
                     source_directory_manager.file_manager.remove_item(item)
                     target_directory.directory_manager.file_manager.add_item(item)
+                self.data_store_storage_repo.move_item_in_db(item, target_directory)
                 return target_directory.name
         else:
             return None
