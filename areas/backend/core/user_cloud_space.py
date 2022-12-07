@@ -15,11 +15,11 @@ class UserCloudSpace:
     def __init__(
             self,
             space_type: SpaceType,
-            _id: uuid.UUID = uuid.uuid4(),
+            _id: Optional[uuid.UUID] = None,
             directory_manager: Optional[DirectoryManager] = None
     ):
         self.__directory_manager: DirectoryManager = directory_manager or DirectoryManager(file_manager=None, items=None)
-        self.__space_id = _id
+        self.__space_id = _id or uuid.uuid4()
         self.__spaceType = space_type
 
     def get_id(self) -> uuid.UUID:
