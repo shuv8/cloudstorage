@@ -72,8 +72,8 @@ class DataStoreStorageRepository:
             name=new_directory.get_name(),
         )
         
-        parent_drectory = DirectoryModel.query.filter_by(id=str(parent_id)).first()
-        parent_drectory.inner_directories.append(new_directory_model)
+        parent_directory = DirectoryModel.query.filter_by(id=str(parent_id)).first()
+        parent_directory.inner_directories.append(new_directory_model)
 
         self.db.session.commit()
 

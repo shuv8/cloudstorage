@@ -77,16 +77,9 @@ class DirectoryModel(db.Model):
 
     inner_directories = db.relationship(
         'DirectoryModel',
-        remote_side=[id],
-        uselist=True,
-        backref="directory"
+        uselist=True
     )
 
-    # files = db.relationship(
-    #     'FileModel',
-    #     uselist=True,
-    #     backref="directory"
-    # )
     files = db.relationship(
         "FileModel",
         secondary=FileDirectory.__table__,
