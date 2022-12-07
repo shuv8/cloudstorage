@@ -361,7 +361,7 @@ class DataStoreService:
     def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            result = self.data_store_storage_repo.get_file_by_item_id(item.id)
+            result = self.data_store_storage_repo.get_file_by_item_id(item.id, item.type)
             # Пока оставил так, вроде норм, потом мб надо будет поправить
             return [result, item]
         else:
