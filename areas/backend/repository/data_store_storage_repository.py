@@ -1,8 +1,10 @@
 import base64
+from copy import deepcopy
 from io import BytesIO
 import sys
 import uuid
 from typing import BinaryIO, Optional
+import shutil
 
 from accessify import private
 from sqlalchemy import update
@@ -157,17 +159,39 @@ class DataStoreStorageRepository:
 
         return space_manager
 
-
-    def copy_file(self, file):
+    def copy_file(self, file, directory_id):
         new_id = uuid.uuid4()
-        self.server_state.user_cloud_space_1_.get_directory_manager().file_manager.add_item(
-            File(
-                name="test_copy",
-                _type=".txt",
-                _id=new_id)
+        old_file_model: FileModel = FileModel.query.filter_by(id=str(file.id)).first()
+        old_file_dir_model: FileDirectory = FileDirectory.query.filter_by(file_id=str(file.id)).first()
+        new_file_model = FileModel(
+            id = str(new_id),
+            name = old_file_model.name + '_copy' if old_file_dir_model.directory_id == str(directory_id) else old_file_model.name,
+            type = old_file_model.type
         )
-        # TODO: разобраться с айдишниками и их сравнением
-        return new_id  # return new file id
+        new_file_dir_model = FileDirectory(
+            file_id = str(new_id),
+            directory_id = str(directory_id)
+        )
+        src = f'storage/{old_file_model.id}{old_file_model.type}'
+        dst = f'storage/{str(new_id)}{old_file_model.type}'
+        shutil.copyfile(src, dst)
+        self.db.session.add(new_file_model)
+        self.db.session.add(new_file_dir_model)
+        self.db.session.commit()
+        return new_id
+
+    def copy_directory(self, directory, target_directory_id):
+        new_id = uuid.uuid4()
+        old_directory_model: DirectoryModel = DirectoryModel.query.filter_by(id=str(directory.id)).first()
+        new_directory_model = DirectoryModel(
+            id = str(new_id),
+            name = old_directory_model.name + '_copy' if old_directory_model.parent_id == str(target_directory_id) else old_directory_model.name,
+            is_root = False,
+            parent_id = str(target_directory_id)
+        )
+        self.db.session.add(new_directory_model)
+        self.db.session.commit()
+        return new_id
 
 
     def edit_item_name(self, item):
