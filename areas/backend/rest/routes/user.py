@@ -343,7 +343,7 @@ def view_file_by_id(file_id):
         if file.name + file.type == 'test2.txt':
             buf = BytesIO(b"TestText")
             return send_file(buf, mimetype_dict[file.type])
-        with open(f'./database/{file.name}{file.type}', 'rb') as file_buffer:
+        with open(f'storage/{file.id}{file.type}', 'rb') as file_buffer:
             buf = BytesIO(file_buffer.read())
             return send_file(buf, mimetype_dict[file.type])
     except FileNotFoundError as ex:
