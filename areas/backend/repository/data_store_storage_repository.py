@@ -1,4 +1,5 @@
 import base64
+from io import BytesIO
 import sys
 import uuid
 from typing import BinaryIO, Optional
@@ -60,11 +61,9 @@ class DataStoreStorageRepository:
             fh.write(base64.decodebytes(str.encode(new_file_data)))
         return new_file.id
 
-    def get_file_by_item_id(self, item_id: uuid.UUID) -> BinaryIO:
-        file: FileModel = FileModel.query.filter_by(id=str(item_id)).first()
-
-        _file = BinaryIO()
-        return _file
+    def get_file_by_item_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
+        with open(f'storage/{file_id}{file_type}', 'rb') as file_buffer:
+            return BytesIO(file_buffer.read())
 
     def add_new_directory(self, new_directory: Directory, parent_id: uuid.UUID) -> uuid.UUID:
         new_directory_model = DirectoryModel(

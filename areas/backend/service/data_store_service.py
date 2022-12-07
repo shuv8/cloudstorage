@@ -210,7 +210,7 @@ class DataStoreService:
         new_file = File(new_file_name, new_file_type, _id=uuid.uuid4())
         return self.data_store_storage_repo.add_new_file(user_email, space_id, dir_id, new_file, new_file_data)
 
-    def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
+    def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[tuple[BaseStorageItem, bytes]]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
 
         for space in space_manager.get_spaces():
@@ -361,7 +361,7 @@ class DataStoreService:
     def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            result = self.data_store_storage_repo.get_file_by_item_id(item.id)
+            result = self.data_store_storage_repo.get_file_by_item_id(item.id, item.type)
             # Пока оставил так, вроде норм, потом мб надо будет поправить
             return [result, item]
         else:
