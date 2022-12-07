@@ -10,9 +10,10 @@ class File(BaseStorageItem):
             self,
             name: str,
             _type: str,
-            _id: Optional[uuid.UUID] = uuid.uuid4(),
+            _id: Optional[uuid.UUID] = None,
             accesses: Optional[list[BaseAccess]] = None,
     ):
+        _id = _id or uuid.uuid4()
         super().__init__(name, accesses, _id)
         self.__type = _type
 

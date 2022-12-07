@@ -14,8 +14,9 @@ class Directory(BaseStorageItem):
             self,
             name: str,
             accesses: Optional[list[BaseAccess]] = None,
-            _id: uuid.UUID = uuid.uuid4(),
+            _id: Optional[uuid.UUID] = None,
     ):
+        _id = _id or uuid.uuid4()
         super().__init__(name, accesses, _id)
 
         self.__directory_manager = directory_manager.DirectoryManager(

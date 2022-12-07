@@ -51,6 +51,9 @@ class DataStoreController:
     def get_space_content(self, user_mail: str, space_id: UUID) -> list[BaseStorageItem]:
         return self.data_store_service.get_space_content(user_mail, space_id)
 
+    def add_new_directory(self, user_email: str, space_id: UUID, parent_id: UUID, new_directory_name: str) -> UUID:
+        return self.data_store_service.add_new_directory(user_email, space_id, parent_id, new_directory_name)
+
     def get_dir_content(self, user_mail: str, space_id: UUID, dir_id: UUID) -> list[BaseStorageItem]:
         return self.data_store_service.get_dir_content(user_mail, space_id, dir_id)
 
