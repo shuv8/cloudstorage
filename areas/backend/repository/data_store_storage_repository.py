@@ -1,27 +1,25 @@
 import base64
-from io import BytesIO
-
 import os
-import uuid
-from typing import BinaryIO, Optional
 import shutil
+import uuid
+from io import BytesIO
+from typing import BinaryIO, Optional
 
-from sqlalchemy import update
+from flask import current_app
+from minio import Minio
 from sqlalchemy import delete
+from sqlalchemy import update
 
+from app_db import get_current_db
 from app_state import ServerDatabase
 from app_states_for_test import ScopeTypeEnum
+from config import *
 from core.accesses import BaseAccess, UrlAccess, AccessType, DepartmentAccess, UserAccess
 from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace, SpaceType
-from flask import current_app
-from app_db import get_current_db
-
-from minio import Minio
-
 from database.users.user_model import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory
 
 
@@ -33,13 +31,12 @@ class DataStoreStorageRepository:
         self.db = get_current_db(current_app)
         self.minio_client = DataStoreStorageRepository.get_minio_client()
 
-
     @staticmethod
     def get_minio_client():
         client = Minio(
-            "play.min.io",
-            access_key="Q3AM3UQ867SPQQA43P2F",
-            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+            endpoint=endpoint,
+            access_key=access_key,
+            secret_key=secret_key,
         )
 
         found = client.bucket_exists("cloudstorage")
@@ -108,7 +105,7 @@ class DataStoreStorageRepository:
             id=str(new_directory.get_id()),
             name=new_directory.get_name(),
         )
-        
+
         parent_directory = DirectoryModel.query.filter_by(id=str(parent_id)).first()
         parent_directory.inner_directories.append(new_directory_model)
 
@@ -208,7 +205,6 @@ class DataStoreStorageRepository:
             file_id=str(new_id),
             directory_id=str(directory_id)
         )
-
 
         file_name = f'{old_file_model.id}{old_file_model.type}'
         new_file_name = f'{str(new_id)}{old_file_model.type}'

@@ -1,6 +1,8 @@
 import pytest
 from minio import Minio
 
+from config import *
+
 
 class TestCopyController:
 
@@ -15,9 +17,9 @@ class TestCopyController:
         _id = response.json['id']
         response = app_client_user.post(path=f'/copy/{_id}?target_directory=abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')
         client = Minio(
-            "play.min.io",
-            access_key="Q3AM3UQ867SPQQA43P2F",
-            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+            endpoint=endpoint,
+            access_key=access_key,
+            secret_key=secret_key,
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         assert response.status_code == 200
@@ -34,9 +36,9 @@ class TestCopyController:
         response = app_client_user.post(path='/copy/abd9cd7f-9ffd-42b0-bce4-eb14b51a1f09'
                                         '?target_directory=abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')
         client = Minio(
-            "play.min.io",
-            access_key="Q3AM3UQ867SPQQA43P2F",
-            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+            endpoint=endpoint,
+            access_key=access_key,
+            secret_key=secret_key,
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         assert response.status_code == 200

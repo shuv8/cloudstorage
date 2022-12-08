@@ -1,6 +1,8 @@
 import pytest
 from minio import Minio
 
+from config import *
+
 
 class TestViewFileById:
 
@@ -24,9 +26,9 @@ class TestViewFileById:
         })
         _id = response.json['id']
         client = Minio(
-            "play.min.io",
-            access_key="Q3AM3UQ867SPQQA43P2F",
-            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+            endpoint=endpoint,
+            access_key=access_key,
+            secret_key=secret_key,
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         response = app_client_user.get(f'/file/{_id}/view')
@@ -44,9 +46,9 @@ class TestViewFileById:
         _id = response.json['id']
         response = app_client_user.get(f'/file/{_id}/view')
         client = Minio(
-            "play.min.io",
-            access_key="Q3AM3UQ867SPQQA43P2F",
-            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+            endpoint=endpoint,
+            access_key=access_key,
+            secret_key=secret_key,
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         assert response.status_code == 200
