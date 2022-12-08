@@ -274,10 +274,10 @@ class DataStoreStorageRepository:
             directory.accesses = accesses
         self.db.session.commit()
 
-
     def delete_item_from_db(self, item):
         if isinstance(item, File):
             self.db.session.execute(delete(FileModel).where(FileModel.id == str(item.id)))
+            self.db.session.execute(delete(FileDirectory).where(FileDirectory.file_id == str(item.id)))
         elif isinstance(item, Directory):
             self.db.session.execute(
                 delete(DirectoryModel).where(DirectoryModel.id == str(item.id)))
