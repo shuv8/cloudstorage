@@ -31,6 +31,24 @@ class DataStoreStorageRepository:
         self.test_server_state = server_state.test
         self.scope = ScopeTypeEnum.Prod
         self.db = get_current_db(current_app)
+        self.minio_client = DataStoreStorageRepository.get_minio_client()
+
+
+    @staticmethod
+    def get_minio_client():
+        client = Minio(
+            "play.min.io",
+            access_key="Q3AM3UQ867SPQQA43P2F",
+            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+        )
+
+        found = client.bucket_exists("cloudstorage")
+        if not found:
+            client.make_bucket("cloudstorage")
+        else:
+            pass
+
+        return client
 
     def set_scope(self, scope: ScopeTypeEnum):
         self.scope = scope
@@ -45,45 +63,19 @@ class DataStoreStorageRepository:
                 return space
 
     def save_file_to_cloud(self, file_name):
-        client = Minio(
-            "play.min.io",
-            access_key="Q3AM3UQ867SPQQA43P2F",
-            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
-        )
-
-        found = client.bucket_exists("cloudstorage")
-        if not found:
-            client.make_bucket("cloudstorage")
-        else:
-            pass
-
-        client.fput_object("cloudstorage", file_name, f"./cache/{file_name}")
-        print(f"'./cache/{file_name}' is successfully uploaded as object 'test_file.py' to bucket 'cloud_storage'.")
-        os.remove(f"./cache/{file_name}")
+        self.minio_client.fput_object("cloudstorage", file_name, f"cache/{file_name}")
+        print(f"'cache/{file_name}' is successfully uploaded as object 'test_file.py' to bucket 'cloud_storage'.")
+        os.remove(f"cache/{file_name}")
 
     def get_file_from_cloud(self, file_name):
-        client = Minio(
-            "play.min.io",
-            access_key="Q3AM3UQ867SPQQA43P2F",
-            secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
-        )
+        try:
+            cloud_file_request = self.minio_client.get_object("cloudstorage", file_name)
+            return cloud_file_request.data
+        except:
+            raise FileNotFoundError
 
-        found = client.bucket_exists("cloudstorage")
-        if not found:
-            client.make_bucket("cloudstorage")
-        else:
-            pass
-
-        file = client.get_object("cloudstorage", file_name)
-        return file.data
-
-    #TODO
-    def copy_files_in_cloud(self, file_name):
-        pass
-
-    #TODO
     def remove_files_from_cloud(self, file_name):
-        pass
+        self.minio_client.remove_object("cloudstorage", file_name)
 
     def add_new_file(self, dir_id: uuid.UUID, new_file: File,
                      new_file_data: str) -> uuid.UUID:
@@ -102,7 +94,7 @@ class DataStoreStorageRepository:
         self.db.session.commit()
 
         file_name = f'{new_file.id}{new_file.get_type()}'
-        with open(f'./cache/{file_name}', "wb") as fh:
+        with open(f'cache/{file_name}', "wb") as fh:
             fh.write(base64.decodebytes(str.encode(new_file_data)))
 
         self.save_file_to_cloud(file_name)
@@ -216,9 +208,21 @@ class DataStoreStorageRepository:
             file_id=str(new_id),
             directory_id=str(directory_id)
         )
-        src = f'storage/{old_file_model.id}{old_file_model.type}'
-        dst = f'storage/{str(new_id)}{old_file_model.type}'
+
+
+        file_name = f'{old_file_model.id}{old_file_model.type}'
+        new_file_name = f'{str(new_id)}{old_file_model.type}'
+        file_data = self.get_binary_file_by_id(old_file_model.id, old_file_model.type)
+
+        with open(f'cache/{file_name}', "wb") as fh:
+            fh.write(BytesIO(file_data.read()).getbuffer())
+        src = f'cache/{file_name}'
+        dst = f'cache/{new_file_name}'
         shutil.copyfile(src, dst)
+
+        self.save_file_to_cloud(new_file_name)
+        os.remove(src)
+
         self.db.session.add(new_file_model)
         self.db.session.add(new_file_dir_model)
         self.db.session.commit()
@@ -319,6 +323,7 @@ class DataStoreStorageRepository:
     def delete_item_from_db(self, item):
         if isinstance(item, File):
             self.db.session.execute(delete(FileModel).where(FileModel.id == str(item.id)))
+            self.remove_files_from_cloud(f"{item.id}{item.type}")
         elif isinstance(item, Directory):
             self.db.session.execute(
                 delete(DirectoryModel).where(DirectoryModel.id == str(item.id)))

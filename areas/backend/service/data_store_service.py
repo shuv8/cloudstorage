@@ -361,9 +361,12 @@ class DataStoreService:
     def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            result = self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
-            # Пока оставил так, вроде норм, потом мб надо будет поправить
-            return [result, item]
+            if isinstance(item, File):
+                result = self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
+                return [result, item]
+            if isinstance(item, Directory):
+            # Directories downloading
+                return None
         else:
             return [None, None]
 
@@ -380,11 +383,11 @@ class DataStoreService:
             my_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
             if my_directory_manager is not None:
                 if isinstance(item, File):
-                    my_directory_manager.file_manager.remove_item(item)
+                    # my_directory_manager.file_manager.remove_item(item)
                     self.data_store_storage_repo.delete_item_from_db(item)
                     return True
                 elif isinstance(item, Directory):
-                    my_directory_manager.remove_dir(item.name)
+                    # my_directory_manager.remove_dir(item.name)
                     self.data_store_storage_repo.delete_item_from_db(item)
                     return True
                 else:
