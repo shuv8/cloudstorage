@@ -11,7 +11,6 @@ from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace
-from decorators.token_required import get_user_by_token
 from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
@@ -208,7 +207,7 @@ class DataStoreService:
             if _item.name == new_file_name:
                 raise AlreadyExistsError
         new_file = File(new_file_name, new_file_type, _id=uuid.uuid4())
-        return self.data_store_storage_repo.add_new_file(user_email, space_id, dir_id, new_file, new_file_data)
+        return self.data_store_storage_repo.add_new_file(dir_id, new_file, new_file_data)
 
     def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[tuple[BaseStorageItem, bytes]]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
@@ -361,11 +360,21 @@ class DataStoreService:
     def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            result = self.data_store_storage_repo.get_file_by_item_id(item.id, item.type)
-            # Пока оставил так, вроде норм, потом мб надо будет поправить
-            return [result, item]
+            if isinstance(item, File):
+                result = self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
+                return [result, item]
+            if isinstance(item, Directory):
+            # Directories downloading
+                return None
         else:
             return [None, None]
+
+    def get_binary_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BinaryIO]:
+        item = self.get_user_file_by_id(user_mail, item_id)
+        if item is not None:
+            return self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
+        else:
+            raise FileNotFoundError
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
         item = self.get_user_file_by_id(user_mail, item_id)
@@ -373,7 +382,7 @@ class DataStoreService:
             my_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
             if my_directory_manager is not None:
                 if isinstance(item, File):
-                    my_directory_manager.file_manager.remove_item(item)
+                    # my_directory_manager.file_manager.remove_item(item)
                     self.data_store_storage_repo.delete_item_from_db(item)
                     return True
                 elif isinstance(item, Directory):

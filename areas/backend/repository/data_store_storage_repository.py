@@ -1,26 +1,25 @@
 import base64
-from copy import deepcopy
-from io import BytesIO
-import sys
-import uuid
-from typing import BinaryIO, Optional
+import os
 import shutil
+import uuid
+from io import BytesIO
+from typing import BinaryIO, Optional
 
-from accessify import private
-from sqlalchemy import update
+from flask import current_app
+from minio import Minio
 from sqlalchemy import delete
+from sqlalchemy import update
 
+from app_db import get_current_db
 from app_state import ServerDatabase
 from app_states_for_test import ScopeTypeEnum
+from config import *
 from core.accesses import BaseAccess, UrlAccess, AccessType, DepartmentAccess, UserAccess
 from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace, SpaceType
-from flask import current_app
-from app_db import get_current_db
-
 from database.users.user_model import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory
 
 
@@ -30,6 +29,23 @@ class DataStoreStorageRepository:
         self.test_server_state = server_state.test
         self.scope = ScopeTypeEnum.Prod
         self.db = get_current_db(current_app)
+        self.minio_client = DataStoreStorageRepository.get_minio_client()
+
+    @staticmethod
+    def get_minio_client():
+        client = Minio(
+            endpoint=endpoint,
+            access_key=access_key,
+            secret_key=secret_key,
+        )
+
+        found = client.bucket_exists("cloudstorage")
+        if not found:
+            client.make_bucket("cloudstorage")
+        else:
+            pass
+
+        return client
 
     def set_scope(self, scope: ScopeTypeEnum):
         self.scope = scope
@@ -43,7 +59,22 @@ class DataStoreStorageRepository:
             if space.get_id() == space_id:
                 return space
 
-    def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file: File,
+    def save_file_to_cloud(self, file_name):
+        self.minio_client.fput_object("cloudstorage", file_name, f"cache/{file_name}")
+        print(f"'cache/{file_name}' is successfully uploaded as object 'test_file.py' to bucket 'cloud_storage'.")
+        os.remove(f"cache/{file_name}")
+
+    def get_file_from_cloud(self, file_name):
+        try:
+            cloud_file_request = self.minio_client.get_object("cloudstorage", file_name)
+            return cloud_file_request.data
+        except:
+            raise FileNotFoundError
+
+    def remove_files_from_cloud(self, file_name):
+        self.minio_client.remove_object("cloudstorage", file_name)
+
+    def add_new_file(self, dir_id: uuid.UUID, new_file: File,
                      new_file_data: str) -> uuid.UUID:
 
         directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(dir_id)).first()
@@ -59,20 +90,22 @@ class DataStoreStorageRepository:
 
         self.db.session.commit()
 
-        with open(f'storage/{new_file.id}{new_file.get_type()}', "wb") as fh:
+        file_name = f'{new_file.id}{new_file.get_type()}'
+        with open(f'cache/{file_name}', "wb") as fh:
             fh.write(base64.decodebytes(str.encode(new_file_data)))
+
+        self.save_file_to_cloud(file_name)
         return new_file.id
 
-    def get_file_by_item_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
-        with open(f'storage/{file_id}{file_type}', 'rb') as file_buffer:
-            return BytesIO(file_buffer.read())
+    def get_binary_file_by_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
+        return BytesIO(self.get_file_from_cloud(f"{file_id}{file_type}"))
 
     def add_new_directory(self, new_directory: Directory, parent_id: uuid.UUID) -> uuid.UUID:
         new_directory_model = DirectoryModel(
             id=str(new_directory.get_id()),
             name=new_directory.get_name(),
         )
-        
+
         parent_directory = DirectoryModel.query.filter_by(id=str(parent_id)).first()
         parent_directory.inner_directories.append(new_directory_model)
 
@@ -131,7 +164,6 @@ class DataStoreStorageRepository:
 
         return partly_root_directory
 
-
     def get_root_dir_by_user_mail(self, user_mail: str) -> SpaceManager:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         user_space_models: list[UserSpaceModel] = UserSpaceModel.query.filter_by(user_id=user.id).all()
@@ -164,17 +196,29 @@ class DataStoreStorageRepository:
         old_file_model: FileModel = FileModel.query.filter_by(id=str(file.id)).first()
         old_file_dir_model: FileDirectory = FileDirectory.query.filter_by(file_id=str(file.id)).first()
         new_file_model = FileModel(
-            id = str(new_id),
-            name = old_file_model.name + '_copy' if old_file_dir_model.directory_id == str(directory_id) else old_file_model.name,
-            type = old_file_model.type
+            id=str(new_id),
+            name=old_file_model.name + '_copy' if old_file_dir_model.directory_id == str(
+                directory_id) else old_file_model.name,
+            type=old_file_model.type
         )
         new_file_dir_model = FileDirectory(
-            file_id = str(new_id),
-            directory_id = str(directory_id)
+            file_id=str(new_id),
+            directory_id=str(directory_id)
         )
-        src = f'storage/{old_file_model.id}{old_file_model.type}'
-        dst = f'storage/{str(new_id)}{old_file_model.type}'
+
+        file_name = f'{old_file_model.id}{old_file_model.type}'
+        new_file_name = f'{str(new_id)}{old_file_model.type}'
+        file_data = self.get_binary_file_by_id(old_file_model.id, old_file_model.type)
+
+        with open(f'cache/{file_name}', "wb") as fh:
+            fh.write(BytesIO(file_data.read()).getbuffer())
+        src = f'cache/{file_name}'
+        dst = f'cache/{new_file_name}'
         shutil.copyfile(src, dst)
+
+        self.save_file_to_cloud(new_file_name)
+        os.remove(src)
+
         self.db.session.add(new_file_model)
         self.db.session.add(new_file_dir_model)
         self.db.session.commit()
@@ -184,15 +228,15 @@ class DataStoreStorageRepository:
         new_id = uuid.uuid4()
         old_directory_model: DirectoryModel = DirectoryModel.query.filter_by(id=str(directory.id)).first()
         new_directory_model = DirectoryModel(
-            id = str(new_id),
-            name = old_directory_model.name + '_copy' if old_directory_model.parent_id == str(target_directory_id) else old_directory_model.name,
-            is_root = False,
-            parent_id = str(target_directory_id)
+            id=str(new_id),
+            name=old_directory_model.name + '_copy' if old_directory_model.parent_id == str(
+                target_directory_id) else old_directory_model.name,
+            is_root=False,
+            parent_id=str(target_directory_id)
         )
         self.db.session.add(new_directory_model)
         self.db.session.commit()
         return new_id
-
 
     def edit_item_name(self, item):
         if isinstance(item, File):
@@ -201,7 +245,6 @@ class DataStoreStorageRepository:
             self.db.session.execute(
                 update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(name=item.name))
         self.db.session.commit()
-
 
     def add_shared_scope(self, item: BaseStorageItem, access: BaseAccess):
         if type(access) is UrlAccess:
@@ -235,7 +278,6 @@ class DataStoreStorageRepository:
         elif type(access) is DepartmentAccess:
             pass
         self.db.session.commit()
-
 
     def update_item_access(self, item: BaseStorageItem):
         accesses: list[AccessModel] = []
@@ -278,6 +320,7 @@ class DataStoreStorageRepository:
         if isinstance(item, File):
             self.db.session.execute(delete(FileModel).where(FileModel.id == str(item.id)))
             self.db.session.execute(delete(FileDirectory).where(FileDirectory.file_id == str(item.id)))
+            self.remove_files_from_cloud(f"{item.id}{item.type}")
         elif isinstance(item, Directory):
             self.db.session.execute(
                 delete(DirectoryModel).where(DirectoryModel.id == str(item.id)))

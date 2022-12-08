@@ -10,7 +10,6 @@ from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from core.directory import Directory
 from core.files import File
 from core.role import Role
-from core.user import User
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required, get_user_by_token
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
@@ -340,12 +339,8 @@ def view_file_by_id(file_id):
     if file.type not in allowed_file_type_to_view:
         return jsonify({'error': 'Cannot view such type of file'}), 403
     try:
-        if file.name + file.type == 'test2.txt':
-            buf = BytesIO(b"TestText")
-            return send_file(buf, mimetype_dict[file.type])
-        with open(f'storage/{file.id}{file.type}', 'rb') as file_buffer:
-            buf = BytesIO(file_buffer.read())
-            return send_file(buf, mimetype_dict[file.type])
+        binary_file = dataStoreController.get_binary_file_by_id(user.email, UUID(hex=file_id))
+        return send_file(binary_file, mimetype_dict[file.type])
     except FileNotFoundError as ex:
         return jsonify({'error': 'File is damaged'}), 404
 

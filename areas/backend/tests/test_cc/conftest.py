@@ -43,6 +43,12 @@ def user_space():
             name="Bla",
         )
 
+        # Create inner directory in test_dir
+        test_dir_3 = DirectoryModel(
+            id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1f09",
+            name="Bla",
+        )
+
         # Create file in test_dir_2
         test_file_2 = FileModel(
             id="abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73",
@@ -72,6 +78,7 @@ def user_space():
         test_dir_2.files.append(test_file_4)
         test_dir.files.append(test_file)
         test_dir.inner_directories.append(test_dir_2)
+        test_dir.inner_directories.append(test_dir_3)
         db_.session.add(test_dir)
 
         test_space = UserSpaceModel(

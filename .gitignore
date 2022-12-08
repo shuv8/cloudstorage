@@ -1,5 +1,6 @@
 *tmp/
-/areas/backend/storage/*
+/areas/backend/repository/cache/*
+/areas/backend/config.py
 
 .idea
 
