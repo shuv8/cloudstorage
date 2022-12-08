@@ -11,7 +11,6 @@ from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace
-from decorators.token_required import get_user_by_token
 from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
@@ -362,11 +361,18 @@ class DataStoreService:
     def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
-            result = self.data_store_storage_repo.get_file_by_item_id(item.id, item.type)
+            result = self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
             # Пока оставил так, вроде норм, потом мб надо будет поправить
             return [result, item]
         else:
             return [None, None]
+
+    def get_binary_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BinaryIO]:
+        item = self.get_user_file_by_id(user_mail, item_id)
+        if item is not None:
+            return self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
+        else:
+            raise FileNotFoundError
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
         item = self.get_user_file_by_id(user_mail, item_id)

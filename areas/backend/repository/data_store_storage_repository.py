@@ -100,7 +100,7 @@ class DataStoreStorageRepository:
         self.save_file_to_cloud(file_name)
         return new_file.id
 
-    def get_file_by_item_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
+    def get_binary_file_by_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
         return BytesIO(self.get_file_from_cloud(f"{file_id}{file_type}"))
 
     def add_new_directory(self, new_directory: Directory, parent_id: uuid.UUID) -> uuid.UUID:
