@@ -77,6 +77,14 @@ class DataStoreStorageRepository:
         file = client.get_object("cloudstorage", file_name)
         return file.data
 
+    #TODO
+    def copy_files_in_cloud(self, file_name):
+        pass
+
+    #TODO
+    def remove_files_from_cloud(self, file_name):
+        pass
+
     def add_new_file(self, dir_id: uuid.UUID, new_file: File,
                      new_file_data: str) -> uuid.UUID:
 
