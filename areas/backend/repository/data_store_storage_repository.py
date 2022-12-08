@@ -319,6 +319,7 @@ class DataStoreStorageRepository:
     def delete_item_from_db(self, item):
         if isinstance(item, File):
             self.db.session.execute(delete(FileModel).where(FileModel.id == str(item.id)))
+            self.db.session.execute(delete(FileDirectory).where(FileDirectory.file_id == str(item.id)))
             self.remove_files_from_cloud(f"{item.id}{item.type}")
         elif isinstance(item, Directory):
             self.db.session.execute(

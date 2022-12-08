@@ -335,7 +335,6 @@ class DataStoreService:
         else:
             return None
 
-    @private
     def get_parent_directory_manager_by_item_id(self, user_mail: str, item_id: UUID) -> Optional[DirectoryManager]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
 
@@ -388,6 +387,14 @@ class DataStoreService:
                     return True
                 elif isinstance(item, Directory):
                     # my_directory_manager.remove_dir(item.name)
+                    # self.data_store_storage_repo.delete_item_from_db(item)
+                    if item.name == "root":
+                        return False
+                    del_file_manager = item.directory_manager.file_manager
+                    for file in del_file_manager.items:
+                        self.data_store_storage_repo.delete_item_from_db(file)
+                    for subdirectory in item.directory_manager.items:
+                        self.delete_item(user_mail, item_id=subdirectory.id)
                     self.data_store_storage_repo.delete_item_from_db(item)
                     return True
                 else:
