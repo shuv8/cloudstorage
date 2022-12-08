@@ -10,7 +10,6 @@ from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from core.directory import Directory
 from core.files import File
 from core.role import Role
-from core.user import User
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required, get_user_by_token
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError

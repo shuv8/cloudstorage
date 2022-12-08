@@ -208,7 +208,7 @@ class DataStoreService:
             if _item.name == new_file_name:
                 raise AlreadyExistsError
         new_file = File(new_file_name, new_file_type, _id=uuid.uuid4())
-        return self.data_store_storage_repo.add_new_file(user_email, space_id, dir_id, new_file, new_file_data)
+        return self.data_store_storage_repo.add_new_file(dir_id, new_file, new_file_data)
 
     def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[tuple[BaseStorageItem, bytes]]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
