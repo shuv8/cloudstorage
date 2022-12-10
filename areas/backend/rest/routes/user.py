@@ -365,7 +365,7 @@ def get_accesses(item_id):
 
             accesses_content.append(
                 {
-                    "class": str(type(access)),
+                    "class": access.__class__.__name__,
                     "type": access.access_type.name,
                     "content": content
                 }

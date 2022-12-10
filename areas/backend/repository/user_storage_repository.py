@@ -154,39 +154,38 @@ class UserRepository:
 
         for user in users_ids:
             user_model: UserModel = UserModel.query.filter_by(id=user).first()
-            for space in user_model.spaces:
-                if space.root_directory.is_root:
-                    for access in space.root_directory.files[0].accesses:
-                        if access.access_type == AccessType.Department:
-                            if access.value == department_name:
-                                user_model.spaces.remove(space)
-                else:
-                    for access in space.root_directory.accesses:
-                        if access.access_type == AccessType.Department:
-                            if access.value == department_name:
-                                user_model.spaces.remove(space)
+            if user_model is not None:
+                for space in user_model.spaces:
+                    if space.root_directory.is_root:
+                        for access in space.root_directory.files[0].accesses:
+                            if access.access_type == AccessType.Department:
+                                if access.value == department_name:
+                                    user_model.spaces.remove(space)
+                    else:
+                        for access in space.root_directory.accesses:
+                            if access.access_type == AccessType.Department:
+                                if access.value == department_name:
+                                    user_model.spaces.remove(space)
 
         db.session.commit()
 
-
     def add_users_accesses(self, users_ids: List[str], department_name: str):
         from database.database import AccessModel, FileModel, DirectoryModel, UserModel
-        from sqlalchemy import and_
 
-        accesses: list[AccessModel] = AccessModel.query.filter_by(
-            and_(
-                access_type=AccessType.Department,
-                value=department_name
-            )).all()
+        accesses: list[AccessModel] = AccessModel.query.filter(
+            (AccessModel.access_type == AccessType.Department) & (AccessModel.value == department_name)
+        ).all()
 
         for access in accesses:
             if access.parent_file_id is not None:
                 file: FileModel = FileModel.query.filter_by(id=access.parent_file_id).first()
                 for user_id in users_ids:
                     user_model: UserModel = UserModel.query.filter_by(id=user_id).first()
-                    self.data_storage_repo.add_shared_space_for_file_model_by_email(file, user_model.email)
+                    if user_model is not None:
+                        self.data_storage_repo.add_shared_space_for_file_model_by_email(file, user_model.email)
             elif access.parent_id is not None:
                 directory: DirectoryModel = DirectoryModel.query.filter_by(id=access.parent_id).first()
                 for user_id in users_ids:
                     user_model: UserModel = UserModel.query.filter_by(id=user_id).first()
-                    self.data_storage_repo.add_shared_space_for_directory_model_by_email(directory, user_model.email)
+                    if user_model is not None:
+                        self.data_storage_repo.add_shared_space_for_directory_model_by_email(directory, user_model.email)
