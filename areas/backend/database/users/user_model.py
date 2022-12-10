@@ -46,7 +46,7 @@ class DepartmentModel(db.Model):
     __tablename__ = 'department'
 
     id = db.Column('department_id', db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column('department_name', db.String)
+    name = db.Column('department_name', db.String, unique=True)
 
 
 class AccessModel(db.Model):

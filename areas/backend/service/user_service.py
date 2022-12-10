@@ -96,6 +96,15 @@ class UserService:
             output_list.append(departments[index])
         return output_list
 
+    def get_all_users(self, page: int, limit: int) -> List[User]:
+        users = self.user_repo.get_users()
+        output_list = []
+        start_index = (page - 1) * limit
+        end_index = min(len(users), start_index + limit)
+        for index in range(start_index, end_index):
+            output_list.append(users[index])
+        return output_list
+
     def add_new_department(self, new_department: Department) -> None:
         try:
             self.user_repo.get_department_by_name(new_department.department_name)
@@ -105,3 +114,27 @@ class UserService:
 
     def delete_department_by_name(self, department_name: str) -> None:
         self.user_repo.delete_department_by_name(department_name)
+
+    def get_department_by_name(self, department_name: str) -> Department:
+        return self.user_repo.get_department_by_name(department_name)
+
+    def add_users_to_department(self, department_name: str, users: List[str]) -> Department:
+        department = self.user_repo.get_department_by_name(department_name)
+        new_users = []
+        for user in users:
+            new_users.append(self.user_repo.get_user_from_db_by_id(UUID(user)))
+        old_users = department.users
+        updated_users = old_users + new_users
+        department.users = updated_users
+        new_department = self.user_repo.update_department_users(department)
+        return new_department
+
+    def delete_users_from_department(self, department_name: str, users: List[str]) -> Department:
+        department = self.user_repo.get_department_by_name(department_name)
+        new_users = []
+        for user in department.users:
+            if str(user.get_id()) not in users:
+                new_users.append(user)
+        department.users = new_users
+        new_department = self.user_repo.update_department_users(department)
+        return new_department

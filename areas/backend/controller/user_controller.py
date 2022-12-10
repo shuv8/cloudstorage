@@ -30,8 +30,20 @@ class UserController:
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
         return self.user_service.get_all_departments(page, limit)
 
+    def get_all_users(self, page: int, limit: int) -> List[User]:
+        return self.user_service.get_all_users(page, limit)
+
     def add_new_department(self, new_department: Department) -> None:
         self.user_service.add_new_department(new_department)
 
     def delete_department_by_name(self, department_name: str) -> None:
         self.user_service.delete_department_by_name(department_name)
+
+    def get_department_by_name(self, department_name: str) -> Department:
+        return self.user_service.get_department_by_name(department_name)
+
+    def add_users_to_department(self, department_name: str, users: List[str]) -> Department:
+        return self.user_service.add_users_to_department(department_name, users)
+
+    def delete_users_from_department(self, department_name: str, users: List[str]) -> Department:
+        return self.user_service.delete_users_from_department(department_name, users)

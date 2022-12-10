@@ -29,6 +29,8 @@ class UserRepository:
     def get_user_from_db_by_id(self, _id: UUID):
         from database.users.user_model import UserModel
         user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
+        if user is None:
+            raise UserNotFoundError
         return User(
             _id=UUID(hex=user.id),
             email=user.email,
@@ -106,8 +108,23 @@ class UserRepository:
     def get_departments(self) -> List[Department]:
         from database.users.user_model import DepartmentModel
         departments: List[DepartmentModel] = DepartmentModel.query.all()
-        departments_list = [Department(i.name, None) for i in departments]
+        departments_list = [Department(i.name, i.users) for i in departments]
         return departments_list
+
+    def get_users(self) -> List[User]:
+        from database.users.user_model import UserModel
+        users: List[UserModel] = UserModel.query.all()
+        all_users = [
+            User(
+                _id=UUID(hex=user.id),
+                email=user.email,
+                username=user.username,
+                password=user.passwordHash,
+                role=user.role
+            )
+            for user in users
+        ]
+        return all_users
 
     def get_department_by_name(self, department_name) -> Department:
         from database.users.user_model import DepartmentModel
@@ -115,9 +132,19 @@ class UserRepository:
         department: DepartmentModel = DepartmentModel.query.filter_by(name=department_name).first()
         if department is None:
             raise DepartmentNotFoundError
+        users = [
+            User(
+                _id=UUID(hex=user.id),
+                email=user.email,
+                username=user.username,
+                password=user.passwordHash,
+                role=user.role
+            )
+            for user in department.users
+        ]
         return Department(
             department_name=department.name,
-            users=department.users
+            users=users
         )
 
     def add_new_department(self, new_department: Department) -> None:
@@ -134,3 +161,14 @@ class UserRepository:
             raise DepartmentNotFoundError
         db.session.delete(department)
         db.session.commit()
+
+    def update_department_users(self, department: Department) -> Department:
+        from database.users.user_model import DepartmentModel, UserModel
+        department_model: DepartmentModel = DepartmentModel.query.filter_by(name=department.department_name).first()
+        users = []
+        for user in department.users:
+            user_model: UserModel = UserModel.query.filter_by(id=str(user.get_id())).first()
+            users.append(user_model)
+        department_model.users = users
+        db.session.commit()
+        return self.get_department_by_name(department.department_name)
