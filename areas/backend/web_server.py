@@ -2,7 +2,6 @@ from flask import Flask, make_response, jsonify
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_sqlalchemy import SQLAlchemy
 
-import app_state
 import app_db
 
 
@@ -33,8 +32,6 @@ def create_app(testing=False, db_uri=app_db.SQLALCHEMY_DATABASE_URI):
         app.register_blueprint(user.get_blueprint())
         app.register_blueprint(admin.get_blueprint())
         app.register_blueprint(SWAGGER_UI_BLUEPRINT, url_prefix=SWAGGER_URL)
-        from database.users.user_model import UserModel, DepartmentModel, DirectoryModel, FileModel, \
-            UserDepartment, UserSpaceModel
         db.create_all()
         db.session.commit()
 
@@ -62,10 +59,8 @@ def create_app(testing=False, db_uri=app_db.SQLALCHEMY_DATABASE_URI):
     def handle_500_error(_error):
         """Return a http 500 error to client"""
         return make_response(jsonify({'error': 'Server error'}), 500)
+
     return app
-
-
-app_state.init_state()
 
 
 if __name__ == '__main__':

@@ -2,12 +2,11 @@ from enum import Enum
 from typing import Optional, BinaryIO
 from uuid import UUID
 
-from app_states_for_test import ScopeTypeEnum
 from core.accesses import BaseAccess
 from core.base_storage_item import BaseStorageItem
 from core.files import File
 from core.user_cloud_space import UserCloudSpace
-from exceptions.exceptions import NotAllowedError, ItemNotFoundError
+from exceptions.exceptions import NotAllowedError
 from service.data_store_service import DataStoreService
 from service.access_service import AccessService
 
@@ -25,22 +24,15 @@ class AccessClassEnum(Enum):
 
 class DataStoreController:
 
-    def __init__(self, server_state):
-        self.server_state = server_state
-        self.scope = ScopeTypeEnum.Prod
-        self.data_store_service = DataStoreService(server_state)
-        self.access_service = AccessService(server_state)
+    def __init__(self):
+        self.data_store_service = DataStoreService()
+        self.access_service = AccessService()
 
     """
         ==================
         Data Store Service
         ==================
     """
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
-        self.access_service.set_scope(scope)
-        self.data_store_service.set_scope(scope)
 
     def search_in_cloud(self, user_mail: str, file_name: str) -> list[tuple[BaseStorageItem, str]]:
         return self.data_store_service.search_in_cloud(user_mail, file_name)
@@ -99,21 +91,21 @@ class DataStoreController:
             access_class: AccessClassEnum,
             view_only: Optional[bool] = True,
             name: Optional[str] = None,
-    ):
+    ) -> str :
         try:
             if edit_type == AccessEditTypeEnum.Add:
                 if access_class == AccessClassEnum.Url:
-                    self.access_service.add_access_for_item_by_url(item_id, view_only)
+                    return self.access_service.add_access_for_item_by_url(item_id, view_only)
                 if access_class == AccessClassEnum.UserEmail:
-                    self.access_service.add_access_for_item_by_email(item_id, name, view_only)
+                    return self.access_service.add_access_for_item_by_email(item_id, name, view_only)
                 if access_class == AccessClassEnum.Department:
-                    self.access_service.add_access_for_item_by_department(item_id, name, view_only)
+                    return self.access_service.add_access_for_item_by_department(item_id, name, view_only)
             elif edit_type == AccessEditTypeEnum.Remove:
                 if access_class == AccessClassEnum.Url:
-                    self.access_service.remove_access_for_item_by_url(item_id)
+                    return self.access_service.remove_access_for_item_by_url(item_id)
                 if access_class == AccessClassEnum.UserEmail:
-                    self.access_service.remove_access_for_item_by_email(item_id, name)
+                    return self.access_service.remove_access_for_item_by_email(item_id, name)
                 if access_class == AccessClassEnum.Department:
-                    self.access_service.remove_access_for_item_by_department(item_id, name)
+                    return self.access_service.remove_access_for_item_by_department(item_id, name)
         except NotAllowedError:
             raise NotAllowedError

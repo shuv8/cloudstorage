@@ -8,12 +8,11 @@ from decorators.token_required import admin_access
 from exceptions.exceptions import AlreadyExistsError
 from core.department_manager import DepartmentNotFoundError
 from core.user_manager import UserNotFoundError
-import app_state
 
 ADMIN_REQUEST_API = Blueprint('request_admin_api', __name__)
 
-dataStoreController = DataStoreController(app_state.state)
-userController = UserController(app_state.state)
+dataStoreController = DataStoreController()
+userController = UserController()
 
 
 def get_blueprint():

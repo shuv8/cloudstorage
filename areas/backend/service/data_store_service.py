@@ -3,7 +3,6 @@ import uuid
 from copy import deepcopy
 from uuid import UUID
 
-from app_states_for_test import ScopeTypeEnum
 from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess
 from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
@@ -18,14 +17,8 @@ import logging
 
 
 class DataStoreService:
-    def __init__(self, server_state):
-        self.server_state = server_state
-        self.data_store_storage_repo = DataStoreStorageRepository(server_state)
-        self.scope = ScopeTypeEnum.Prod
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
-        self.data_store_storage_repo.set_scope(scope)
+    def __init__(self):
+        self.data_store_storage_repo = DataStoreStorageRepository()
 
     def search_in_cloud(self, user_mail: str, query: str) -> list[tuple[BaseStorageItem, str]]:
         """
@@ -209,7 +202,7 @@ class DataStoreService:
         new_file = File(new_file_name, new_file_type, _id=uuid.uuid4())
         return self.data_store_storage_repo.add_new_file(dir_id, new_file, new_file_data)
 
-    def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[tuple[BaseStorageItem, bytes]]:
+    def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
 
         for space in space_manager.get_spaces():
@@ -231,20 +224,32 @@ class DataStoreService:
     def is_user_file(self, user_mail: str, item_id: UUID) -> bool:
         return self.get_user_file_by_id(user_mail, item_id) is not None
 
-    def set_url_access_for_file(self, user_mail: str, item_id, new_access: BaseAccess):
+    def set_url_access_for_file(self, user_mail: str, item_id, new_access: BaseAccess) -> str:
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
             raise ItemNotFoundError
 
+        add_new_access = True
+
         for access in item.accesses:
             if type(access) == UrlAccess:
-                raise AlreadyExistsError
+                if access.access_type != new_access.access_type:
+                    access.access_type = new_access.access_type
+                    add_new_access = False
+                else:
+                    return "nothing changed"
 
-        item.add_access(new_access)
-        self.data_store_storage_repo.update_item_access(item)
+        if add_new_access:
+            item.add_access(new_access)
+            self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
+            self.data_store_storage_repo.update_item_access(item)
+            return "new access added"
+        else:
+            self.data_store_storage_repo.update_item_access(item)
+            return "accesses updated"
 
-    def remove_url_access_for_file(self, user_mail: str, item_id: UUID):
+    def remove_url_access_for_file(self, user_mail: str, item_id: UUID) -> str:
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
@@ -254,19 +259,37 @@ class DataStoreService:
             if type(access) == UrlAccess:
                 item.accesses.remove(access)
                 self.data_store_storage_repo.update_item_access(item)
-                break
+                self.data_store_storage_repo.remove_shared_space_by_url(item)
+                return "access removed"
+        return "nothing to remove"
 
-    def add_email_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
+    def add_email_access_for_file(self, user_mail: str, item_id: UUID, new_access: UserAccess) -> str:
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
             raise ItemNotFoundError
 
-        item.add_access(new_access)
-        self.data_store_storage_repo.update_item_access(item)
-        self.data_store_storage_repo.add_shared_scope(item, new_access)
+        add_new_access = True
 
-    def remove_email_access_for_file(self, user_mail: str, item_id: UUID, email: str):
+        for access in item.accesses:
+            if type(access) == UserAccess:
+                if access.get_email() == new_access.get_email():
+                    if access.access_type != new_access.access_type:
+                        access.access_type = new_access.access_type
+                        add_new_access = False
+                    else:
+                        return "nothing changed"
+
+        if add_new_access:
+            item.add_access(new_access)
+            self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
+            self.data_store_storage_repo.update_item_access(item)
+            return "new access added"
+        else:
+            self.data_store_storage_repo.update_item_access(item)
+            return "accesses updated"
+
+    def remove_email_access_for_file(self, user_mail: str, item_id: UUID, email: str) -> str:
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
@@ -276,19 +299,38 @@ class DataStoreService:
             if type(access) == UserAccess:
                 if access.get_email() == email:
                     item.accesses.remove(access)
+                    self.data_store_storage_repo.remove_shared_space_by_email(item, email)
                     self.data_store_storage_repo.update_item_access(item)
-                    break
+                    return "access removed"
+        return "nothing to remove"
 
-    def add_department_access_for_file(self, user_mail: str, item_id: UUID, new_access: BaseAccess):
+    def add_department_access_for_file(self, user_mail: str, item_id: UUID, new_access: DepartmentAccess):
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
             raise ItemNotFoundError
 
-        item.add_access(new_access)
-        self.data_store_storage_repo.update_item_access(item)
+        add_new_access = True
 
-    def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department: str):
+        for access in item.accesses:
+            if type(access) == DepartmentAccess:
+                if access.get_department_name() == new_access.get_department_name():
+                    if access.access_type != new_access.access_type:
+                        access.access_type = new_access.access_type
+                        add_new_access = False
+                    else:
+                        return "nothing changed"
+
+        if add_new_access:
+            item.add_access(new_access)
+            self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
+            self.data_store_storage_repo.update_item_access(item)
+            return "new access added"
+        else:
+            self.data_store_storage_repo.update_item_access(item)
+            return "accesses updated"
+
+    def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department_name: str):
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
@@ -296,10 +338,12 @@ class DataStoreService:
 
         for access in item.accesses:
             if type(access) == DepartmentAccess:
-                if access.get_department_name() == department:
+                if access.get_department_name() == department_name:
                     item.accesses.remove(access)
+                    self.data_store_storage_repo.remove_shared_space_by_department(item, department_name)
                     self.data_store_storage_repo.update_item_access(item)
-                    break
+                    return "access removed"
+        return "nothing to remove"
 
     def get_accesses_for_item(self, user_mail: str, item_id: UUID) -> list[BaseAccess]:
         item = self.get_user_file_by_id(user_mail, item_id)

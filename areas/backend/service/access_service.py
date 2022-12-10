@@ -1,7 +1,6 @@
 import uuid
 from uuid import UUID
 
-from app_states_for_test import ScopeTypeEnum
 from core.accesses import UrlAccess, Access, UserAccess, DepartmentAccess, BaseAccess
 from decorators.token_required import get_user_by_token
 from exceptions.exceptions import NotAllowedError
@@ -10,14 +9,8 @@ from service.data_store_service import DataStoreService
 
 class AccessService:
 
-    def __init__(self, server_state):
-        self.server_state = server_state
-        self.data_store_service = DataStoreService(server_state)
-        self.scope = ScopeTypeEnum.Prod
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
-        self.data_store_service.set_scope(scope)
+    def __init__(self):
+        self.data_store_service = DataStoreService()
 
     def get_accesses_for_item(self, item_id: UUID) -> list[BaseAccess]:
         user = get_user_by_token()
@@ -26,7 +19,7 @@ class AccessService:
 
         return self.data_store_service.get_accesses_for_item(user.email, item_id)
 
-    def add_access_for_item_by_url(self, item_id: UUID, view_only: bool):
+    def add_access_for_item_by_url(self, item_id: UUID, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
@@ -37,20 +30,20 @@ class AccessService:
             access_type = Access.Edit
 
         new_access = UrlAccess(
-            url=str(uuid.uuid4()),  # TODO MAKE IT STRONGER
+            url=str(uuid.uuid4()),
             access_type=access_type
         )
 
-        self.data_store_service.set_url_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.set_url_access_for_file(user.email, item_id, new_access)
 
-    def remove_access_for_item_by_url(self, item_id: UUID):
+    def remove_access_for_item_by_url(self, item_id: UUID) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_url_access_for_file(user.email, item_id)
+        return self.data_store_service.remove_url_access_for_file(user.email, item_id)
 
-    def add_access_for_item_by_email(self, item_id: UUID, email: str, view_only: bool):
+    def add_access_for_item_by_email(self, item_id: UUID, email: str, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
@@ -65,16 +58,16 @@ class AccessService:
             access_type=access_type
         )
 
-        self.data_store_service.add_email_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.add_email_access_for_file(user.email, item_id, new_access)
 
-    def remove_access_for_item_by_email(self, item_id: UUID, email: str):
+    def remove_access_for_item_by_email(self, item_id: UUID, email: str) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_email_access_for_file(user.email, item_id, email)
+        return self.data_store_service.remove_email_access_for_file(user.email, item_id, email)
 
-    def add_access_for_item_by_department(self, item_id: UUID, department: str, view_only: bool):
+    def add_access_for_item_by_department(self, item_id: UUID, department: str, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
@@ -89,11 +82,11 @@ class AccessService:
             access_type=access_type
         )
 
-        self.data_store_service.add_department_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.add_department_access_for_file(user.email, item_id, new_access)
 
-    def remove_access_for_item_by_department(self, item_id: UUID, department: str):
+    def remove_access_for_item_by_department(self, item_id: UUID, department: str) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_department_access_for_file(user.email, item_id, department)
+        return self.data_store_service.remove_department_access_for_file(user.email, item_id, department)

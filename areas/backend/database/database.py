@@ -1,156 +1,129 @@
-from typing import BinaryIO, Optional
-from uuid import UUID, uuid4
+from sqlalchemy.orm import relationship, backref
 
-from core.directory import Directory
-from core.files import File
-from core.space_manager import SpaceManager
-from core.user_cloud_space import UserCloudSpace, SpaceType
-from core.department_manager import DepartmentManager
-from core.department import Department
-from core.user_manager import UserManager
-from core.user import User
-from exceptions.exceptions import ItemNotFoundError
+from core.accesses import Access, AccessType
+from core.role import Role
+from app_db import get_current_db
+from core.user_cloud_space import SpaceType
+from flask import current_app
+
+db = get_current_db(current_app)
 
 
-class DataBaseTemporary:
+class UserDepartment(db.Model):
+    __tablename__ = "user_department"
 
-    def __init__(self):
-        self.user_cloud_space_1_ = UserCloudSpace(
-            _id=uuid4(),
-            space_type=SpaceType.Regular
-        )
+    user_id = db.Column(db.String, db.ForeignKey("user.user_id"), primary_key=True)
+    department_id = db.Column(db.String, db.ForeignKey("department.department_id"), primary_key=True)
 
-        self.user_cloud_space_2_ = UserCloudSpace(
-            _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'),
-            space_type=SpaceType.Shared
-        )
 
-        self.space_manager_ = SpaceManager(
-            spaces=[self.user_cloud_space_1_, self.user_cloud_space_2_]
-        )
+class FileDirectory(db.Model):
+    __tablename__ = "file_directory"
 
-        self.user_1_ = User(
-            email="test_mail@mail.com",
-            password="$2b$12$ikBnpSAHmRPfgOAh9HvQ/.KNLk/mAV5rGH7xRMcVmh9ozrjApsYIC",
-            username="username",
-            space_manager=self.space_manager_
-        )
+    file_id = db.Column(db.String, db.ForeignKey("file.file_id"), primary_key=True)
+    directory_id = db.Column(db.String, db.ForeignKey("directory.directory_id"), primary_key=True)
 
-        self.user_2_ = User(
-            email="test2_mail@mail.com",
-            password="$2b$12$ikBnpSAHmRPfgOAh9HvQ/.KNLk/mAV5rGH7xRMcVmh9ozrjApsYIC",
-            username="username",
-        )
 
-        self.user_cloud_space_1_.get_directory_manager().items = [
-            Directory(name="wow", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')),
-            Directory(name='second', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab14')),
-            Directory(name='delete', _id=UUID(hex='4c3b76d1-fe24-4fdf-afdf-7c38adbdab15')),
-        ]
+class DepartmentModel(db.Model):
+    __tablename__ = 'department'
 
-        self.user_cloud_space_1_.get_directory_manager().file_manager.items = [
-            File(name="wow3", _type=".type",
-                 _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73')),
-            File(name="test6", _type=".e"),
-            File(name="image", _type=".png",
-                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d71')),
-            File(name="test", _type=".txt",
-                 _id=UUID(hex='abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72')),
-            File(name="test2", _type=".txt",
-                 _id=UUID(hex='abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72')),
-            File(name="test3", _type=".txt",
-                 _id=UUID(hex='abd9cd7d-9ffd-41b0-d1e4-eb14b51a6d72')),
-        ]
+    id = db.Column('department_id', db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column('department_name', db.String, unique=True)
 
-        self.user_cloud_space_2_.get_directory_manager().items = [
-            Directory(name="test1", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa4'))
-        ]
 
-        self.user_cloud_space_2_.get_directory_manager().file_manager.items = [
-            File(name="test2", _type=".ty"),
-        ]
+class AccessModel(db.Model):
+    __tablename__ = 'access'
 
-        self.user_cloud_space_2_.get_directory_manager().items[0].get_directory_manager().file_manager.items = [
-            File(name="test42", _type=".ty"),
-        ]
+    id = db.Column('access_id', db.Integer, primary_key=True, autoincrement=True)
+    access_level = db.Column(db.Enum(Access))
+    access_type = db.Column(db.Enum(AccessType))
+    value = db.Column(db.String)
 
-        self.user_cloud_space_2_.get_directory_manager().items[0].get_directory_manager().items = [
-            Directory(name="test4242", _id=UUID(hex='abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa5'))
-        ]
+    parent_file_id = db.Column('parent_file_id', db.String, db.ForeignKey("file.file_id"), nullable=True)
+    parent_id = db.Column('parent_id', db.String, db.ForeignKey("directory.directory_id"), nullable=True)
 
-        self.users = {
-            "bb01bafc-21f1-4af8-89f9-79aa0de840c8": self.user_1_,
-            "5786c9ba-776f-4d53-804b-e5f87a01ec1f": self.user_2_,
-            self.user_1_.email: self.user_1_,
-            self.user_2_.email: self.user_2_
-        }
 
-        self.user_manager = UserManager([self.user_1_, self.user_2_])
+class FileModel(db.Model):
+    __tablename__ = 'file'
 
-        department_1 = Department('Test_department_1', [self.user_1_, self.user_2_])
-        department_2 = Department('Test_department_2', None)
+    id = db.Column('file_id', db.String, primary_key=True)
+    name = db.Column('name', db.String)
+    type = db.Column(db.String(100))
 
-        self.departments = {
-            "Test_department_1": department_1,
-            "Test_department_2": department_2
-        }
+    accesses: list[AccessModel] = db.relationship(
+        'AccessModel',
+        uselist=True,
+        backref="file",
+        cascade="all,delete"
+    )
 
-        self.department_manager = DepartmentManager([department_1, department_2])
 
-    def get_user_manager(self):
-        return self.user_manager
+class DirectoryModel(db.Model):
+    __tablename__ = 'directory'
 
-    def get_department_list(self):
-        return self.department_manager.get_departments()
+    id = db.Column('directory_id', db.String, primary_key=True)
+    name = db.Column('name', db.String)
+    is_root = db.Column('is_root', db.Boolean)
+    parent_id = db.Column('parent_id', db.String, db.ForeignKey('directory.directory_id'), nullable=True)
 
-    def get_department_by_name(self, department_name):
-        self.department_manager.get_department(department_name)
+    spaces = db.relationship(
+        'UserSpaceModel',
+        uselist=True,
+        backref="directory"
+    )
 
-    def add_new_department(self, new_department: Department):
-        self.department_manager.add_department(new_department)
-        self.departments[new_department.department_name] = new_department
+    inner_directories = db.relationship(
+        'DirectoryModel',
+        uselist=True
+    )
 
-    def delete_department_by_name(self, department_name: str):
-        self.department_manager.remove_department_by_department_name(department_name)
+    files: list[FileModel] = db.relationship(
+        "FileModel",
+        secondary=FileDirectory.__table__,
+        backref="directory"
+    )
 
-    def get_space_manager_by_user_mail(self, mail: str) -> SpaceManager:
-        return self.users[mail].space_manager
+    accesses: list[AccessModel] = db.relationship(
+        'AccessModel',
+        uselist=True,
+        backref="directory",
+        cascade="all,delete"
+    )
 
-    def get_spaces_by_user_mail(self, mail: str) -> list[UserCloudSpace]:
-        return self.get_space_manager_by_user_mail(mail).get_spaces()
 
-    def get_space_content_by_user_mail(self, mail: str, space_id: UUID) -> UserCloudSpace:
-        spaces = self.get_spaces_by_user_mail(mail)
-        for space in spaces:
-            if space.get_id() == space_id:
-                return space
+class UserSpaceModel(db.Model):
+    __tablename__ = 'user_space'
 
-    def add_new_user(self, new_user: User):
-        self.user_manager.add_user(new_user)
-        self.users[new_user.get_id()] = new_user
+    id = db.Column('space_id', db.String, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.user_id"))
+    space_type = db.Column(db.Enum(SpaceType))
 
-    def get_user(self, id: UUID):
-        return self.user_manager.get_user(id)
+    root_directory_id = db.Column(db.String, db.ForeignKey('directory.directory_id'))
+    root_directory: DirectoryModel = db.relationship("DirectoryModel", backref=backref("user_space", uselist=False))
 
-    def get_user_by_email(self, email: str):
-        return self.user_manager.get_user_by_email(email)
 
-    def add_new_file(self, user_email: str, space_id: UUID, dir_id: UUID, file: File) -> UUID:
-        user = self.user_manager.get_user_by_email(user_email)
-        spaces = user.get_space_manager().get_spaces()
-        for _space in spaces:
-            if _space.get_id() == space_id:
-                current_space = _space
-                break
-        for _dir in current_space.get_directory_manager().get_items():
-            if _dir.get_id() == dir_id:
-                current_dir = _dir
-                break
-        current_dir.get_directory_manager().get_file_manager().add_item(file)
-        return file.get_id()
-        
+class UrlSpaceModel(db.Model):
+    __tablename__ = 'url_space'
 
-    @staticmethod
-    def get_file_by_item_id(item_id: UUID) -> BinaryIO:
-        _file = BinaryIO()
-        return _file
+    id = db.Column('id', db.String, primary_key=True)
+
+    root_directory_id = db.Column(db.String, db.ForeignKey('directory.directory_id'))
+    root_directory: DirectoryModel = db.relationship("DirectoryModel", backref=backref("url_space", uselist=False))
+
+
+class UserModel(db.Model):
+    __tablename__ = 'user'
+
+    id = db.Column('user_id', db.String, primary_key=True)
+    email = db.Column(db.String(100))
+    passwordHash = db.Column(db.String(50))
+    username = db.Column(db.String(200))
+    role = db.Column(db.Enum(Role))
+    departments = db.relationship(
+        "DepartmentModel",
+        secondary=UserDepartment.__table__,
+        backref="users"
+    )
+    spaces: list[UserSpaceModel] = db.relationship(
+        "UserSpaceModel",
+        backref="users"
+    )
