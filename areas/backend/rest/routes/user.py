@@ -11,7 +11,7 @@ from core.files import File
 from core.role import Role
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required, get_user_by_token
-from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError
+from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, UserNotFoundError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -443,17 +443,21 @@ def add_access_by_user(item_id, email):
         view_only_bool: bool = False
 
     try:
-        dataStoreController.edit_access(
+        result = dataStoreController.edit_access(
             item_id,
             AccessEditTypeEnum.Add,
             AccessClassEnum.UserEmail,
             view_only_bool,
             email
         )
-        return jsonify({}), 200
+        return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except UserNotFoundError:
+        return jsonify({'error': 'User not found'}), 404
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['DELETE'])

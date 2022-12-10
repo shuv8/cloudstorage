@@ -18,7 +18,8 @@ from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace, SpaceType
-from database.users.user_model import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory
+from database.database import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory
+from exceptions.exceptions import UserNotFoundError
 
 
 class DataStoreStorageRepository:
@@ -110,6 +111,31 @@ class DataStoreStorageRepository:
             _id=uuid.UUID(directory.id),
             name=directory.name,
         )
+
+        accesses: list[BaseAccess] = []
+        for access in directory.accesses:
+            if access.access_type == AccessType.Url:
+                accesses.append(
+                    UrlAccess(
+                        url=access.value,
+                        access_type=access.access_level
+                    )
+                )
+            if access.access_type == AccessType.User:
+                accesses.append(
+                    UserAccess(
+                        email=access.value,
+                        access_type=access.access_level
+                    )
+                )
+            if access.access_type == AccessType.Department:
+                accesses.append(
+                    DepartmentAccess(
+                        department_name=access.value,
+                        access_type=access.access_level
+                    )
+                )
+        partly_root_directory.accesses = accesses
 
         files_in_directory: list[File] = []
         for file in directory.files:
@@ -238,11 +264,33 @@ class DataStoreStorageRepository:
                 update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(name=item.name))
         self.db.session.commit()
 
-    def add_shared_scope(self, item: BaseStorageItem, access: BaseAccess):
+    def remove_shared_space_by_email(self, item: BaseStorageItem, email: str):
+        user: UserModel = UserModel.query.filter_by(email=email).first()
+
+        if isinstance(item, File):
+            for space in user.spaces:
+                if space.space_type == SpaceType.Shared:
+                    if space.root_directory.files[0].id == str(item.id):
+                        user.spaces.remove(space)
+                        if space is not None:
+                            self.db.session.execute(delete(UserSpaceModel).where(UserSpaceModel.id == space.id))
+        elif isinstance(item, Directory):
+            for space in user.spaces:
+                if space.space_type == SpaceType.Shared:
+                    if space.root_directory.id == str(item.id):
+                        user.spaces.remove(space)
+                        if space is not None:
+                            self.db.session.execute(delete(UserSpaceModel).where(UserSpaceModel.id == space.id))
+        self.db.session.commit()
+
+    def add_shared_space_by_type(self, item: BaseStorageItem, access: BaseAccess):
         if type(access) is UrlAccess:
             pass
         elif type(access) is UserAccess:
             user: UserModel = UserModel.query.filter_by(email=access.get_email()).first()
+
+            if user is None:
+                raise UserNotFoundError
 
             new_space = UserSpaceModel(
                 id=str(uuid.uuid4().hex),
@@ -302,11 +350,18 @@ class DataStoreStorageRepository:
 
         if isinstance(item, File):
             file: FileModel = FileModel.query.filter_by(id=str(item.id)).first()
+            for access in file.accesses:
+                file.accesses.remove(access)
+                self.db.session.execute(delete(AccessModel).where(AccessModel.id == access.id))
             file.accesses = accesses
+            self.db.session.commit()
         elif isinstance(item, Directory):
             directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
+            for access in directory.accesses:
+                directory.accesses.remove(access)
+                self.db.session.execute(delete(AccessModel).where(AccessModel.id == access.id))
             directory.accesses = accesses
-        self.db.session.commit()
+            self.db.session.commit()
 
     def delete_item_from_db(self, item):
         if isinstance(item, File):

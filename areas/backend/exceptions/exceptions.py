@@ -12,3 +12,8 @@ class AlreadyExistsError(Exception):
 
 class InvalidCredentialsError(Exception):
     pass
+
+
+
+class UserNotFoundError(Exception):
+    pass

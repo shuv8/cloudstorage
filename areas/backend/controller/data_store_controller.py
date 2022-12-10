@@ -91,21 +91,21 @@ class DataStoreController:
             access_class: AccessClassEnum,
             view_only: Optional[bool] = True,
             name: Optional[str] = None,
-    ):
+    ) -> str :
         try:
             if edit_type == AccessEditTypeEnum.Add:
                 if access_class == AccessClassEnum.Url:
-                    self.access_service.add_access_for_item_by_url(item_id, view_only)
+                    return self.access_service.add_access_for_item_by_url(item_id, view_only)
                 if access_class == AccessClassEnum.UserEmail:
-                    self.access_service.add_access_for_item_by_email(item_id, name, view_only)
+                    return self.access_service.add_access_for_item_by_email(item_id, name, view_only)
                 if access_class == AccessClassEnum.Department:
-                    self.access_service.add_access_for_item_by_department(item_id, name, view_only)
+                    return self.access_service.add_access_for_item_by_department(item_id, name, view_only)
             elif edit_type == AccessEditTypeEnum.Remove:
                 if access_class == AccessClassEnum.Url:
-                    self.access_service.remove_access_for_item_by_url(item_id)
+                    return self.access_service.remove_access_for_item_by_url(item_id)
                 if access_class == AccessClassEnum.UserEmail:
-                    self.access_service.remove_access_for_item_by_email(item_id, name)
+                    return self.access_service.remove_access_for_item_by_email(item_id, name)
                 if access_class == AccessClassEnum.Department:
-                    self.access_service.remove_access_for_item_by_department(item_id, name)
+                    return self.access_service.remove_access_for_item_by_department(item_id, name)
         except NotAllowedError:
             raise NotAllowedError

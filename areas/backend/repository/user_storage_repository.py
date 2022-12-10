@@ -1,8 +1,5 @@
-import sys
 from typing import List
 from uuid import UUID
-
-from accessify import private
 
 from core.user import User
 from core.department import Department
@@ -21,7 +18,7 @@ class UserRepository:
     """
 
     def get_user_from_db_by_id(self, _id: UUID):
-        from database.users.user_model import UserModel
+        from database.database import UserModel
         user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
         if user is None:
             raise UserNotFoundError
@@ -34,7 +31,7 @@ class UserRepository:
         )
 
     def get_user_from_db_by_email(self, email: str) -> User:
-        from database.users.user_model import UserModel
+        from database.database import UserModel
         user: UserModel = UserModel.query.filter_by(email=email).first()
         if user is None:
             raise UserNotFoundError
@@ -47,7 +44,7 @@ class UserRepository:
         )
 
     def add_new_user_to_db(self, new_user: User) -> None:
-        from database.users.user_model import UserModel, UserSpaceModel, DirectoryModel
+        from database.database import UserModel, UserSpaceModel, DirectoryModel
         space_manager = new_user.get_space_manager()
         root_space = space_manager.get_spaces()[0]
         directory_manager = root_space.get_directory_manager()
@@ -81,13 +78,13 @@ class UserRepository:
     """
 
     def get_departments(self) -> List[Department]:
-        from database.users.user_model import DepartmentModel
+        from database.database import DepartmentModel
         departments: List[DepartmentModel] = DepartmentModel.query.all()
         departments_list = [Department(i.name, i.users) for i in departments]
         return departments_list
 
     def get_users(self) -> List[User]:
-        from database.users.user_model import UserModel
+        from database.database import UserModel
         users: List[UserModel] = UserModel.query.all()
         all_users = [
             User(
@@ -102,7 +99,7 @@ class UserRepository:
         return all_users
 
     def get_department_by_name(self, department_name) -> Department:
-        from database.users.user_model import DepartmentModel
+        from database.database import DepartmentModel
         from core.department_manager import DepartmentNotFoundError
         department: DepartmentModel = DepartmentModel.query.filter_by(name=department_name).first()
         if department is None:
@@ -123,13 +120,13 @@ class UserRepository:
         )
 
     def add_new_department(self, new_department: Department) -> None:
-        from database.users.user_model import DepartmentModel
+        from database.database import DepartmentModel
         department: DepartmentModel = DepartmentModel(name=new_department.department_name)
         db.session.add(department)
         db.session.commit()
 
     def delete_department_by_name(self, department_name: str) -> None:
-        from database.users.user_model import DepartmentModel
+        from database.database import DepartmentModel
         from core.department_manager import DepartmentNotFoundError
         department: DepartmentModel = DepartmentModel.query.filter_by(name=department_name).first()
         if department is None:
@@ -138,7 +135,7 @@ class UserRepository:
         db.session.commit()
 
     def update_department_users(self, department: Department) -> Department:
-        from database.users.user_model import DepartmentModel, UserModel
+        from database.database import DepartmentModel, UserModel
         department_model: DepartmentModel = DepartmentModel.query.filter_by(name=department.department_name).first()
         users = []
         for user in department.users:

@@ -488,7 +488,17 @@
             "description": "Failed. No permissions for this action"
           },
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/access_status"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1084,6 +1094,13 @@
       "id": {
         "properties": {
           "uuid": {
+            "type": "string"
+          }
+        }
+      },
+      "access_status": {
+        "properties": {
+          "status": {
             "type": "string"
           }
         }

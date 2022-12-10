@@ -21,7 +21,7 @@ def user_space():
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
-        from database.users.user_model import DirectoryModel, UserSpaceModel, FileModel
+        from database.database import DirectoryModel, UserSpaceModel, FileModel
 
         # Create start directory
         test_dir = DirectoryModel(
@@ -96,7 +96,7 @@ def admin_user():
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
-        from database.users.user_model import UserModel
+        from database.database import UserModel
         from core.role import Role
         test_user = UserModel(
             id="bb01bafc-21f1-4af8-89f9-79aa0de840c8",
@@ -116,7 +116,7 @@ def casual_user(user_space):
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
-        from database.users.user_model import UserModel
+        from database.database import UserModel
         from core.role import Role
         test_user = UserModel(
             id="bb01bafc-21f1-4af8-89f9-79aa0de840c1",
@@ -137,7 +137,7 @@ def add_departments():
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
-        from database.users.user_model import DepartmentModel
+        from database.database import DepartmentModel
         test_dep_1 = DepartmentModel(name='Test_department_1')
         test_dep_2 = DepartmentModel(name='Test_department_2')
         db_.session.add_all([test_dep_1, test_dep_2])
