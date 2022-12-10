@@ -35,3 +35,12 @@ class UserController:
 
     def delete_department_by_name(self, department_name: str) -> None:
         self.user_service.delete_department_by_name(department_name)
+
+    def get_department_by_name(self, department_name: str) -> Department:
+        return self.user_service.get_department_by_name(department_name)
+
+    def add_users_to_department(self, department_name: str, users: List[str]) -> Department:
+        return self.user_service.add_users_to_department(department_name, users)
+
+    def delete_users_from_department(self, department_name: str, users: List[str]) -> Department:
+        return self.user_service.delete_users_from_department(department_name, users)

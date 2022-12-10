@@ -823,6 +823,128 @@
         }
       }
     },
+    "/department/users": {
+      "get": {
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name for department",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "404": {
+            "description": "Failed. Not found"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/department_with_users"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name for department",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/users"
+              }
+            }
+          }
+        },
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "404": {
+            "description": "Failed. Not found"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/department_with_users"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name for department",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/users"
+              }
+            }
+          }
+        },
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "404": {
+            "description": "Failed. Not found"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/department_with_users"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/download/{item_id}": {
       "get": {
         "parameters": [
@@ -1045,6 +1167,29 @@
         "properties": {
           "department_name": {
             "type": "string"
+          }
+        }
+      },
+      "department_with_users": {
+        "properties": {
+          "department_name": {
+            "type": "string"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "id": "string"
+            }
+          }
+        }
+      },
+      "users": {
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "id": "string"
+            }
           }
         }
       }

@@ -7,6 +7,7 @@ from core.department import Department
 from decorators.token_required import admin_access
 from exceptions.exceptions import AlreadyExistsError
 from core.department_manager import DepartmentNotFoundError
+from core.user_manager import UserNotFoundError
 import app_state
 
 ADMIN_REQUEST_API = Blueprint('request_admin_api', __name__)
@@ -100,3 +101,114 @@ def delete_department():
         return jsonify({'error': 'Department with such name doesnt exist'}), 404
 
     return jsonify({}), 200
+
+
+@ADMIN_REQUEST_API.route('/department/users', methods=['GET'])
+@admin_access
+def get_department_with_users():
+    """
+    Query:
+        - query: name
+    Result:
+        {
+            users: [{
+              id: string
+            }],
+            department_name: string
+        }
+    """
+    name = request.args.get('name', default=None, type=str)
+    try:
+        department = userController.get_department_by_name(name)
+    except DepartmentNotFoundError:
+        return jsonify({'error': 'Department with such name doesnt exist'}), 404
+    users = [{"id": user.get_id()} for user in department.users]
+    return jsonify(
+        {
+            "department_name": department.department_name,
+            "users": users
+        }
+    ), 200
+
+
+@ADMIN_REQUEST_API.route('/department/users', methods=['POST'])
+@admin_access
+def add_users_to_department():
+    """
+    Query:
+        - query: name
+    Request Body:
+    {
+      users: [{
+            id: string
+            }]
+    }
+    Result:
+        {
+            users: [{
+              id: string
+            }],
+            department_name: string
+        }
+    """
+    name = request.args.get('name', default=None, type=str)
+    request_data = request.get_json()
+    try:
+        users = request_data['users']
+    except KeyError:
+        return jsonify({'error': 'invalid request body'}), 400
+    try:
+        department = userController.add_users_to_department(name, users)
+    except DepartmentNotFoundError:
+        return jsonify({'error': 'Department with such name doesnt exist'}), 404
+    except UserNotFoundError:
+        return jsonify({'error': 'Such user not found'}), 404
+    users = [{"id": user.get_id()} for user in department.users]
+    return jsonify(
+        {
+            "department_name": department.department_name,
+            "users": users
+        }
+    ), 200
+
+
+@ADMIN_REQUEST_API.route('/department/users', methods=['DELETE'])
+@admin_access
+def delete_user_from_department():
+    """
+    Query:
+        - query: name
+    Request Body:
+    {
+      users: [{
+            id: string
+            }]
+    }
+    Result:
+        {
+            users: [{
+              id: string
+            }],
+            department_name: string
+        }
+    """
+    name = request.args.get('name', default=None, type=str)
+    request_data = request.get_json()
+    try:
+        users = request_data['users']
+    except KeyError:
+        return jsonify({'error': 'invalid request body'}), 400
+    try:
+        department = userController.delete_users_from_department(name, users)
+    except DepartmentNotFoundError:
+        return jsonify({'error': 'Department with such name doesnt exist'}), 404
+    except UserNotFoundError:
+        return jsonify({'error': 'Such user not found'}), 404
+    users = [{"id": user.get_id()} for user in department.users]
+    return jsonify(
+        {
+            "department_name": department.department_name,
+            "users": users
+        }
+    ), 200
+
