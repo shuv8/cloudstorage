@@ -19,7 +19,7 @@ class AccessService:
 
         return self.data_store_service.get_accesses_for_item(user.email, item_id)
 
-    def add_access_for_item_by_url(self, item_id: UUID, view_only: bool):
+    def add_access_for_item_by_url(self, item_id: UUID, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
@@ -30,18 +30,18 @@ class AccessService:
             access_type = Access.Edit
 
         new_access = UrlAccess(
-            url=str(uuid.uuid4()),  # TODO MAKE IT STRONGER
+            url=str(uuid.uuid4()),
             access_type=access_type
         )
 
-        self.data_store_service.set_url_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.set_url_access_for_file(user.email, item_id, new_access)
 
-    def remove_access_for_item_by_url(self, item_id: UUID):
+    def remove_access_for_item_by_url(self, item_id: UUID) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_url_access_for_file(user.email, item_id)
+        return self.data_store_service.remove_url_access_for_file(user.email, item_id)
 
     def add_access_for_item_by_email(self, item_id: UUID, email: str, view_only: bool) -> str:
         user = get_user_by_token()

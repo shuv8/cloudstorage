@@ -224,20 +224,32 @@ class DataStoreService:
     def is_user_file(self, user_mail: str, item_id: UUID) -> bool:
         return self.get_user_file_by_id(user_mail, item_id) is not None
 
-    def set_url_access_for_file(self, user_mail: str, item_id, new_access: BaseAccess):
+    def set_url_access_for_file(self, user_mail: str, item_id, new_access: BaseAccess) -> str:
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
             raise ItemNotFoundError
 
+        add_new_access = True
+
         for access in item.accesses:
             if type(access) == UrlAccess:
-                raise AlreadyExistsError
+                if access.access_type != new_access.access_type:
+                    access.access_type = new_access.access_type
+                    add_new_access = False
+                else:
+                    return "nothing changed"
 
-        item.add_access(new_access)
-        self.data_store_storage_repo.update_item_access(item)
+        if add_new_access:
+            item.add_access(new_access)
+            self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
+            self.data_store_storage_repo.update_item_access(item)
+            return "new access added"
+        else:
+            self.data_store_storage_repo.update_item_access(item)
+            return "accesses updated"
 
-    def remove_url_access_for_file(self, user_mail: str, item_id: UUID):
+    def remove_url_access_for_file(self, user_mail: str, item_id: UUID) -> str:
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
@@ -247,7 +259,9 @@ class DataStoreService:
             if type(access) == UrlAccess:
                 item.accesses.remove(access)
                 self.data_store_storage_repo.update_item_access(item)
-                break
+                self.data_store_storage_repo.remove_shared_space_by_url(item)
+                return "access removed"
+        return "nothing to remove"
 
     def add_email_access_for_file(self, user_mail: str, item_id: UUID, new_access: UserAccess) -> str:
         item = self.get_user_file_by_id(user_mail, item_id)

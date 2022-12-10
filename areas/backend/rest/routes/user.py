@@ -398,14 +398,16 @@ def set_access_by_url(item_id):
         view_only_bool: bool = False
 
     try:
-        dataStoreController.edit_access(
+        result = dataStoreController.edit_access(
             item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only_bool)
-        return jsonify({}), 200
+        return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except AlreadyExistsError:
         return jsonify({'error': 'email already exist'}), 403
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
@@ -419,12 +421,14 @@ def reset_access_by_url(item_id):
     """
 
     try:
-        dataStoreController.edit_access(
+        result = dataStoreController.edit_access(
             item_id, AccessEditTypeEnum.Remove, AccessClassEnum.Url)
-        return jsonify({}), 200
+        return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
