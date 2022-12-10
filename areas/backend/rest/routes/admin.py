@@ -118,6 +118,7 @@ def get_department_with_users():
         }
     """
     name = request.args.get('name', default=None, type=str)
+    print(name)
     try:
         department = userController.get_department_by_name(name)
     except DepartmentNotFoundError:
@@ -202,8 +203,6 @@ def delete_user_from_department():
         department = userController.delete_users_from_department(name, users)
     except DepartmentNotFoundError:
         return jsonify({'error': 'Department with such name doesnt exist'}), 404
-    except UserNotFoundError:
-        return jsonify({'error': 'Such user not found'}), 404
     users = [{"id": user.get_id()} for user in department.users]
     return jsonify(
         {

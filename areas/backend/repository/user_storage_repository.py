@@ -164,10 +164,7 @@ class UserRepository:
 
     def update_department_users(self, department: Department) -> Department:
         from database.users.user_model import DepartmentModel, UserModel
-        from core.department_manager import DepartmentNotFoundError
         department_model: DepartmentModel = DepartmentModel.query.filter_by(name=department.department_name).first()
-        if department_model is None:
-            raise DepartmentNotFoundError
         users = []
         for user in department.users:
             user_model: UserModel = UserModel.query.filter_by(id=str(user.get_id())).first()

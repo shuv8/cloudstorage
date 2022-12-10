@@ -78,13 +78,156 @@ class TestDepartmentManagement:
         assert response.status_code == 200
         response_data = response.json
         assert 'departments' in response_data
-        flag = False
-        for elem in response_data['departments']:
-            if elem['department_name'] == data['department_name']:
-                flag = True
-        assert not flag
+        assert len(response_data['departments']) == 1
 
     def test_access_denied(self, app_client_user):
         response = app_client_user.get(f'/department')
         assert response.status_code == 403
         assert response.text == '{"error":"access denied"}\n'
+
+    def test_get_departments_with_users(self, app_client_admin):
+        response = app_client_admin.get(f'/department/users?name=Test_department_1')
+        response_data = response.json
+        assert response.status_code == 200
+        assert response_data["department_name"] == "Test_department_1"
+        assert response_data["users"] == []
+
+    def test_get_departments_with_users_nf(self, app_client_admin):
+        response = app_client_admin.get(f'/department/users?name=Test_department_3')
+        response_data = response.json
+        assert response.status_code == 404
+        assert response_data["error"] == 'Department with such name doesnt exist'
+
+    def test_add_users_to_department(self, app_client_admin):
+        data = {
+            "users": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+            ]
+        }
+        response = app_client_admin.post(f'/department/users?name=Test_department_1',
+                                         json=data)
+        assert response.status_code == 200
+
+        response = app_client_admin.get(f'/department/users?name=Test_department_1')
+        response_data = response.json
+        assert response.status_code == 200
+        assert response_data["department_name"] == "Test_department_1"
+        assert len(response_data["users"]) == 2
+        all_ids = [ids["id"] for ids in response_data["users"]]
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" in all_ids
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+
+    def test_add_users_to_department_nf(self, app_client_admin):
+        data = {
+            "users": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c4",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+            ]
+        }
+        response = app_client_admin.post(f'/department/users?name=Test_department_1',
+                                         json=data)
+        assert response.status_code == 404
+
+        response = app_client_admin.get(f'/department/users?name=Test_department_1')
+        response_data = response.json
+        assert response.status_code == 200
+        assert response_data["department_name"] == "Test_department_1"
+        assert len(response_data["users"]) == 0
+
+        data = {
+            "users_1": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c4",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+            ]
+        }
+        response = app_client_admin.post(f'/department/users?name=Test_department_1',
+                                         json=data)
+        assert response.status_code == 400
+        assert response.json["error"] == 'invalid request body'
+
+        data = {
+            "users": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c4",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+            ]
+        }
+        response = app_client_admin.post(f'/department/users?name=Test_department_3',
+                                         json=data)
+        assert response.status_code == 404
+        assert response.json["error"] == 'Department with such name doesnt exist'
+
+    def test_delete_users_from_department(self, app_client_admin):
+        data = {
+            "users": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+            ]
+        }
+        response = app_client_admin.post(f'/department/users?name=Test_department_2',
+                                         json=data)
+        assert response.status_code == 200
+
+        response = app_client_admin.get(f'/department/users?name=Test_department_2')
+        response_data = response.json
+        assert response.status_code == 200
+        assert response_data["department_name"] == "Test_department_2"
+        assert len(response_data["users"]) == 2
+        all_ids = [ids["id"] for ids in response_data["users"]]
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" in all_ids
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+
+        data = {
+            "users": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c7"
+            ]
+        }
+        response = app_client_admin.delete(f'/department/users?name=Test_department_2',
+                                           json=data)
+        assert response.status_code == 200
+
+        response = app_client_admin.get(f'/department/users?name=Test_department_2')
+        response_data = response.json
+        assert response.status_code == 200
+        assert response_data["department_name"] == "Test_department_2"
+        assert len(response_data["users"]) == 1
+        all_ids = [ids["id"] for ids in response_data["users"]]
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" not in all_ids
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+
+    def test_delete_users_from_department_nf(self, app_client_admin):
+        data = {
+            "users_1": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+            ]
+        }
+        response = app_client_admin.delete(f'/department/users?name=Test_department_2',
+                                         json=data)
+        assert response.status_code == 400
+        assert response.json["error"] == 'invalid request body'
+
+        data = {
+            "users": [
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+            ]
+        }
+        response = app_client_admin.delete(f'/department/users?name=Test_department_4',
+                                         json=data)
+        assert response.status_code == 404
+        assert response.json["error"] == 'Department with such name doesnt exist'
+
+    def test_get_users_lists(self, app_client_admin):
+        response = app_client_admin.get(f'/user')
+        assert response.status_code == 200
+        response_data = response.json
+        assert 'users' in response_data
+        assert len(response_data['users']) == 2
+
+        response = app_client_admin.get(f'/user?page=3')
+        assert response.status_code == 200
+        response_data = response.json
+        assert 'users' in response_data
+        assert len(response_data['users']) == 0
