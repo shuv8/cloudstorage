@@ -115,8 +115,11 @@ class TestDepartmentManagement:
         assert response_data["department_name"] == "Test_department_1"
         assert len(response_data["users"]) == 2
         all_ids = [ids["id"] for ids in response_data["users"]]
+        all_email = [ids["email"] for ids in response_data["users"]]
         assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" in all_ids
         assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+        assert "admin@mail.com" in all_email
+        assert "user@mail.com" in all_email
 
     def test_add_users_to_department_nf(self, app_client_admin):
         data = {
@@ -225,6 +228,12 @@ class TestDepartmentManagement:
         response_data = response.json
         assert 'users' in response_data
         assert len(response_data['users']) == 2
+        all_ids = [ids["id"] for ids in response_data["users"]]
+        all_email = [ids["email"] for ids in response_data["users"]]
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" in all_ids
+        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+        assert "admin@mail.com" in all_email
+        assert "user@mail.com" in all_email
 
         response = app_client_admin.get(f'/user?page=3')
         assert response.status_code == 200

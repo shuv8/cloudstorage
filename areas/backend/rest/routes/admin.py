@@ -123,7 +123,7 @@ def get_department_with_users():
         department = userController.get_department_by_name(name)
     except DepartmentNotFoundError:
         return jsonify({'error': 'Department with such name doesnt exist'}), 404
-    users = [{"id": user.get_id()} for user in department.users]
+    users = [{"id": user.get_id(), "email": user.email} for user in department.users]
     return jsonify(
         {
             "department_name": department.department_name,
@@ -164,7 +164,7 @@ def add_users_to_department():
         return jsonify({'error': 'Department with such name doesnt exist'}), 404
     except UserNotFoundError:
         return jsonify({'error': 'Such user not found'}), 404
-    users = [{"id": user.get_id()} for user in department.users]
+    users = [{"id": user.get_id(), "email": user.email} for user in department.users]
     return jsonify(
         {
             "department_name": department.department_name,
@@ -203,7 +203,7 @@ def delete_user_from_department():
         department = userController.delete_users_from_department(name, users)
     except DepartmentNotFoundError:
         return jsonify({'error': 'Department with such name doesnt exist'}), 404
-    users = [{"id": user.get_id()} for user in department.users]
+    users = [{"id": user.get_id(), "email": user.email} for user in department.users]
     return jsonify(
         {
             "department_name": department.department_name,
@@ -229,7 +229,7 @@ def get_user_list():
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     users = userController.get_all_users(page, limit)
-    items = [{"id": user.get_id()} for user in users]
+    items = [{"id": user.get_id(), "email": user.email} for user in users]
     return jsonify(
         {
             "users": items
