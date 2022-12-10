@@ -288,8 +288,7 @@ class DataStoreService:
                     self.data_store_storage_repo.remove_shared_space_by_email(item, email)
                     self.data_store_storage_repo.update_item_access(item)
                     return "access removed"
-                else:
-                    return "nothing to remove"
+        return "nothing to remove"
 
     def add_department_access_for_file(self, user_mail: str, item_id: UUID, new_access: DepartmentAccess):
         item = self.get_user_file_by_id(user_mail, item_id)
@@ -297,10 +296,27 @@ class DataStoreService:
         if item is None:
             raise ItemNotFoundError
 
-        item.add_access(new_access)
-        self.data_store_storage_repo.update_item_access(item)
+        add_new_access = True
 
-    def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department: str):
+        for access in item.accesses:
+            if type(access) == DepartmentAccess:
+                if access.get_department_name() == new_access.get_department_name():
+                    if access.access_type != new_access.access_type:
+                        access.access_type = new_access.access_type
+                        add_new_access = False
+                    else:
+                        return "nothing changed"
+
+        if add_new_access:
+            item.add_access(new_access)
+            self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
+            self.data_store_storage_repo.update_item_access(item)
+            return "new access added"
+        else:
+            self.data_store_storage_repo.update_item_access(item)
+            return "accesses updated"
+
+    def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department_name: str):
         item = self.get_user_file_by_id(user_mail, item_id)
 
         if item is None:
@@ -308,10 +324,12 @@ class DataStoreService:
 
         for access in item.accesses:
             if type(access) == DepartmentAccess:
-                if access.get_department_name() == department:
+                if access.get_department_name() == department_name:
                     item.accesses.remove(access)
+                    self.data_store_storage_repo.remove_shared_space_by_department(item, department_name)
                     self.data_store_storage_repo.update_item_access(item)
-                    break
+                    return "access removed"
+        return "nothing to remove"
 
     def get_accesses_for_item(self, user_mail: str, item_id: UUID) -> list[BaseAccess]:
         item = self.get_user_file_by_id(user_mail, item_id)

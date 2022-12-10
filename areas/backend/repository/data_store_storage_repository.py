@@ -18,8 +18,9 @@ from core.directory import Directory
 from core.files import File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace, SpaceType
-from database.database import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory
-from exceptions.exceptions import UserNotFoundError
+from database.database import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory, \
+    DepartmentModel
+from exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError
 
 
 class DataStoreStorageRepository:
@@ -267,6 +268,9 @@ class DataStoreStorageRepository:
     def remove_shared_space_by_email(self, item: BaseStorageItem, email: str):
         user: UserModel = UserModel.query.filter_by(email=email).first()
 
+        if user is None:
+            raise UserNotFoundError
+
         if isinstance(item, File):
             for space in user.spaces:
                 if space.space_type == SpaceType.Shared:
@@ -283,40 +287,96 @@ class DataStoreStorageRepository:
                             self.db.session.execute(delete(UserSpaceModel).where(UserSpaceModel.id == space.id))
         self.db.session.commit()
 
+    def remove_shared_space_by_department(self, item: BaseStorageItem, department_name: str):
+        department: DepartmentModel = DepartmentModel.query.filter_by(name=department_name).first()
+
+        if department is None:
+            raise DepartmentNotFoundError
+
+        for user in department.users:
+            self.remove_shared_space_by_email(item, user.email)
+
+
+    def add_shared_space_for_file_model_by_email(self, item: FileModel, email: str):
+        user: UserModel = UserModel.query.filter_by(email=email).first()
+
+        new_space = UserSpaceModel(
+            id=str(uuid.uuid4().hex),
+            space_type=SpaceType.Shared,
+        )
+        self.db.session.add(new_space)
+
+        file: FileModel = FileModel.query.filter_by(id=item.id).first()
+        directory = DirectoryModel(
+            id=str(uuid.uuid4().hex),
+            name="Root",
+            is_root=True,
+        )
+        self.db.session.add(directory)
+        new_space.root_directory = directory
+        new_space.root_directory.files = [file]
+
+        user.spaces.append(new_space)
+
+
+    def add_shared_space_for_directory_model_by_email(self, item: DirectoryModel, email: str):
+        user: UserModel = UserModel.query.filter_by(email=email).first()
+
+        new_space = UserSpaceModel(
+            id=str(uuid.uuid4().hex),
+            space_type=SpaceType.Shared,
+        )
+        self.db.session.add(new_space)
+
+        directory: DirectoryModel = DirectoryModel.query.filter_by(id=item.id).first()
+        new_space.root_directory = directory
+
+        user.spaces.append(new_space)
+
+
+    def add_shared_space_by_email(self, item: BaseStorageItem, email: str):
+        user: UserModel = UserModel.query.filter_by(email=email).first()
+
+        if user is None:
+            raise UserNotFoundError
+
+        new_space = UserSpaceModel(
+            id=str(uuid.uuid4()),
+            space_type=SpaceType.Shared,
+        )
+        self.db.session.add(new_space)
+
+        if isinstance(item, File):
+            file: FileModel = FileModel.query.filter_by(id=str(item.id)).first()
+            directory = DirectoryModel(
+                id=str(uuid.uuid4()),
+                name="Root",
+                is_root=True,
+            )
+            self.db.session.add(directory)
+            new_space.root_directory = directory
+            new_space.root_directory.files = [file]
+        elif isinstance(item, Directory):
+            directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
+            new_space.root_directory = directory
+
+        user.spaces.append(new_space)
+
     def add_shared_space_by_type(self, item: BaseStorageItem, access: BaseAccess):
         if type(access) is UrlAccess:
             pass
         elif type(access) is UserAccess:
-            user: UserModel = UserModel.query.filter_by(email=access.get_email()).first()
-
-            if user is None:
-                raise UserNotFoundError
-
-            new_space = UserSpaceModel(
-                id=str(uuid.uuid4().hex),
-                space_type=SpaceType.Shared,
-            )
-            self.db.session.add(new_space)
-
-            if isinstance(item, File):
-                file: FileModel = FileModel.query.filter_by(id=str(item.id)).first()
-                directory = DirectoryModel(
-                    id=str(uuid.uuid4().hex),
-                    name="Root",
-                    is_root=True,
-                )
-                self.db.session.add(directory)
-                new_space.root_directory = directory
-                new_space.root_directory.files = [file]
-            elif isinstance(item, Directory):
-                directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
-                new_space.root_directory = directory
-
-            user.spaces.append(new_space)
-
+            self.add_shared_space_by_email(item, access.get_email())
 
         elif type(access) is DepartmentAccess:
-            pass
+            department: DepartmentModel = DepartmentModel.query.filter_by(name=access.get_department_name()).first()
+
+            if department is None:
+                raise DepartmentNotFoundError
+
+            for user in department.users:
+                self.add_shared_space_by_email(item, user.email)
+
         self.db.session.commit()
 
     def update_item_access(self, item: BaseStorageItem):

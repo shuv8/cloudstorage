@@ -17,3 +17,9 @@ class InvalidCredentialsError(Exception):
 
 class UserNotFoundError(Exception):
     pass
+
+
+
+
+class DepartmentNotFoundError(Exception):
+    pass

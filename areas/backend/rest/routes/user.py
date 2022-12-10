@@ -11,7 +11,8 @@ from core.files import File
 from core.role import Role
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required, get_user_by_token
-from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, UserNotFoundError
+from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, UserNotFoundError, \
+    DepartmentNotFoundError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -471,11 +472,15 @@ def remove_access_by_user(item_id, email):
     """
 
     try:
-        dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
-        return jsonify({}), 200
+        result = dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
+        return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except UserNotFoundError:
+        return jsonify({'error': 'User not found'}), 404
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
@@ -495,17 +500,21 @@ def add_access_by_department(item_id, department):
         view_only_bool: bool = False
 
     try:
-        dataStoreController.edit_access(
+        result = dataStoreController.edit_access(
             item_id,
             AccessEditTypeEnum.Add,
             AccessClassEnum.Department,
             view_only_bool,
             department
         )
-        return jsonify({}), 200
+        return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except DepartmentNotFoundError:
+        return jsonify({'error': 'Department not found'}), 404
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['DELETE'])
@@ -519,16 +528,20 @@ def remove_access_by_department(item_id, department):
     """
 
     try:
-        dataStoreController.edit_access(
+        result = dataStoreController.edit_access(
             item_id,
             AccessEditTypeEnum.Remove,
             AccessClassEnum.Department,
             name=department
         )
-        return jsonify({}), 200
+        return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except DepartmentNotFoundError:
+        return jsonify({'error': 'Department not found'}), 404
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])

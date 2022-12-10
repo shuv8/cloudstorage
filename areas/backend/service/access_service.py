@@ -67,7 +67,7 @@ class AccessService:
 
         return self.data_store_service.remove_email_access_for_file(user.email, item_id, email)
 
-    def add_access_for_item_by_department(self, item_id: UUID, department: str, view_only: bool):
+    def add_access_for_item_by_department(self, item_id: UUID, department: str, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
@@ -82,11 +82,11 @@ class AccessService:
             access_type=access_type
         )
 
-        self.data_store_service.add_department_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.add_department_access_for_file(user.email, item_id, new_access)
 
-    def remove_access_for_item_by_department(self, item_id: UUID, department: str):
+    def remove_access_for_item_by_department(self, item_id: UUID, department: str) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
 
-        self.data_store_service.remove_department_access_for_file(user.email, item_id, department)
+        return self.data_store_service.remove_department_access_for_file(user.email, item_id, department)

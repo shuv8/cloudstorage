@@ -120,6 +120,7 @@ class UserService:
         updated_users = old_users + new_users
         department.users = updated_users
         new_department = self.user_repo.update_department_users(department)
+        self.user_repo.add_users_accesses(users, department_name)
         return new_department
 
     def delete_users_from_department(self, department_name: str, users: List[str]) -> Department:
@@ -130,4 +131,5 @@ class UserService:
                 new_users.append(user)
         department.users = new_users
         new_department = self.user_repo.update_department_users(department)
+        self.user_repo.remove_users_accesses(users, department_name)
         return new_department

@@ -1,21 +1,24 @@
 from typing import List
 from uuid import UUID
 
+from core.accesses import AccessType
 from core.user import User
 from core.department import Department
 from flask import current_app
 from core.user_manager import UserNotFoundError
 from app_db import get_current_db
-
+from repository.data_store_storage_repository import DataStoreStorageRepository
 
 db = get_current_db(current_app)
 
 
 class UserRepository:
-
     """
         New methods
     """
+
+    def __init__(self):
+        self.data_storage_repo = DataStoreStorageRepository()
 
     def get_user_from_db_by_id(self, _id: UUID):
         from database.database import UserModel
@@ -144,3 +147,46 @@ class UserRepository:
         department_model.users = users
         db.session.commit()
         return self.get_department_by_name(department.department_name)
+
+    @staticmethod
+    def remove_users_accesses(users_ids: List[str], department_name: str):
+        from database.database import UserModel
+
+        for user in users_ids:
+            user_model: UserModel = UserModel.query.filter_by(id=user).first()
+            for space in user_model.spaces:
+                if space.root_directory.is_root:
+                    for access in space.root_directory.files[0].accesses:
+                        if access.access_type == AccessType.Department:
+                            if access.value == department_name:
+                                user_model.spaces.remove(space)
+                else:
+                    for access in space.root_directory.accesses:
+                        if access.access_type == AccessType.Department:
+                            if access.value == department_name:
+                                user_model.spaces.remove(space)
+
+        db.session.commit()
+
+
+    def add_users_accesses(self, users_ids: List[str], department_name: str):
+        from database.database import AccessModel, FileModel, DirectoryModel, UserModel
+        from sqlalchemy import and_
+
+        accesses: list[AccessModel] = AccessModel.query.filter_by(
+            and_(
+                access_type=AccessType.Department,
+                value=department_name
+            )).all()
+
+        for access in accesses:
+            if access.parent_file_id is not None:
+                file: FileModel = FileModel.query.filter_by(id=access.parent_file_id).first()
+                for user_id in users_ids:
+                    user_model: UserModel = UserModel.query.filter_by(id=user_id).first()
+                    self.data_storage_repo.add_shared_space_for_file_model_by_email(file, user_model.email)
+            elif access.parent_id is not None:
+                directory: DirectoryModel = DirectoryModel.query.filter_by(id=access.parent_id).first()
+                for user_id in users_ids:
+                    user_model: UserModel = UserModel.query.filter_by(id=user_id).first()
+                    self.data_storage_repo.add_shared_space_for_directory_model_by_email(directory, user_model.email)
