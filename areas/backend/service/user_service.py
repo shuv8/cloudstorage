@@ -96,6 +96,15 @@ class UserService:
             output_list.append(departments[index])
         return output_list
 
+    def get_all_users(self, page: int, limit: int) -> List[User]:
+        users = self.user_repo.get_users()
+        output_list = []
+        start_index = (page - 1) * limit
+        end_index = min(len(users), start_index + limit)
+        for index in range(start_index, end_index):
+            output_list.append(users[index])
+        return output_list
+
     def add_new_department(self, new_department: Department) -> None:
         try:
             self.user_repo.get_department_by_name(new_department.department_name)

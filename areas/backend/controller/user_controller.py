@@ -30,6 +30,9 @@ class UserController:
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
         return self.user_service.get_all_departments(page, limit)
 
+    def get_all_users(self, page: int, limit: int) -> List[User]:
+        return self.user_service.get_all_users(page, limit)
+
     def add_new_department(self, new_department: Department) -> None:
         self.user_service.add_new_department(new_department)
 

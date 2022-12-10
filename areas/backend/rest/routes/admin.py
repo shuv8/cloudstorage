@@ -212,3 +212,28 @@ def delete_user_from_department():
         }
     ), 200
 
+
+@ADMIN_REQUEST_API.route('/user', methods=['GET'])
+@admin_access
+def get_user_list():
+    """
+    Query:
+        - query: page
+        - query: limit
+    Result:
+        {
+            users: [{
+              id: string
+            }]
+        }
+    """
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
+    users = userController.get_all_users(page, limit)
+    items = [{"id": user.get_id()} for user in users]
+    return jsonify(
+        {
+            "users": items
+        }
+    ), 200
+

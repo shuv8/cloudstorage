@@ -945,6 +945,50 @@
         }
       }
     },
+    "/user": {
+      "get": {
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page for users",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page for users",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/user_info"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/download/{item_id}": {
       "get": {
         "parameters": [
@@ -1166,6 +1210,13 @@
       "department_info": {
         "properties": {
           "department_name": {
+            "type": "string"
+          }
+        }
+      },
+      "user_info": {
+        "properties": {
+          "id": {
             "type": "string"
           }
         }
