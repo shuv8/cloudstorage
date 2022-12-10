@@ -2,7 +2,6 @@ from flask import Flask, make_response, jsonify
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_sqlalchemy import SQLAlchemy
 
-import app_state
 import app_db
 
 
@@ -62,10 +61,8 @@ def create_app(testing=False, db_uri=app_db.SQLALCHEMY_DATABASE_URI):
     def handle_500_error(_error):
         """Return a http 500 error to client"""
         return make_response(jsonify({'error': 'Server error'}), 500)
+
     return app
-
-
-app_state.init_state()
 
 
 if __name__ == '__main__':

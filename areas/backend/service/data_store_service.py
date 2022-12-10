@@ -3,7 +3,6 @@ import uuid
 from copy import deepcopy
 from uuid import UUID
 
-from app_states_for_test import ScopeTypeEnum
 from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess
 from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
@@ -18,14 +17,8 @@ import logging
 
 
 class DataStoreService:
-    def __init__(self, server_state):
-        self.server_state = server_state
-        self.data_store_storage_repo = DataStoreStorageRepository(server_state)
-        self.scope = ScopeTypeEnum.Prod
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
-        self.data_store_storage_repo.set_scope(scope)
+    def __init__(self):
+        self.data_store_storage_repo = DataStoreStorageRepository()
 
     def search_in_cloud(self, user_mail: str, query: str) -> list[tuple[BaseStorageItem, str]]:
         """

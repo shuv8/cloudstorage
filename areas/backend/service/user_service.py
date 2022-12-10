@@ -4,7 +4,6 @@ from uuid import UUID
 from bcrypt import checkpw, gensalt, hashpw
 from jwt import InvalidTokenError, decode, encode
 
-from app_states_for_test import ScopeTypeEnum
 from core.accesses import Access, BaseAccess
 from core.department import Department
 from core.department_manager import DepartmentNotFoundError
@@ -21,14 +20,8 @@ from repository.user_storage_repository import UserRepository
 
 
 class UserService:
-    def __init__(self, server_state):
-        self.server_state = server_state
-        self.user_repo = UserRepository(server_state)
-        self.scope = ScopeTypeEnum.Prod
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
-        self.user_repo.set_scope(scope)
+    def __init__(self):
+        self.user_repo = UserRepository()
 
     def registration(self, email: str, password: str, role: Role, username: str) -> None:
         try:

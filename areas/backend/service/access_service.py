@@ -1,7 +1,6 @@
 import uuid
 from uuid import UUID
 
-from app_states_for_test import ScopeTypeEnum
 from core.accesses import UrlAccess, Access, UserAccess, DepartmentAccess, BaseAccess
 from decorators.token_required import get_user_by_token
 from exceptions.exceptions import NotAllowedError
@@ -10,14 +9,8 @@ from service.data_store_service import DataStoreService
 
 class AccessService:
 
-    def __init__(self, server_state):
-        self.server_state = server_state
-        self.data_store_service = DataStoreService(server_state)
-        self.scope = ScopeTypeEnum.Prod
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
-        self.data_store_service.set_scope(scope)
+    def __init__(self):
+        self.data_store_service = DataStoreService()
 
     def get_accesses_for_item(self, item_id: UUID) -> list[BaseAccess]:
         user = get_user_by_token()

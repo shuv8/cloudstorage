@@ -1,6 +1,5 @@
 from typing import List
 
-from app_states_for_test import ScopeTypeEnum
 from core.department import Department
 from core.role import Role
 from core.user import User
@@ -9,14 +8,8 @@ from service.user_service import UserService
 
 class UserController:
 
-    def __init__(self, server_state):
-        self.server_state = server_state
-        self.user_service = UserService(server_state)
-        self.scope = ScopeTypeEnum.Prod
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
-        self.user_service.set_scope(scope)
+    def __init__(self):
+        self.user_service = UserService()
 
     def registration(self, email: str, password: str, role: Role, username: str) -> None:
         self.user_service.registration(email, password, role, username)

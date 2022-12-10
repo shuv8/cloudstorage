@@ -11,8 +11,6 @@ from sqlalchemy import delete
 from sqlalchemy import update
 
 from app_db import get_current_db
-from app_state import ServerDatabase
-from app_states_for_test import ScopeTypeEnum
 from config import *
 from core.accesses import BaseAccess, UrlAccess, AccessType, DepartmentAccess, UserAccess
 from core.base_storage_item import BaseStorageItem
@@ -24,10 +22,7 @@ from database.users.user_model import FileModel, UserModel, UserSpaceModel, Dire
 
 
 class DataStoreStorageRepository:
-    def __init__(self, server_state: ServerDatabase):
-        self.server_state = server_state.prod
-        self.test_server_state = server_state.test
-        self.scope = ScopeTypeEnum.Prod
+    def __init__(self):
         self.db = get_current_db(current_app)
         self.minio_client = DataStoreStorageRepository.get_minio_client()
 
@@ -46,9 +41,6 @@ class DataStoreStorageRepository:
             pass
 
         return client
-
-    def set_scope(self, scope: ScopeTypeEnum):
-        self.scope = scope
 
     def get_user_spaces(self, user_mail: str) -> list[UserCloudSpace]:
         return self.get_root_dir_by_user_mail(user_mail).get_spaces()

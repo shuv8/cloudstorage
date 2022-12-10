@@ -2,10 +2,9 @@ from functools import wraps
 from flask import jsonify, request
 from jwt import InvalidTokenError
 from controller.user_controller import UserController
-import app_state
 
 
-userController = UserController(app_state.state)
+userController = UserController()
 
 
 def token_required(f):
