@@ -82,7 +82,7 @@ class DataStoreStorageRepository:
             self.get_dir_from_cloud(directory, zip_name=zip_name_dir, begin_dir_id=begin_dir_id)
         if dir.id == begin_dir_id:
             zip_file = shutil.make_archive(format='zip', root_dir="cache/", base_dir=f'{zip_name}',
-                                           base_name=zip_name)
+                                           base_name=f"cache/{zip_name}")
             shutil.rmtree(f"cache/{zip_name}")
             return zip_file
         else:
