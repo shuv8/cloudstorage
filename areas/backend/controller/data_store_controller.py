@@ -65,7 +65,7 @@ class DataStoreController:
     def get_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         return self.data_store_service.get_user_file_by_id(user_mail, item_id)
 
-    def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], File]:
+    def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
         return self.data_store_service.download_item(user_mail=user_mail, item_id=item_id)
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
