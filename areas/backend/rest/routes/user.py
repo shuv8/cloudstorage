@@ -599,14 +599,14 @@ def download_by_item_id(item_id):
         file
     """
     user = get_user_by_token()
-    result, file = dataStoreController.download_item(user.email, item_id)
-    if result is not None:
-        if isinstance(file, File):
-            file_name = file.name + file.type
-            return send_file(result, download_name=file_name, as_attachment=True), 200
-        elif isinstance(file, Directory):
-            file_name = file.name
-            return send_file(result, download_name=file_name, as_attachment=True), 200
+    result = dataStoreController.download_item(user.email, item_id)
+    if result[0] is not None:
+        if isinstance(result[1], File):
+            file_name = result[1].name + result[1].type
+            return send_file(result[0], download_name=file_name, as_attachment=True), 200
+        elif isinstance(result[1], Directory):
+            file_name = result[1].name
+            return send_file(result[0], download_name=file_name, as_attachment=True), 200
     else:
         return jsonify({'error': 'No such file or directory'}), 404
 

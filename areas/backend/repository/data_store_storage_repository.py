@@ -21,6 +21,7 @@ from core.user_cloud_space import UserCloudSpace, SpaceType
 from database.database import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory, \
     DepartmentModel, UrlSpaceModel
 from exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError
+import shutil
 
 
 class DataStoreStorageRepository:
@@ -65,6 +66,26 @@ class DataStoreStorageRepository:
         except:
             raise FileNotFoundError
 
+    def get_dir_from_cloud(self, dir, zip_name=None, begin_dir_id=None):
+        if zip_name is None:
+            zip_name = dir.name
+            begin_dir_id = dir.id
+        os.mkdir(f"cache/{zip_name}")
+        for file in dir.directory_manager.file_manager.items:
+            file_name = f'{file.id}{file.get_type()}'
+            with open(f'cache/{zip_name}/{file_name}', "wb") as fh:
+                fh.write(self.get_file_from_cloud(file_name))
+        for directory in dir.directory_manager.items:
+            zip_name_dir = f"{zip_name}/{directory.name}"
+            self.get_dir_from_cloud(directory, zip_name=zip_name_dir, begin_dir_id=begin_dir_id)
+        if dir.id == begin_dir_id:
+            zip_file = shutil.make_archive(format='zip', root_dir="cache/", base_dir=f'{zip_name}',
+                                           base_name=f"cache/{zip_name}")
+            shutil.rmtree(f"cache/{zip_name}")
+            return zip_file
+        else:
+            return None
+
     def remove_files_from_cloud(self, file_name):
         self.minio_client.remove_object("cloudstorage", file_name)
 
@@ -93,6 +114,13 @@ class DataStoreStorageRepository:
 
     def get_binary_file_by_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
         return BytesIO(self.get_file_from_cloud(f"{file_id}{file_type}"))
+
+    def get_binary_dir_by_id(self, dir: Directory) -> BinaryIO:
+        zip_file = self.get_dir_from_cloud(dir)
+        with open(f'{zip_file}', 'rb') as fz:
+            data = fz.read()
+        os.remove(f'{zip_file}')
+        return BytesIO(data)
 
     def add_new_directory(self, new_directory: Directory, parent_id: uuid.UUID) -> uuid.UUID:
         new_directory_model = DirectoryModel(
