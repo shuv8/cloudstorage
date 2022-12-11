@@ -44,6 +44,21 @@ class DataStoreService:
 
         return items
 
+    def get_directory_in_space(self, user_mail: str, space_id: UUID, dir_id: UUID) -> UserCloudSpace:
+        space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
+
+        if space is None and possible_shared_url_space is None:
+            raise SpaceNotFoundError
+        elif space is None:
+            directory = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
+        else:
+            directory = self.get_user_dir_in_space(space, dir_id)
+
+        if directory is None:
+            raise ItemNotFoundError
+        return directory
+
     def add_new_directory(
             self,
             user_email: str,
@@ -81,7 +96,7 @@ class DataStoreService:
 
     def get_user_dir_in_space(self, space: UserCloudSpace, dir_id: UUID) -> Optional[Directory]:
         for directory in space.get_directory_manager().items:
-            if directory.id == dir_id:
+            if str(directory.id) == str(dir_id):
                 return directory
             else:
                 possible_dir = self.get_user_dir_in_another_dir(directory, dir_id)
@@ -98,7 +113,7 @@ class DataStoreService:
 
     def get_user_dir_in_another_dir(self, directory: Directory, dir_id: UUID) -> Optional[Directory]:
         for directory in directory.get_directory_manager().items:
-            if directory.id == dir_id:
+            if str(directory.id) == str(dir_id):
                 return directory
             else:
                 possible_dir = self.get_user_dir_in_another_dir(directory, dir_id)
@@ -350,8 +365,31 @@ class DataStoreService:
     def get_accesses_for_item(self, item: BaseStorageItem) -> list[BaseAccess]:
         return item.accesses
 
-    def rename_item_by_id(self, user_mail: str, item_id: UUID, new_name: str):
-        item = self.get_user_file_by_id(user_mail, item_id)
+    def get_file_in_space_by_id(self, user_mail: str, space_id: UUID, item_id: UUID) -> Optional[BaseStorageItem]:
+        space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
+
+
+        if space is None and possible_shared_url_space is None:
+            raise SpaceNotFoundError
+        elif space is None:
+            space = possible_shared_url_space
+
+        for directory in space.get_directory_manager().items:
+            item = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
+            if item is not None:
+                return item
+            file = self.get_file_in_directory_by_id(
+                file_manager=space.get_directory_manager().file_manager,
+                id_=item_id
+            )
+            if file is not None:
+                return file
+
+        return None
+
+    def rename_item_by_id(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
+        item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
             item.name = new_name
             self.data_store_storage_repo.edit_item_name(item)
@@ -359,10 +397,10 @@ class DataStoreService:
         else:
             return None
 
-    def move_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
-        item = self.get_user_file_by_id(user_mail, item_id)
+    def move_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_directory_id: UUID, target_space: UUID):
+        item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
-            target_directory = self.get_user_file_by_id(user_mail, target_directory_id)
+            target_directory = self.get_directory_in_space(user_mail, target_space, target_directory_id)
             if target_directory is not None and isinstance(target_directory, Directory):
                 # source_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
                 # if isinstance(item, Directory):
@@ -440,10 +478,10 @@ class DataStoreService:
         else:
             return False
 
-    def copy_item(self, user_mail: str, item_id: UUID, target_directory_id: UUID):
-        item = self.get_user_file_by_id(user_mail, item_id)
+    def copy_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_space: UUID, target_directory_id: UUID):
+        item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
-            target_directory = self.get_user_file_by_id(user_mail, target_directory_id)
+            target_directory = self.get_directory_in_space(user_mail, target_space, target_directory_id)
             if target_directory is not None and isinstance(target_directory, Directory):
                 if isinstance(item, Directory):
                     new_directory = deepcopy(item)
