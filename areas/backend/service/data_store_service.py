@@ -10,7 +10,7 @@ from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace
-from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError
+from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
 import logging
@@ -36,7 +36,7 @@ class DataStoreService:
         space: UserCloudSpace = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
 
         if space is None:
-            raise ItemNotFoundError
+            raise SpaceNotFoundError
 
         items: list[BaseStorageItem] = []
         items.extend(space.get_directory_manager().items)
@@ -60,11 +60,15 @@ class DataStoreService:
 
     def get_dir_content(self, user_mail: str, space_id: UUID, dir_id: UUID) -> list[BaseStorageItem]:
         space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
 
-        if space is None:
-            raise ItemNotFoundError
-
-        directory = self.get_user_dir_in_space(space, dir_id)
+        if space is None and possible_shared_url_space is None:
+            raise SpaceNotFoundError
+        elif space is None:
+            directory = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
+        else:
+            space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+            directory = self.get_user_dir_in_space(space, dir_id)
 
         if directory is None:
             raise ItemNotFoundError
@@ -85,6 +89,12 @@ class DataStoreService:
                     return possible_dir
 
         return None
+
+    def get_dir_in_url_shared_space(self, root_directory, dir_id: UUID) -> Optional[Directory]:
+        if root_directory.id == dir_id:
+            return root_directory
+        else:
+            return self.get_user_dir_in_another_dir(root_directory, dir_id)
 
     def get_user_dir_in_another_dir(self, directory: Directory, dir_id: UUID) -> Optional[Directory]:
         for directory in directory.get_directory_manager().items:
