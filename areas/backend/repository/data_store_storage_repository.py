@@ -72,15 +72,16 @@ class DataStoreStorageRepository:
         if zip_name is None:
             zip_name = dir.name
             begin_dir_id = dir.id
-            os.mkdir(f"cache/{zip_name}")
+        os.mkdir(f"cache/{zip_name}")
         for file in dir.directory_manager.file_manager.items:
             file_name = f'{file.id}{file.get_type()}'
             with open(f'cache/{zip_name}/{file_name}', "wb") as fh:
                 fh.write(self.get_file_from_cloud(file_name))
         for directory in dir.directory_manager.items:
-            self.get_dir_from_cloud(directory, zip_name=zip_name, begin_dir_id=begin_dir_id)
+            zip_name_dir = f"{zip_name}/{directory.name}"
+            self.get_dir_from_cloud(directory, zip_name=zip_name_dir, begin_dir_id=begin_dir_id)
         if dir.id == begin_dir_id:
-            zip_file = shutil.make_archive(format='zip', root_dir="cache", base_dir=f'{zip_name}',
+            zip_file = shutil.make_archive(format='zip', root_dir="cache/", base_dir=f'{zip_name}',
                                            base_name=zip_name)
             shutil.rmtree(f"cache/{zip_name}")
             return zip_file
@@ -120,6 +121,7 @@ class DataStoreStorageRepository:
         zip_file = self.get_dir_from_cloud(dir)
         with open(f'{zip_file}', 'rb') as fz:
             data = fz.read()
+        os.remove(f'{zip_file}')
         return BytesIO(data)
 
     def add_new_directory(self, new_directory: Directory, parent_id: uuid.UUID) -> uuid.UUID:
