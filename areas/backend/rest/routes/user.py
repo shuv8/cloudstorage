@@ -12,7 +12,7 @@ from core.role import Role
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required, get_user_by_token
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, UserNotFoundError, \
-    DepartmentNotFoundError
+    DepartmentNotFoundError, SpaceNotFoundError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -194,7 +194,9 @@ def get_space_content(space_id):
             }
         ), 200
     except ItemNotFoundError:
-        return jsonify("Can't find space with that ID"), 404
+        return jsonify("Can't find directory with ID"), 404
+    except SpaceNotFoundError:
+        return jsonify("Can't find space with ID"), 404
 
 
 @USER_REQUEST_API.route('/directory', methods=['POST'])
@@ -269,7 +271,9 @@ def get_dir_in_space_content(space_id, dir_id):
             }
         ), 200
     except ItemNotFoundError:
-        return jsonify("Can't find space with that ID"), 404
+        return jsonify("Can't find directory with ID"), 404
+    except SpaceNotFoundError:
+        return jsonify("Can't find space with ID"), 404
 
 
 @USER_REQUEST_API.route('/file', methods=['POST'])

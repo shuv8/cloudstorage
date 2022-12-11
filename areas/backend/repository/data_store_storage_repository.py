@@ -1,6 +1,5 @@
 import base64
 import os
-import shutil
 import uuid
 from io import BytesIO
 from typing import BinaryIO, Optional
@@ -47,6 +46,17 @@ class DataStoreStorageRepository:
 
     def get_user_spaces(self, user_mail: str) -> list[UserCloudSpace]:
         return self.get_root_dir_by_user_mail(user_mail).get_spaces()
+
+    def get_url_space_content(self, space_id: uuid.UUID) -> Optional[Directory]:
+        url_space: UrlSpaceModel = UrlSpaceModel.query.filter_by(id=str(space_id)).first()
+
+        if url_space is None:
+            return None
+
+        directory: DirectoryModel = url_space.root_directory
+        root_directory: Directory = self.fill_directory_with_data(directory)
+
+        return root_directory
 
     def get_user_space_content(self, user_mail: str, space_id: uuid.UUID) -> Optional[UserCloudSpace]:
         spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)

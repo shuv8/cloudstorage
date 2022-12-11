@@ -6,6 +6,11 @@ class ItemNotFoundError(Exception):
     pass
 
 
+
+class SpaceNotFoundError(Exception):
+    pass
+
+
 class AlreadyExistsError(Exception):
     pass
 
