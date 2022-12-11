@@ -21,8 +21,6 @@ from core.user_cloud_space import UserCloudSpace, SpaceType
 from database.database import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory, \
     DepartmentModel, UrlSpaceModel
 from exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError
-from database.users.user_model import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory
-import zipfile
 import shutil
 
 
