@@ -33,7 +33,7 @@ class UserService:
                     BaseAccess(access_type=Access.View),
                     BaseAccess(access_type=Access.Edit),
                 ],
-                name="root"
+                name="Root"
             )
             directory_manager = DirectoryManager(
                 items=[directory],
@@ -77,7 +77,7 @@ class UserService:
             payload = decode(token, "SUPER-SECRET-KEY", ["HS256"])
             _id = UUID(hex=payload["id"])
             return self.user_repo.get_user_from_db_by_id(_id)
-        except:
+        except Exception:
             raise InvalidTokenError
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:
@@ -126,10 +126,13 @@ class UserService:
     def delete_users_from_department(self, department_name: str, users: List[str]) -> Department:
         department = self.user_repo.get_department_by_name(department_name)
         new_users = []
+        users_to_delete = []
         for user in department.users:
             if str(user.get_id()) not in users:
                 new_users.append(user)
+            else:
+                users_to_delete.append(str(user.get_id()))
         department.users = new_users
         new_department = self.user_repo.update_department_users(department)
-        self.user_repo.remove_users_accesses(users, department_name)
+        self.user_repo.remove_users_accesses(users_to_delete, department_name)
         return new_department

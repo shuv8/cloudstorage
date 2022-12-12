@@ -1,6 +1,6 @@
 import pytest
 
-from tests.test_cc.conftest_constants import admin_id, casual_user_id
+from tests.test_cc.conftest_constants import admin_id, casual_user_id, casual_user_2_id
 
 
 class TestDepartmentManagement:
@@ -229,13 +229,15 @@ class TestDepartmentManagement:
         assert response.status_code == 200
         response_data = response.json
         assert 'users' in response_data
-        assert len(response_data['users']) == 2
+        assert len(response_data['users']) == 3
         all_ids = [ids["id"] for ids in response_data["users"]]
         all_email = [ids["email"] for ids in response_data["users"]]
         assert casual_user_id in all_ids
         assert admin_id in all_ids
+        assert casual_user_2_id in all_ids
         assert "admin@mail.com" in all_email
         assert "user@mail.com" in all_email
+        assert "user2@mail.com" in all_email
 
         response = app_client_admin.get(f'/user?page=3')
         assert response.status_code == 200

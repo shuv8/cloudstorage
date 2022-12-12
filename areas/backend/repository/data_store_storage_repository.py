@@ -316,6 +316,9 @@ class DataStoreStorageRepository:
         elif isinstance(item, Directory):
             for space in user.spaces:
                 if space.space_type == SpaceType.Shared:
+                    print(space)
+                    print(space.root_directory)
+                    print(item)
                     if space.root_directory.id == str(item.id):
                         user.spaces.remove(space)
                         if space is not None:
@@ -342,9 +345,6 @@ class DataStoreStorageRepository:
     def remove_shared_space_by_department(self, item: BaseStorageItem, department_name: str):
         department: DepartmentModel = DepartmentModel.query.filter_by(name=department_name).first()
 
-        if department is None:
-            raise DepartmentNotFoundError
-
         for user in department.users:
             self.remove_shared_space_by_email(item, user.email)
 
@@ -352,14 +352,14 @@ class DataStoreStorageRepository:
         user: UserModel = UserModel.query.filter_by(email=email).first()
 
         new_space = UserSpaceModel(
-            id=str(uuid.uuid4().hex),
+            id=str(uuid.uuid4()),
             space_type=SpaceType.Shared,
         )
         self.db.session.add(new_space)
 
         file: FileModel = FileModel.query.filter_by(id=item.id).first()
         directory = DirectoryModel(
-            id=str(uuid.uuid4().hex),
+            id=str(uuid.uuid4()),
             name="Root",
             is_root=True,
         )
@@ -368,12 +368,13 @@ class DataStoreStorageRepository:
         new_space.root_directory.files = [file]
 
         user.spaces.append(new_space)
+        self.db.session.commit()
 
     def add_shared_space_for_directory_model_by_email(self, item: DirectoryModel, email: str):
         user: UserModel = UserModel.query.filter_by(email=email).first()
 
         new_space = UserSpaceModel(
-            id=str(uuid.uuid4().hex),
+            id=str(uuid.uuid4()),
             space_type=SpaceType.Shared,
         )
         self.db.session.add(new_space)
@@ -382,6 +383,7 @@ class DataStoreStorageRepository:
         new_space.root_directory = directory
 
         user.spaces.append(new_space)
+        self.db.session.commit()
 
     def add_shared_space_by_email(self, item: BaseStorageItem, email: str):
         user: UserModel = UserModel.query.filter_by(email=email).first()
@@ -408,8 +410,9 @@ class DataStoreStorageRepository:
         elif isinstance(item, Directory):
             directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
             new_space.root_directory = directory
-
         user.spaces.append(new_space)
+        self.db.session.commit()
+
 
     def add_shared_space_by_type(self, item: BaseStorageItem, access: BaseAccess):
         if type(access) is UrlAccess:

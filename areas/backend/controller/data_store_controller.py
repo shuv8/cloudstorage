@@ -91,7 +91,7 @@ class DataStoreController:
             access_class: AccessClassEnum,
             view_only: Optional[bool] = True,
             name: Optional[str] = None,
-    ) -> str :
+    ) -> str:
         try:
             if edit_type == AccessEditTypeEnum.Add:
                 if access_class == AccessClassEnum.Url:

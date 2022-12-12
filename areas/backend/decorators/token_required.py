@@ -13,11 +13,11 @@ def token_required(f):
         try:
             token = request.cookies.get('token')
             if token is None:
-                return jsonify({'error': 'unauthorised'}), 401
+                return jsonify({'error': 'Unauthorised'}), 401
             userController.authentication(token)
             return f(*args, **kwargs)
         except InvalidTokenError:
-            return jsonify({'error': 'invalid token'}), 403
+            return jsonify({'error': 'Invalid token'}), 403
 
     return decorated
 
@@ -29,13 +29,13 @@ def admin_access(f):
         try:
             token = request.cookies.get('token')
             if token is None:
-                return jsonify({'error': 'unauthorised'}), 401
+                return jsonify({'error': 'Unauthorised'}), 401
             user = userController.authentication(token)
             if user.role != Role.Admin:
                 return jsonify({'error': 'access denied'}), 403
             return f(*args, **kwargs)
         except InvalidTokenError:
-            return jsonify({'error': 'invalid token'}), 403
+            return jsonify({'error': 'Invalid token'}), 403
 
     return decorated
 

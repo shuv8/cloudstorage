@@ -98,7 +98,7 @@ class UserSpaceModel(db.Model):
     space_type = db.Column(db.Enum(SpaceType))
 
     root_directory_id = db.Column(db.String, db.ForeignKey('directory.directory_id'))
-    root_directory: DirectoryModel = db.relationship("DirectoryModel", backref=backref("user_space", uselist=False))
+    root_directory: DirectoryModel = db.relationship("DirectoryModel", backref=backref("user_space", uselist=True))
 
 
 class UrlSpaceModel(db.Model):
@@ -107,7 +107,7 @@ class UrlSpaceModel(db.Model):
     id = db.Column('id', db.String, primary_key=True)
 
     root_directory_id = db.Column(db.String, db.ForeignKey('directory.directory_id'))
-    root_directory: DirectoryModel = db.relationship("DirectoryModel", backref=backref("url_space", uselist=False))
+    root_directory: DirectoryModel = db.relationship("DirectoryModel", backref=backref("url_space", uselist=True))
 
 
 class UserModel(db.Model):

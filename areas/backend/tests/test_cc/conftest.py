@@ -9,15 +9,6 @@ app_testing = create_app(True, 'sqlite:///:memory:')
 
 
 @pytest.fixture(scope='function')
-def client():
-    with app_testing.app_context():
-        yield app_testing.test_client()
-        app_testing.db.session.remove()
-        app_testing.db.drop_all()
-        app_testing.db.create_all()
-
-
-@pytest.fixture(scope='function')
 def user_space():
     from app_db import get_current_db
     with app_testing.app_context():
@@ -84,7 +75,6 @@ def user_space():
         db_.session.add(url_space)
         db_.session.commit()
 
-
         test_space = UserSpaceModel(
             id=space_1_id,
             space_type=SpaceType.Regular,
@@ -96,7 +86,46 @@ def user_space():
 
 
 @pytest.fixture(scope='function')
-def admin_user():
+def admin_space():
+    from app_db import get_current_db
+    with app_testing.app_context():
+        db_ = get_current_db(app_testing)
+        from database.database import DirectoryModel, UserSpaceModel, FileModel, UrlSpaceModel
+
+        test_dir = DirectoryModel(
+            id=root_dir_2_id,
+            name="Root",
+            is_root=True,
+        )
+
+        test_dir_4 = DirectoryModel(
+            id=dir_4_id,
+            name="Shared",
+        )
+        
+        test_file_5 = FileModel(
+            id=file_5_id,
+            name="test5",
+            type=".txt",
+        )
+        db_.session.add(test_file_5)
+
+        test_dir_4.files.append(test_file_5)
+        test_dir.inner_directories.append(test_dir_4)
+        db_.session.add(test_dir)
+
+        test_space = UserSpaceModel(
+            id=space_2_id,
+            space_type=SpaceType.Regular,
+        )
+        test_space.root_directory = test_dir
+        db_.session.add(test_space)
+
+        return test_space
+
+
+@pytest.fixture(scope='function')
+def admin_user(admin_space):
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
@@ -109,7 +138,7 @@ def admin_user():
             passwordHash=hashpw(str('password').encode(), gensalt()).decode(),
             role=Role.Admin
         )
-
+        test_user.spaces.append(admin_space)
         db_.session.add(test_user)
         db_.session.commit()
         return test_user
@@ -170,7 +199,7 @@ def add_departments():
 
 
 @pytest.fixture(scope='function')
-def fill_db(add_departments, admin_user, casual_user):
+def fill_db(add_departments, admin_user, casual_user, casual_user_2):
     data = {
         'departments': add_departments,
         'admin': admin_user,
@@ -178,6 +207,15 @@ def fill_db(add_departments, admin_user, casual_user):
         'user2': casual_user_2,
     }
     return data
+
+
+@pytest.fixture(scope='function')
+def client():
+    with app_testing.app_context():
+        yield app_testing.test_client()
+        app_testing.db.session.remove()
+        app_testing.db.drop_all()
+        app_testing.db.create_all()
 
 
 @pytest.fixture
