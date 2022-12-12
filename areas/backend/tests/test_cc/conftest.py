@@ -120,6 +120,26 @@ def admin_user():
 
 
 @pytest.fixture(scope='function')
+def casual_user_2():
+    from app_db import get_current_db
+    with app_testing.app_context():
+        db_ = get_current_db(app_testing)
+        from database.database import UserModel
+        from core.role import Role
+        test_user = UserModel(
+            id="bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+            email='user2@mail.com',
+            username='user 2',
+            passwordHash=hashpw(str('password1').encode(), gensalt()).decode(),
+            role=Role.Client
+        )
+
+        db_.session.add(test_user)
+        db_.session.commit()
+        return test_user
+
+
+@pytest.fixture(scope='function')
 def casual_user(user_space):
     from app_db import get_current_db
     with app_testing.app_context():
@@ -158,7 +178,8 @@ def fill_db(add_departments, admin_user, casual_user):
     data = {
         'departments': add_departments,
         'admin': admin_user,
-        'user': casual_user
+        'user': casual_user,
+        'user2': casual_user_2,
     }
     return data
 

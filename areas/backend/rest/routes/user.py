@@ -323,13 +323,12 @@ def view_file_by_id(space_id, file_id):
         '.mp4': 'video/mp4',
         '.txt': 'text/plain'
     }
-    # TODO GET FILE FROM DATABASE
     if file.type not in allowed_file_type_to_view:
         return jsonify({'error': 'Cannot view such type of file'}), 403
     try:
-        binary_file = dataStoreController.get_binary_file_by_id(user.email, UUID(hex=file_id))
+        binary_file = dataStoreController.get_binary_file_from_cloud_by_id(file.id, file.type)
         return send_file(binary_file, mimetype_dict[file.type])
-    except FileNotFoundError as ex:
+    except FileNotFoundError:
         return jsonify({'error': 'File is damaged'}), 404
 
 
@@ -338,9 +337,6 @@ def view_file_by_id(space_id, file_id):
     Block with Accesses
     ===================
 """
-
-
-# TODO Add validation after auth
 
 
 @USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
@@ -410,8 +406,6 @@ def set_access_by_url(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except AlreadyExistsError:
         return jsonify({'error': 'email already exist'}), 403
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
@@ -431,8 +425,6 @@ def reset_access_by_url(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
@@ -465,8 +457,6 @@ def add_access_by_user(item_id, email):
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except UserNotFoundError:
         return jsonify({'error': 'User not found'}), 404
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['DELETE'])
@@ -487,8 +477,6 @@ def remove_access_by_user(item_id, email):
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except UserNotFoundError:
         return jsonify({'error': 'User not found'}), 404
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
@@ -521,8 +509,6 @@ def add_access_by_department(item_id, department):
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except DepartmentNotFoundError:
         return jsonify({'error': 'Department not found'}), 404
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['DELETE'])
@@ -548,8 +534,6 @@ def remove_access_by_department(item_id, department):
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except DepartmentNotFoundError:
         return jsonify({'error': 'Department not found'}), 404
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])

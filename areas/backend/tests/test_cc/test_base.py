@@ -40,9 +40,15 @@ class TestBase:
                 "new_directory_name": "mega new dir"
             })
         assert response.status_code == 200
+        response2 = app_client_user.post(
+            path=f'/directory', json={
+                "space_id": "abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
+                "parent_id": "bb01bafc-21f1-4af8-89f9-79aa0de840c0",
+                "new_directory_name": "mega new dir"
+            })
+        assert response2.status_code == 403
 
         new_id = response.json['id']
-
         response = app_client_user.get(
             path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1/{new_id}')
         assert response.status_code == 200

@@ -122,7 +122,7 @@ class DataStoreStorageRepository:
         self.save_file_to_cloud(file_name)
         return new_file.id
 
-    def get_binary_file_by_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
+    def get_binary_file_from_cloud_by_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
         return BytesIO(self.get_file_from_cloud(f"{file_id}{file_type}"))
 
     def get_binary_dir_by_id(self, dir: Directory) -> BinaryIO:
@@ -265,7 +265,7 @@ class DataStoreStorageRepository:
 
         file_name = f'{old_file_model.id}{old_file_model.type}'
         new_file_name = f'{str(new_id)}{old_file_model.type}'
-        file_data = self.get_binary_file_by_id(old_file_model.id, old_file_model.type)
+        file_data = self.get_binary_file_from_cloud_by_id(old_file_model.id, old_file_model.type)
 
         with open(f'cache/{file_name}', "wb") as fh:
             fh.write(BytesIO(file_data.read()).getbuffer())
@@ -305,9 +305,6 @@ class DataStoreStorageRepository:
 
     def remove_shared_space_by_email(self, item: BaseStorageItem, email: str):
         user: UserModel = UserModel.query.filter_by(email=email).first()
-
-        if user is None:
-            raise UserNotFoundError
 
         if isinstance(item, File):
             for space in user.spaces:

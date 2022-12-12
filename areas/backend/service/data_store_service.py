@@ -402,7 +402,7 @@ class DataStoreService:
         item = self.get_user_file_by_id(user_mail, item_id)
         if item is not None:
             if isinstance(item, File):
-                result = self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
+                result = self.data_store_storage_repo.get_binary_file_from_cloud_by_id(item.id, item.type)
                 return [result, item]
             if isinstance(item, Directory):
                 result = self.data_store_storage_repo.get_binary_dir_by_id(item)
@@ -410,12 +410,8 @@ class DataStoreService:
         else:
             return [None, None]
 
-    def get_binary_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BinaryIO]:
-        item = self.get_user_file_by_id(user_mail, item_id)
-        if item is not None:
-            return self.data_store_storage_repo.get_binary_file_by_id(item.id, item.type)
-        else:
-            raise FileNotFoundError
+    def get_binary_file_from_cloud_by_id(self, file_id: uuid.UUID, file_type: str) -> Optional[BinaryIO]:
+        return self.data_store_storage_repo.get_binary_file_from_cloud_by_id(file_id, file_type)
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
         item = self.get_user_file_by_id(user_mail, item_id)
