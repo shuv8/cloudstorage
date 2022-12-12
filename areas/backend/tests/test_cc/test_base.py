@@ -31,3 +31,18 @@ class TestBase:
         response = app_client_user.get(
             path=f'/get_dir/abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d42/bb01bafc-21f1-4af8-89f9-79aa0de840c0')
         assert response.status_code == 200
+
+    def test_dir_create(self, app_client_user):
+        response = app_client_user.post(
+            path=f'/directory', json={
+                "space_id": "abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
+                "parent_id": "bb01bafc-21f1-4af8-89f9-79aa0de840c0",
+                "new_directory_name": "mega new dir"
+            })
+        assert response.status_code == 200
+
+        new_id = response.json['id']
+
+        response = app_client_user.get(
+            path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1/{new_id}')
+        assert response.status_code == 200
