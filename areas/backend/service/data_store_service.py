@@ -44,7 +44,7 @@ class DataStoreService:
 
         return items
 
-    def get_directory_in_space(self, user_mail: str, space_id: UUID, dir_id: UUID) -> UserCloudSpace:
+    def get_directory_in_space(self, user_mail: str, space_id: UUID, dir_id: UUID) -> Optional[Directory]:
         space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
         possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
 
@@ -414,8 +414,8 @@ class DataStoreService:
                     directories_for_search.extend(directory.directory_manager.items)
         return None
 
-    def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
-        item = self.get_user_file_by_id(user_mail, item_id)
+    def download_item(self, user_mail: str, space_id: UUID, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
+        item = self.get_file_in_space_by_id(user_mail=user_mail, space_id=space_id, item_id=item_id)
         if item is not None:
             if isinstance(item, File):
                 result = self.data_store_storage_repo.get_binary_file_from_cloud_by_id(item.id, item.type)
