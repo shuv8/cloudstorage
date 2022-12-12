@@ -2,8 +2,6 @@ import json
 
 import pytest
 
-from tests.test_api.mock.database_for_access_tests import DatabaseForAccessTests
-
 url = f'http://127.0.0.1:5000'
 
 

@@ -21,7 +21,7 @@ def user_space():
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
-        from database.database import DirectoryModel, UserSpaceModel, FileModel
+        from database.database import DirectoryModel, UserSpaceModel, FileModel, UrlSpaceModel
 
         # Create start directory
         test_dir = DirectoryModel(
@@ -80,6 +80,14 @@ def user_space():
         test_dir.inner_directories.append(test_dir_2)
         test_dir.inner_directories.append(test_dir_3)
         db_.session.add(test_dir)
+
+        url_space = UrlSpaceModel(
+            id="abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d42",
+            root_directory_id="bb01bafc-21f1-4af8-89f9-79aa0de840c0"
+        )
+        db_.session.add(url_space)
+        db_.session.commit()
+
 
         test_space = UserSpaceModel(
             id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",

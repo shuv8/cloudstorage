@@ -298,9 +298,9 @@ def add_new_file():
     return jsonify({'id': new_file_id}), 200
     
 
-@USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
+@USER_REQUEST_API.route('/file/<space_id>/<file_id>/view', methods=['GET'])
 @token_required
-def view_file_by_id(file_id):
+def view_file_by_id(space_id, file_id):
     """
     Path:
         - file_id: id of file to view
@@ -308,7 +308,7 @@ def view_file_by_id(file_id):
         file to view
     """
     user = get_user_by_token()
-    file: Optional[File] = dataStoreController.get_item_by_id(user.email, UUID(hex=file_id))
+    file: Optional[File] = dataStoreController.get_item_by_id(user.email, UUID(hex=space_id), UUID(hex=file_id))
     if file is None:
         return jsonify({'error': 'File not found'}), 404
 

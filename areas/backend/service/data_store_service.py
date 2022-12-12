@@ -212,6 +212,28 @@ class DataStoreService:
         new_file = File(new_file_name, new_file_type, _id=uuid.uuid4())
         return self.data_store_storage_repo.add_new_file(dir_id, new_file, new_file_data)
 
+    def get_file_in_space_by_id(self, user_mail: str, space_id: UUID, item_id: UUID) -> Optional[BaseStorageItem]:
+        space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
+
+        if space is None and possible_shared_url_space is None:
+            raise SpaceNotFoundError
+        elif space is None:
+            space = possible_shared_url_space
+
+        for directory in space.get_directory_manager().items:
+            item = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
+            if item is not None:
+                return item
+            file = self.get_file_in_directory_by_id(
+                file_manager=space.get_directory_manager().file_manager,
+                id_=item_id
+            )
+            if file is not None:
+                return file
+
+        return None
+
     def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
 

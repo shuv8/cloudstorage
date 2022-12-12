@@ -294,9 +294,17 @@
         }
       }
     },
-    "/file/{file_id}/view": {
+    "/file/{space_id}/{file_id}/view": {
       "get": {
         "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "Id of space to find file in",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "file_id",
             "in": "path",
