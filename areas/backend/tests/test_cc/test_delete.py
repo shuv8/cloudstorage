@@ -1,6 +1,6 @@
 import pytest
 
-from tests.test_cc.conftest_constants import root_dir_1_id, dir_2_id
+from tests.test_cc.conftest_constants import root_dir_1_id, file_1_id
 
 
 class TestDeleteController:
