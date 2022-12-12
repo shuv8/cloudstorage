@@ -56,7 +56,7 @@ class DataStoreService:
             directory = self.get_user_dir_in_space(space, dir_id)
 
         if directory is None:
-            raise ItemNotFoundError
+            return None
         return directory
 
     def add_new_directory(
@@ -218,7 +218,7 @@ class DataStoreService:
 
     def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file_name: str, new_file_type: str, new_file_data: str) -> UUID:
         if not (self.is_user_file(user_email, dir_id)):
-            raise ItemNotFoundError
+            return None
 
         dir_content = self.get_dir_content(user_email, space_id, dir_id)
         for _item in dir_content:
@@ -232,7 +232,7 @@ class DataStoreService:
         possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
 
         if space is None and possible_shared_url_space is None:
-            raise SpaceNotFoundError
+            return None
         elif space is None:
             space = possible_shared_url_space
 
@@ -365,28 +365,6 @@ class DataStoreService:
     def get_accesses_for_item(self, item: BaseStorageItem) -> list[BaseAccess]:
         return item.accesses
 
-    def get_file_in_space_by_id(self, user_mail: str, space_id: UUID, item_id: UUID) -> Optional[BaseStorageItem]:
-        space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
-        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
-
-
-        if space is None and possible_shared_url_space is None:
-            raise SpaceNotFoundError
-        elif space is None:
-            space = possible_shared_url_space
-
-        for directory in space.get_directory_manager().items:
-            item = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
-            if item is not None:
-                return item
-            file = self.get_file_in_directory_by_id(
-                file_manager=space.get_directory_manager().file_manager,
-                id_=item_id
-            )
-            if file is not None:
-                return file
-
-        return None
 
     def rename_item_by_id(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
         item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
