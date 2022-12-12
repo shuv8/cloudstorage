@@ -256,12 +256,7 @@ class DataStoreService:
     def is_user_file(self, user_mail: str, item_id: UUID) -> bool:
         return self.get_user_file_by_id(user_mail, item_id) is not None
 
-    def set_url_access_for_file(self, user_mail: str, item_id, new_access: BaseAccess) -> str:
-        item = self.get_user_file_by_id(user_mail, item_id)
-
-        if item is None:
-            raise ItemNotFoundError
-
+    def set_url_access_for_file(self, item: BaseStorageItem, new_access: BaseAccess) -> str:
         add_new_access = True
 
         for access in item.accesses:
@@ -281,12 +276,7 @@ class DataStoreService:
             self.data_store_storage_repo.update_item_access(item)
             return "accesses updated"
 
-    def remove_url_access_for_file(self, user_mail: str, item_id: UUID) -> str:
-        item = self.get_user_file_by_id(user_mail, item_id)
-
-        if item is None:
-            raise ItemNotFoundError
-
+    def remove_url_access_for_file(self, item: BaseStorageItem) -> str:
         for access in item.accesses:
             if type(access) == UrlAccess:
                 item.accesses.remove(access)
@@ -295,12 +285,7 @@ class DataStoreService:
                 return "access removed"
         return "nothing to remove"
 
-    def add_email_access_for_file(self, user_mail: str, item_id: UUID, new_access: UserAccess) -> str:
-        item = self.get_user_file_by_id(user_mail, item_id)
-
-        if item is None:
-            raise ItemNotFoundError
-
+    def add_email_access_for_file(self, item: BaseStorageItem, new_access: UserAccess) -> str:
         add_new_access = True
 
         for access in item.accesses:
@@ -321,12 +306,7 @@ class DataStoreService:
             self.data_store_storage_repo.update_item_access(item)
             return "accesses updated"
 
-    def remove_email_access_for_file(self, user_mail: str, item_id: UUID, email: str) -> str:
-        item = self.get_user_file_by_id(user_mail, item_id)
-
-        if item is None:
-            raise ItemNotFoundError
-
+    def remove_email_access_for_file(self, item: BaseStorageItem, email: str) -> str:
         for access in item.accesses:
             if type(access) == UserAccess:
                 if access.get_email() == email:
@@ -336,12 +316,7 @@ class DataStoreService:
                     return "access removed"
         return "nothing to remove"
 
-    def add_department_access_for_file(self, user_mail: str, item_id: UUID, new_access: DepartmentAccess):
-        item = self.get_user_file_by_id(user_mail, item_id)
-
-        if item is None:
-            raise ItemNotFoundError
-
+    def add_department_access_for_file(self, item: BaseStorageItem, new_access: DepartmentAccess):
         add_new_access = True
 
         for access in item.accesses:
@@ -362,12 +337,7 @@ class DataStoreService:
             self.data_store_storage_repo.update_item_access(item)
             return "accesses updated"
 
-    def remove_department_access_for_file(self, user_mail: str, item_id: UUID, department_name: str):
-        item = self.get_user_file_by_id(user_mail, item_id)
-
-        if item is None:
-            raise ItemNotFoundError
-
+    def remove_department_access_for_file(self, item: BaseStorageItem, department_name: str):
         for access in item.accesses:
             if type(access) == DepartmentAccess:
                 if access.get_department_name() == department_name:
@@ -377,12 +347,7 @@ class DataStoreService:
                     return "access removed"
         return "nothing to remove"
 
-    def get_accesses_for_item(self, user_mail: str, item_id: UUID) -> list[BaseAccess]:
-        item = self.get_user_file_by_id(user_mail, item_id)
-
-        if item is None:
-            raise ItemNotFoundError
-
+    def get_accesses_for_item(self, item: BaseStorageItem) -> list[BaseAccess]:
         return item.accesses
 
     def rename_item_by_id(self, user_mail: str, item_id: UUID, new_name: str):

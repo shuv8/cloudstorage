@@ -16,13 +16,17 @@ class AccessService:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
+        else:
+            item = self.data_store_service.get_user_file_by_id(user.email, item_id)
 
-        return self.data_store_service.get_accesses_for_item(user.email, item_id)
+        return self.data_store_service.get_accesses_for_item(item)
 
     def add_access_for_item_by_url(self, item_id: UUID, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
+        else:
+            item = self.data_store_service.get_user_file_by_id(user.email, item_id)
 
         if view_only:
             access_type = Access.View
@@ -34,19 +38,23 @@ class AccessService:
             access_type=access_type
         )
 
-        return self.data_store_service.set_url_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.set_url_access_for_file(item, new_access)
 
     def remove_access_for_item_by_url(self, item_id: UUID) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
+        else:
+            item = self.data_store_service.get_user_file_by_id(user.email, item_id)
 
-        return self.data_store_service.remove_url_access_for_file(user.email, item_id)
+        return self.data_store_service.remove_url_access_for_file(item)
 
     def add_access_for_item_by_email(self, item_id: UUID, email: str, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
+        else:
+            item = self.data_store_service.get_user_file_by_id(user.email, item_id)
 
         if view_only:
             access_type = Access.View
@@ -58,19 +66,23 @@ class AccessService:
             access_type=access_type
         )
 
-        return self.data_store_service.add_email_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.add_email_access_for_file(item, new_access)
 
     def remove_access_for_item_by_email(self, item_id: UUID, email: str) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
+        else:
+            item = self.data_store_service.get_user_file_by_id(user.email, item_id)
 
-        return self.data_store_service.remove_email_access_for_file(user.email, item_id, email)
+        return self.data_store_service.remove_email_access_for_file(item, email)
 
     def add_access_for_item_by_department(self, item_id: UUID, department: str, view_only: bool) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
+        else:
+            item = self.data_store_service.get_user_file_by_id(user.email, item_id)
 
         if view_only:
             access_type = Access.View
@@ -82,11 +94,13 @@ class AccessService:
             access_type=access_type
         )
 
-        return self.data_store_service.add_department_access_for_file(user.email, item_id, new_access)
+        return self.data_store_service.add_department_access_for_file(item, new_access)
 
     def remove_access_for_item_by_department(self, item_id: UUID, department: str) -> str:
         user = get_user_by_token()
         if not self.data_store_service.is_user_file(user.email, item_id):
             raise NotAllowedError()
+        else:
+            item = self.data_store_service.get_user_file_by_id(user.email, item_id)
 
-        return self.data_store_service.remove_department_access_for_file(user.email, item_id, department)
+        return self.data_store_service.remove_department_access_for_file(item, department)

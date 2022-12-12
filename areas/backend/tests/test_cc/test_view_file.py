@@ -2,6 +2,7 @@ import pytest
 from minio import Minio
 
 from config import *
+from exceptions.exceptions import SpaceNotFoundError
 
 
 class TestViewFileById:
@@ -64,6 +65,10 @@ class TestViewFileById:
         _id = response.json['id']
         response = app_client_user.get(f'/file/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1/{_id}/view')
         response2 = app_client_user.get(f'/file/abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d42/{_id}/view')
+
+        with pytest.raises(SpaceNotFoundError):
+            app_client_user.get(f'/file/abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d76/{_id}/view')
+
         client = Minio(
             endpoint=endpoint,
             access_key=access_key,
