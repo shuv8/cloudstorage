@@ -1,6 +1,6 @@
 import pytest
 
-from tests.test_cc.conftest_constants import file_2_id, dir_3_id
+from tests.test_cc.conftest_constants import file_2_id, dir_3_id, dir_4_id
 
 
 class TestAccesses:
@@ -172,3 +172,21 @@ class TestAccesses:
             path=f'/remove_access/{dir_3_id}/department/Test_department_1')
         assert response.status_code == 200
         assert response.json['status'] == "nothing to remove"
+
+    def test_add_access_for_user_by_admin(self, client, fill_db):
+        login_data = {'email': 'admin@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.put(path=f'/add_access/{dir_4_id}/email/user@mail.com?view_only=true')
+        assert response.status_code == 200
+
+        login_data = {'email': 'user@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.get(path=f'/get_spaces')
+        assert response.status_code == 200
+        all_types = [elem['type'] for elem in response.json['spaces']]
+        assert 'Regular' in all_types
+        assert 'Shared' in all_types

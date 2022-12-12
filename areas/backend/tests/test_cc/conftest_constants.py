@@ -12,6 +12,13 @@ root_dir_1_id = "bb01bafc-21f1-4af8-89f9-79aa0de840c0"
 dir_2_id = "cbd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1"
 dir_3_id = "abd9cd7f-9ffd-42b0-bce4-eb14b51a1f09"
 
+
+space_2_id = "bdd9cd7f-9ffd-42b0-bce4-eb14b51a1fd2"
+# Create start directory for admin:
+root_dir_2_id = "bc01bafc-21f1-4af8-89f9-79aa0de840c0"
+# Create inner directories in root_dir_2_id:
+dir_4_id = "abd9ca7f-9ffd-42b0-bce4-eb14b51a1f09"
+
 # Create file in root_dir_1_id:
 file_1_id = "abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72"
 # Create files in test_dir_2:

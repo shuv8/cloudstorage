@@ -86,7 +86,38 @@ def user_space():
 
 
 @pytest.fixture(scope='function')
-def admin_user():
+def admin_space():
+    from app_db import get_current_db
+    with app_testing.app_context():
+        db_ = get_current_db(app_testing)
+        from database.database import DirectoryModel, UserSpaceModel, FileModel, UrlSpaceModel
+
+        test_dir = DirectoryModel(
+            id=root_dir_2_id,
+            name="Root",
+            is_root=True,
+        )
+
+        test_dir_4 = DirectoryModel(
+            id=dir_4_id,
+            name="Shared",
+        )
+
+        test_dir.inner_directories.append(test_dir_4)
+        db_.session.add(test_dir)
+
+        test_space = UserSpaceModel(
+            id=space_2_id,
+            space_type=SpaceType.Regular,
+        )
+        test_space.root_directory = test_dir
+        db_.session.add(test_space)
+
+        return test_space
+
+
+@pytest.fixture(scope='function')
+def admin_user(admin_space):
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
@@ -99,7 +130,7 @@ def admin_user():
             passwordHash=hashpw(str('password').encode(), gensalt()).decode(),
             role=Role.Admin
         )
-
+        test_user.spaces.append(admin_space)
         db_.session.add(test_user)
         db_.session.commit()
         return test_user
