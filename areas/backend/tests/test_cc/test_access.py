@@ -114,32 +114,53 @@ class TestAccesses:
             path=f'/remove_access/{file_2_id}/email/admin@mail.com')
         assert response.status_code == 200
 
-    def test_add_remove_access_department_view(self, app_client_user):
-        response = app_client_user.put(
+    def test_add_remove_access_department_view(self, client, fill_db):
+        login_data = {'email': 'admin@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.put(
+            path=f'/add_access/{file_5_id}/department/Test_department_1?view_only=true')
+        assert response.status_code == 200
+
+        data = {
+            "users": [
+                casual_user_2_id
+            ]
+        }
+        response = client.post(f'/department/users?name=Test_department_1',
+                               json=data)
+        assert response.status_code == 200
+
+        login_data = {'email': 'user@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.put(
             path=f'/add_access/{file_2_id}/department/Test_department_1?view_only=true')
         assert response.status_code == 200
-        response = app_client_user.put(
+        response = client.put(
             path=f'/add_access/{file_2_id}/department/Test_department_10?view_only=true')
         assert response.status_code == 404
         assert response.json['error'] == 'Department not found'
-        response = app_client_user.put(
+        response = client.put(
             path=f'/add_access/{file_2_id}/department/Test_department_1?view_only=false')
         assert response.status_code == 200
-        response = app_client_user.put(
+        response = client.put(
             path=f'/add_access/{file_2_id}/department/Test_department_1?view_only=false')
         assert response.status_code == 200
-        response = app_client_user.get(path=f'/accesses/{file_2_id}')
+        response = client.get(path=f'/accesses/{file_2_id}')
         assert response.status_code == 200
-        response = app_client_user.delete(
+        response = client.delete(
             path=f'/remove_access/{file_2_id}/department/Test_department_1')
         assert response.status_code == 200
-        response = app_client_user.delete(
+        response = client.delete(
             path=f'/remove_access/{file_2_id}/department/Test_department_10')
         assert response.status_code == 200
-        response = app_client_user.put(
+        response = client.put(
             path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70/department/Test_department_1')
         assert response.status_code == 401
-        response = app_client_user.delete(
+        response = client.delete(
             path=f'/remove_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70/department/Test_department_1')
         assert response.status_code == 401
 
