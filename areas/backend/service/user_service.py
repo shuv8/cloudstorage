@@ -77,7 +77,7 @@ class UserService:
             payload = decode(token, "SUPER-SECRET-KEY", ["HS256"])
             _id = UUID(hex=payload["id"])
             return self.user_repo.get_user_from_db_by_id(_id)
-        except:
+        except Exception:
             raise InvalidTokenError
 
     def get_all_departments(self, page: int, limit: int) -> List[Department]:

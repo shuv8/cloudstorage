@@ -9,15 +9,6 @@ app_testing = create_app(True, 'sqlite:///:memory:')
 
 
 @pytest.fixture(scope='function')
-def client():
-    with app_testing.app_context():
-        yield app_testing.test_client()
-        app_testing.db.session.remove()
-        app_testing.db.drop_all()
-        app_testing.db.create_all()
-
-
-@pytest.fixture(scope='function')
 def user_space():
     from app_db import get_current_db
     with app_testing.app_context():
@@ -170,7 +161,7 @@ def add_departments():
 
 
 @pytest.fixture(scope='function')
-def fill_db(add_departments, admin_user, casual_user):
+def fill_db(add_departments, admin_user, casual_user, casual_user_2):
     data = {
         'departments': add_departments,
         'admin': admin_user,
@@ -178,6 +169,15 @@ def fill_db(add_departments, admin_user, casual_user):
         'user2': casual_user_2,
     }
     return data
+
+
+@pytest.fixture(scope='function')
+def client():
+    with app_testing.app_context():
+        yield app_testing.test_client()
+        app_testing.db.session.remove()
+        app_testing.db.drop_all()
+        app_testing.db.create_all()
 
 
 @pytest.fixture

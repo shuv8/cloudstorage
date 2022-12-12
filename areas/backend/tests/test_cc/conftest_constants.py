@@ -18,3 +18,5 @@ file_1_id = "abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72"
 file_2_id = "abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73"
 file_3_id = "abd9cd7d-9ffd-41b0-d1e4-eb14b51a6422"
 file_4_id = "abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72"
+
+invalid_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"

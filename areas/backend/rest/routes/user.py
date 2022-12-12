@@ -29,16 +29,16 @@ def get_blueprint():
 def registration():
     request_data = request.get_json()
     try:
-        email=request_data['email']
-        password=request_data['password']
-        role=Role.get_enum_from_value(request_data['role'])
-        username=request_data['username']
+        email = request_data['email']
+        password = request_data['password']
+        role = Role.get_enum_from_value(request_data['role'])
+        username = request_data['username']
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
     try:
         userController.registration(email, password, role, username)
     except AlreadyExistsError:
-        return jsonify({'error': 'email already exist'}), 403
+        return jsonify({'error': 'Email already exists'}), 403
     return jsonify({}), 200
 
 
@@ -49,14 +49,14 @@ def login():
         email = request_data['email']
         password = request_data['password']
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
     try:
         token = userController.login(email, password)
         response = make_response()
         response.set_cookie('token', token)
         return response
     except InvalidCredentialsError:
-        return jsonify({'error': 'invalid email or password'}), 403
+        return jsonify({'error': 'Invalid email or password'}), 403
 
 
 """
@@ -204,9 +204,9 @@ def get_space_content(space_id):
 def add_new_directory():
     request_data = request.get_json()
     try:
-        space_id=request_data['space_id']
-        parent_id=request_data['parent_id']
-        new_directory_name=request_data['new_directory_name']
+        space_id = request_data['space_id']
+        parent_id = request_data['parent_id']
+        new_directory_name = request_data['new_directory_name']
     except KeyError:
         return jsonify({'error': 'invalid request body'}), 400
     try:
@@ -289,14 +289,15 @@ def add_new_file():
         return jsonify({'error': 'invalid request body'}), 400
     try:
         user = get_user_by_token()
-        new_file_id = dataStoreController.add_new_file(user.email, UUID(space_id), UUID(dir_id), new_file_name, new_file_type, new_file_data)
+        new_file_id = dataStoreController.add_new_file(user.email, UUID(space_id), UUID(dir_id), new_file_name,
+                                                       new_file_type, new_file_data)
     except ItemNotFoundError:
         return jsonify({'error': 'incorrect directory'}), 404
     except AlreadyExistsError:
         # TODO: ответ должен содержать предложение о замене существующего файла
         return jsonify({'error': 'file name alreay exists'}), 409
     return jsonify({'id': new_file_id}), 200
-    
+
 
 @USER_REQUEST_API.route('/file/<space_id>/<file_id>/view', methods=['GET'])
 @token_required
@@ -470,7 +471,8 @@ def remove_access_by_user(item_id, email):
     """
 
     try:
-        result = dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail, name=email)
+        result = dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail,
+                                                 name=email)
         return jsonify({"status": result}), 200
 
     except NotAllowedError:
