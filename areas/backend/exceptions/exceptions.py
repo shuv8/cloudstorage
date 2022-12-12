@@ -28,3 +28,7 @@ class UserNotFoundError(Exception):
 
 class DepartmentNotFoundError(Exception):
     pass
+
+
+class AccessError(Exception):
+    pass

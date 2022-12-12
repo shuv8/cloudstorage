@@ -3,14 +3,15 @@ import uuid
 from copy import deepcopy
 from uuid import UUID
 
-from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess
+from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess, Access
 from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
 from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
-from core.user_cloud_space import UserCloudSpace
-from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError
+from core.user_cloud_space import UserCloudSpace, SpaceType
+from database.database import UrlSpaceModel
+from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError, AccessError
 from repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
 import logging
@@ -369,6 +370,8 @@ class DataStoreService:
     def rename_item_by_id(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
         item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
+            if not self.check_edit_access(user_mail, space_id, item):
+                raise AccessError
             item.name = new_name
             self.data_store_storage_repo.edit_item_name(item)
             return item.name
@@ -478,3 +481,15 @@ class DataStoreService:
         for subdirectory in directory.directory_manager.items:
             self.copy_directory(subdirectory, new_dir_id)
         return new_dir_id
+
+    @private
+    def check_edit_access(self, user_mail, space_id, item):
+        space = self.data_store_storage_repo.get_user_space(user_mail, space_id)
+        if space is None:
+            space = self.data_store_storage_repo.get_url_space(space_id)
+        if isinstance(space, UrlSpaceModel):
+            return self.data_store_storage_repo.get_url_access(space.id) == Access.Edit
+        elif space.space_type == SpaceType.Regular:
+            return True
+        elif space.space_type == SpaceType.Shared:
+            return self.data_store_storage_repo.get_shared_access(user_mail, item) == Access.Edit
