@@ -1,15 +1,17 @@
+from tests.test_cc.conftest_constants import dir_2_id, file_1_id
+
 url = f'http://127.0.0.1:5000'
 
 
 class TestDelete:
 
     def test_delete_file(self, api_log_client):
-        response = api_log_client._request('DELETE', url + f'/delete/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72')
+        response = api_log_client._request('DELETE', url + f'/delete/{file_1_id}')
         assert response.status_code == 200
         assert response.text == '{"delete":"success"}\n'
 
     def test_delete_directory(self, api_log_client):
-        response = api_log_client._request('DELETE', url + f'/delete/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')
+        response = api_log_client._request('DELETE', url + f'/delete/{dir_2_id}')
         assert response.status_code == 200
         assert response.text == '{"delete":"success"}\n'
 

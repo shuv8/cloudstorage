@@ -2,6 +2,8 @@ import json
 
 import pytest
 
+from tests.test_cc.conftest_constants import space_1_id
+
 url = f'http://127.0.0.1:5000'
 
 
@@ -24,7 +26,7 @@ class TestBase:
 
     def test_space_content(self, api_log_client):
         response = api_log_client._request(
-            'GET', url + f'/get_space/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1?scope=test'
+            'GET', url + f'/get_space/{space_1_id}?scope=test'
         )
         assert response.status_code == 200
 
@@ -41,7 +43,7 @@ class TestBase:
     def test_dir_content(self, api_log_client):
         response = api_log_client._request(
             'GET',
-            url + f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa4?scope=test'
+            url + f'/get_dir/{space_1_id}/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa4?scope=test'
         )
         assert response.status_code == 200
 

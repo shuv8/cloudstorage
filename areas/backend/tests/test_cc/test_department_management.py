@@ -1,5 +1,7 @@
 import pytest
 
+from tests.test_cc.conftest_constants import admin_id, casual_user_id
+
 
 class TestDepartmentManagement:
 
@@ -101,8 +103,8 @@ class TestDepartmentManagement:
     def test_add_users_to_department(self, app_client_admin):
         data = {
             "users": [
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+                casual_user_id,
+                admin_id
             ]
         }
         response = app_client_admin.post(f'/department/users?name=Test_department_1',
@@ -116,8 +118,8 @@ class TestDepartmentManagement:
         assert len(response_data["users"]) == 2
         all_ids = [ids["id"] for ids in response_data["users"]]
         all_email = [ids["email"] for ids in response_data["users"]]
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" in all_ids
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+        assert casual_user_id in all_ids
+        assert admin_id in all_ids
         assert "admin@mail.com" in all_email
         assert "user@mail.com" in all_email
 
@@ -125,7 +127,7 @@ class TestDepartmentManagement:
         data = {
             "users": [
                 "bb01bafc-21f1-4af8-89f9-79aa0de840c4",
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+                admin_id
             ]
         }
         response = app_client_admin.post(f'/department/users?name=Test_department_1',
@@ -141,7 +143,7 @@ class TestDepartmentManagement:
         data = {
             "users_1": [
                 "bb01bafc-21f1-4af8-89f9-79aa0de840c4",
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+                admin_id
             ]
         }
         response = app_client_admin.post(f'/department/users?name=Test_department_1',
@@ -152,7 +154,7 @@ class TestDepartmentManagement:
         data = {
             "users": [
                 "bb01bafc-21f1-4af8-89f9-79aa0de840c4",
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+                admin_id
             ]
         }
         response = app_client_admin.post(f'/department/users?name=Test_department_3',
@@ -163,8 +165,8 @@ class TestDepartmentManagement:
     def test_delete_users_from_department(self, app_client_admin):
         data = {
             "users": [
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+                casual_user_id,
+                admin_id
             ]
         }
         response = app_client_admin.post(f'/department/users?name=Test_department_2',
@@ -177,12 +179,12 @@ class TestDepartmentManagement:
         assert response_data["department_name"] == "Test_department_2"
         assert len(response_data["users"]) == 2
         all_ids = [ids["id"] for ids in response_data["users"]]
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" in all_ids
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+        assert casual_user_id in all_ids
+        assert admin_id in all_ids
 
         data = {
             "users": [
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+                casual_user_id,
                 "bb01bafc-21f1-4af8-89f9-79aa0de840c7"
             ]
         }
@@ -196,14 +198,14 @@ class TestDepartmentManagement:
         assert response_data["department_name"] == "Test_department_2"
         assert len(response_data["users"]) == 1
         all_ids = [ids["id"] for ids in response_data["users"]]
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" not in all_ids
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+        assert casual_user_id not in all_ids
+        assert admin_id in all_ids
 
     def test_delete_users_from_department_nf(self, app_client_admin):
         data = {
             "users_1": [
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+                casual_user_id,
+                admin_id
             ]
         }
         response = app_client_admin.delete(f'/department/users?name=Test_department_2',
@@ -213,8 +215,8 @@ class TestDepartmentManagement:
 
         data = {
             "users": [
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c1",
-                "bb01bafc-21f1-4af8-89f9-79aa0de840c8"
+                casual_user_id,
+                admin_id
             ]
         }
         response = app_client_admin.delete(f'/department/users?name=Test_department_4',
@@ -230,8 +232,8 @@ class TestDepartmentManagement:
         assert len(response_data['users']) == 2
         all_ids = [ids["id"] for ids in response_data["users"]]
         all_email = [ids["email"] for ids in response_data["users"]]
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c1" in all_ids
-        assert "bb01bafc-21f1-4af8-89f9-79aa0de840c8" in all_ids
+        assert casual_user_id in all_ids
+        assert admin_id in all_ids
         assert "admin@mail.com" in all_email
         assert "user@mail.com" in all_email
 

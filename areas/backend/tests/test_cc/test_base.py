@@ -1,5 +1,7 @@
 import pytest
 
+from tests.test_cc.conftest_constants import url_space_1_id, root_dir_1_id, space_1_id
+
 
 class TestBase:
 
@@ -8,7 +10,7 @@ class TestBase:
         assert response.status_code == 200
 
     def test_space_content(self, app_client_user):
-        response = app_client_user.get(path=f'/get_space/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1')
+        response = app_client_user.get(path=f'/get_space/{space_1_id}')
         assert response.status_code == 200
 
         response = app_client_user.get(path=f'/get_space/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd0')
@@ -16,39 +18,39 @@ class TestBase:
 
     def test_dir_content(self, app_client_user):
         response = app_client_user.get(
-            path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1/bb01bafc-21f1-4af8-89f9-79aa0de840c0')
+            path=f'/get_dir/{space_1_id}/{root_dir_1_id}')
         assert response.status_code == 200
 
         response = app_client_user.get(
-            path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa0')
+            path=f'/get_dir/{space_1_id}/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa0')
         assert response.status_code == 404
 
         response = app_client_user.get(
-            path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd0/bb01bafc-21f1-4af8-89f9-79aa0de840c0')
+            path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd0/{root_dir_1_id}')
         assert response.status_code == 404
 
     def test_dir_content_url_space(self, app_client_user):
         response = app_client_user.get(
-            path=f'/get_dir/abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d42/bb01bafc-21f1-4af8-89f9-79aa0de840c0')
+            path=f'/get_dir/{url_space_1_id}/{root_dir_1_id}')
         assert response.status_code == 200
 
     def test_dir_create(self, app_client_user):
         response = app_client_user.post(
             path=f'/directory', json={
-                "space_id": "abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
-                "parent_id": "bb01bafc-21f1-4af8-89f9-79aa0de840c0",
+                "space_id": space_1_id,
+                "parent_id": root_dir_1_id,
                 "new_directory_name": "mega new dir"
             })
         assert response.status_code == 200
         response2 = app_client_user.post(
             path=f'/directory', json={
-                "space_id": "abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
-                "parent_id": "bb01bafc-21f1-4af8-89f9-79aa0de840c0",
+                "space_id": space_1_id,
+                "parent_id": root_dir_1_id,
                 "new_directory_name": "mega new dir"
             })
         assert response2.status_code == 403
 
         new_id = response.json['id']
         response = app_client_user.get(
-            path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1/{new_id}')
+            path=f'/get_dir/{space_1_id}/{new_id}')
         assert response.status_code == 200

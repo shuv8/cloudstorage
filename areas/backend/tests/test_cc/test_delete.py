@@ -1,15 +1,17 @@
 import pytest
 
+from tests.test_cc.conftest_constants import root_dir_1_id, dir_2_id
+
 
 class TestDeleteController:
 
     def test_delete_file(self, app_client_user):
-        response = app_client_user.delete(path='/delete/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1',
-                                           query_string={'scope': 'separate'})
+        response = app_client_user.delete(path=f'/delete/{file_1_id}',
+                                          query_string={'scope': 'separate'})
         assert response.status_code == 200
 
     def test_delete_directory(self, app_client_user):
-        response = app_client_user.delete(path='/delete/bb01bafc-21f1-4af8-89f9-79aa0de840c0',
+        response = app_client_user.delete(path=f"/delete/{root_dir_1_id}",
                                            query_string={'scope': 'separate'})
         assert response.status_code == 200
 

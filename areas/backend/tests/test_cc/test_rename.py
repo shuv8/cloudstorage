@@ -1,15 +1,17 @@
 import pytest
 
+from tests.test_cc.conftest_constants import space_1_id, file_1_id, dir_2_id
+
 
 class TestRenameController:
 
     def test_rename_file(self, app_client_user):
-        response = app_client_user.put(path='/rename/abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72'
+        response = app_client_user.put(path=f'/rename/{file_1_id}'
                                        '?new_name=test_name&&scope=test')
         assert response.status_code == 200
 
     def test_rename_directory(self, app_client_user):
-        response = app_client_user.put(path='/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1'
+        response = app_client_user.put(path=f'/rename/{dir_2_id}'
                                        '?new_name=test_name&&scope=test')
         assert response.status_code == 200
 
@@ -17,5 +19,5 @@ class TestRenameController:
         response = app_client_user.put(path='/rename/aaa?new_name=test_name')
         assert response.status_code == 404
 
-        response = app_client_user.put(path='/rename/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1?wrong_param=test_name')
+        response = app_client_user.put(path=f'/rename/{dir_2_id}?wrong_param=test_name')
         assert response.status_code == 400

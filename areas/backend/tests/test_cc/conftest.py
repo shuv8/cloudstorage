@@ -1,6 +1,7 @@
 import pytest
 
 from core.user_cloud_space import SpaceType
+from tests.test_cc.conftest_constants import *
 from web_server import create_app
 from bcrypt import gensalt, hashpw
 
@@ -23,47 +24,42 @@ def user_space():
         db_ = get_current_db(app_testing)
         from database.database import DirectoryModel, UserSpaceModel, FileModel, UrlSpaceModel
 
-        # Create start directory
         test_dir = DirectoryModel(
-            id="bb01bafc-21f1-4af8-89f9-79aa0de840c0",
+            id=root_dir_1_id,
             name="Root",
             is_root=True,
         )
 
-        # Create file in start directory
         test_file = FileModel(
-            id="abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72",
+            id=file_1_id,
             name="file_for",
             type=".vasya",
         )
 
-        # Create inner directory in test_dir
         test_dir_2 = DirectoryModel(
-            id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
+            id=dir_2_id,
             name="Bla",
         )
 
-        # Create inner directory in test_dir
         test_dir_3 = DirectoryModel(
-            id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1f09",
+            id=dir_3_id,
             name="Bla",
         )
 
-        # Create file in test_dir_2
         test_file_2 = FileModel(
-            id="abd9cd7f-9ffd-42b0-bce4-eb14b51a6d73",
+            id=file_2_id,
             name="test_file_for",
             type=".test",
         )
 
         test_file_3 = FileModel(
-            id="abd9cd7d-9ffd-41b0-d1e4-eb14b51a6d72",
+            id=file_3_id,
             name="test1",
             type=".txt",
         )
 
         test_file_4 = FileModel(
-            id="abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d72",
+            id=file_4_id,
             name="test2",
             type=".txt",
         )
@@ -82,15 +78,15 @@ def user_space():
         db_.session.add(test_dir)
 
         url_space = UrlSpaceModel(
-            id="abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d42",
-            root_directory_id="bb01bafc-21f1-4af8-89f9-79aa0de840c0"
+            id=url_space_1_id,
+            root_directory_id=root_dir_1_id
         )
         db_.session.add(url_space)
         db_.session.commit()
 
 
         test_space = UserSpaceModel(
-            id="abd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1",
+            id=space_1_id,
             space_type=SpaceType.Regular,
         )
         test_space.root_directory = test_dir
@@ -107,7 +103,7 @@ def admin_user():
         from database.database import UserModel
         from core.role import Role
         test_user = UserModel(
-            id="bb01bafc-21f1-4af8-89f9-79aa0de840c8",
+            id=admin_id,
             email='admin@mail.com',
             username='admin',
             passwordHash=hashpw(str('password').encode(), gensalt()).decode(),
@@ -127,7 +123,7 @@ def casual_user_2():
         from database.database import UserModel
         from core.role import Role
         test_user = UserModel(
-            id="bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+            id=casual_user_2_id,
             email='user2@mail.com',
             username='user 2',
             passwordHash=hashpw(str('password1').encode(), gensalt()).decode(),
@@ -147,7 +143,7 @@ def casual_user(user_space):
         from database.database import UserModel
         from core.role import Role
         test_user = UserModel(
-            id="bb01bafc-21f1-4af8-89f9-79aa0de840c1",
+            id=casual_user_id,
             email='user@mail.com',
             username='user',
             passwordHash=hashpw(str('password').encode(), gensalt()).decode(),
