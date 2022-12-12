@@ -18,6 +18,7 @@ space_2_id = "bdd9cd7f-9ffd-42b0-bce4-eb14b51a1fd2"
 root_dir_2_id = "bc01bafc-21f1-4af8-89f9-79aa0de840c0"
 # Create inner directories in root_dir_2_id:
 dir_4_id = "abd9ca7f-9ffd-42b0-bce4-eb14b51a1f09"
+file_5_id = "abdaca7f-9ffd-42b0-bce4-eb14b51a1f09"
 
 # Create file in root_dir_1_id:
 file_1_id = "abd9cd7f-9ffd-41b0-bce4-eb14b51a6d72"

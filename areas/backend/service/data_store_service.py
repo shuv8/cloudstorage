@@ -423,7 +423,7 @@ class DataStoreService:
                     self.data_store_storage_repo.delete_item_from_db(item)
                     return True
                 elif isinstance(item, Directory):
-                    if item.name == "root":
+                    if item.name == "Root":
                         return False
                     del_file_manager = item.directory_manager.file_manager
                     for file in del_file_manager.items:
@@ -432,8 +432,6 @@ class DataStoreService:
                         self.delete_item(user_mail, item_id=subdirectory.id)
                     self.data_store_storage_repo.delete_item_from_db(item)
                     return True
-                else:
-                    return False
             else:
                 return False
 

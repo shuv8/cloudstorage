@@ -33,7 +33,7 @@ class UserService:
                     BaseAccess(access_type=Access.View),
                     BaseAccess(access_type=Access.Edit),
                 ],
-                name="root"
+                name="Root"
             )
             directory_manager = DirectoryManager(
                 items=[directory],
@@ -126,10 +126,13 @@ class UserService:
     def delete_users_from_department(self, department_name: str, users: List[str]) -> Department:
         department = self.user_repo.get_department_by_name(department_name)
         new_users = []
+        users_to_delete = []
         for user in department.users:
             if str(user.get_id()) not in users:
                 new_users.append(user)
+            else:
+                users_to_delete.append(str(user.get_id()))
         department.users = new_users
         new_department = self.user_repo.update_department_users(department)
-        self.user_repo.remove_users_accesses(users, department_name)
+        self.user_repo.remove_users_accesses(users_to_delete, department_name)
         return new_department

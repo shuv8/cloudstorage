@@ -102,7 +102,15 @@ def admin_space():
             id=dir_4_id,
             name="Shared",
         )
+        
+        test_file_5 = FileModel(
+            id=file_5_id,
+            name="test5",
+            type=".txt",
+        )
+        db_.session.add(test_file_5)
 
+        test_dir_4.files.append(test_file_5)
         test_dir.inner_directories.append(test_dir_4)
         db_.session.add(test_dir)
 

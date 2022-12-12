@@ -54,7 +54,7 @@ class UserRepository:
         root_directory = directory_manager.get_items()[0]
         directory: DirectoryModel = DirectoryModel(
             id=str(root_directory.get_id()),
-            name="root",
+            name="Root",
             is_root=True,
         )
         space: UserSpaceModel = UserSpaceModel(
