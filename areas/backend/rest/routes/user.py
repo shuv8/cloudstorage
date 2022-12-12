@@ -169,15 +169,6 @@ def get_space_content(space_id):
 
         items_content = []
         for item in items:
-            if type(item) == File:
-                items_content.append(
-                    {
-                        "id": str(item.get_id()),
-                        "name": item.name,
-                        "type": item.type,
-                        "entity": item.__class__.__name__,
-                    }
-                )
             if type(item) == Directory:
                 items_content.append(
                     {
@@ -193,8 +184,6 @@ def get_space_content(space_id):
                 "items": items_content
             }
         ), 200
-    except ItemNotFoundError:
-        return jsonify("Can't find directory with ID"), 404
     except SpaceNotFoundError:
         return jsonify("Can't find space with ID"), 404
 
@@ -208,7 +197,7 @@ def add_new_directory():
         parent_id = request_data['parent_id']
         new_directory_name = request_data['new_directory_name']
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
     try:
         user = get_user_by_token()
         directory_id = dataStoreController.add_new_directory(
@@ -219,8 +208,6 @@ def add_new_directory():
         )
     except AlreadyExistsError:
         return jsonify({'error': 'directory name already exist'}), 403
-    except ItemNotFoundError:
-        return jsonify({'error': 'not allowed'}), 405
     return jsonify({'id': directory_id}), 200
 
 
@@ -286,16 +273,16 @@ def add_new_file():
         new_file_type = request_data['new_file_type']
         new_file_data = request_data['new_file_data']
     except KeyError:
-        return jsonify({'error': 'invalid request body'}), 400
+        return jsonify({'error': 'Invalid request body'}), 400
     try:
         user = get_user_by_token()
         new_file_id = dataStoreController.add_new_file(user.email, UUID(space_id), UUID(dir_id), new_file_name,
                                                        new_file_type, new_file_data)
     except ItemNotFoundError:
-        return jsonify({'error': 'incorrect directory'}), 404
+        return jsonify({'error': 'Incorrect directory'}), 404
     except AlreadyExistsError:
         # TODO: ответ должен содержать предложение о замене существующего файла
-        return jsonify({'error': 'file name alreay exists'}), 409
+        return jsonify({'error': 'File name already exists'}), 409
     return jsonify({'id': new_file_id}), 200
 
 
@@ -405,8 +392,6 @@ def set_access_by_url(item_id):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except AlreadyExistsError:
-        return jsonify({'error': 'email already exist'}), 403
 
 
 @USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
@@ -477,8 +462,6 @@ def remove_access_by_user(item_id, email):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except UserNotFoundError:
-        return jsonify({'error': 'User not found'}), 404
 
 
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
@@ -534,8 +517,6 @@ def remove_access_by_department(item_id, department):
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
-    except DepartmentNotFoundError:
-        return jsonify({'error': 'Department not found'}), 404
 
 
 @USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])

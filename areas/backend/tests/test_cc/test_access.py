@@ -118,6 +118,10 @@ class TestAccesses:
             path=f'/add_access/{file_2_id}/department/Test_department_1?view_only=true')
         assert response.status_code == 200
         response = app_client_user.put(
+            path=f'/add_access/{file_2_id}/department/Test_department_10?view_only=true')
+        assert response.status_code == 404
+        assert response.json['error'] == 'Department not found'
+        response = app_client_user.put(
             path=f'/add_access/{file_2_id}/department/Test_department_1?view_only=false')
         assert response.status_code == 200
         response = app_client_user.put(
@@ -127,6 +131,9 @@ class TestAccesses:
         assert response.status_code == 200
         response = app_client_user.delete(
             path=f'/remove_access/{file_2_id}/department/Test_department_1')
+        assert response.status_code == 200
+        response = app_client_user.delete(
+            path=f'/remove_access/{file_2_id}/department/Test_department_10')
         assert response.status_code == 200
         response = app_client_user.put(
             path=f'/add_access/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70/department/Test_department_1')

@@ -54,3 +54,13 @@ class TestBase:
         response = app_client_user.get(
             path=f'/get_dir/{space_1_id}/{new_id}')
         assert response.status_code == 200
+
+    def test_dir_create_invalid_json(self, app_client_user):
+        response = app_client_user.post(
+            path=f'/directory', json={
+                "my_space_id": space_1_id,
+                "parent_id": root_dir_1_id,
+                "new_directory_name": "mega new dir"
+            })
+        assert response.status_code == 400
+        assert response.json['error'] == 'Invalid request body'

@@ -75,7 +75,6 @@ def user_space():
         db_.session.add(url_space)
         db_.session.commit()
 
-
         test_space = UserSpaceModel(
             id=space_1_id,
             space_type=SpaceType.Regular,
