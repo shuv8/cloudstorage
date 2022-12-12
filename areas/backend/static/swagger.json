@@ -721,9 +721,17 @@
         }
       }
     },
-    "/rename/{item_id}": {
+    "/rename/{space_id}/{item_id}": {
       "put": {
         "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "Space of file or directory to rename",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "item_id",
             "in": "path",
@@ -758,13 +766,29 @@
         }
       }
     },
-    "/move/{item_id}": {
+    "/move/{space_id}/{item_id}": {
       "put": {
         "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "Space of file or directory to move",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "item_id",
             "in": "path",
             "description": "File or directory to move",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "target_space",
+            "in": "query",
+            "description": "New target directory space",
             "schema": {
               "type": "string"
             }
@@ -1109,13 +1133,29 @@
         }
       }
     },
-    "/copy/{item_id}": {
+    "/copy/{space_id}/{item_id}": {
       "post": {
         "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "Space of file or directory to copy",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "item_id",
             "in": "path",
             "description": "File or directory to copy",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "target_space",
+            "in": "query",
+            "description": "New target directory space",
             "schema": {
               "type": "string"
             }

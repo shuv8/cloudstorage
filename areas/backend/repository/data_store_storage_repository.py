@@ -61,7 +61,7 @@ class DataStoreStorageRepository:
     def get_user_space_content(self, user_mail: str, space_id: uuid.UUID) -> Optional[UserCloudSpace]:
         spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
         for space in spaces:
-            if space.get_id() == space_id:
+            if str(space.get_id()) == str(space_id):
                 return space
 
     def save_file_to_cloud(self, file_name):

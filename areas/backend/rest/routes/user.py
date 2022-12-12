@@ -536,18 +536,19 @@ def remove_access_by_department(item_id, department):
         return jsonify({'error': 'Department not found'}), 404
 
 
-@USER_REQUEST_API.route('/rename/<item_id>', methods=['PUT'])
+@USER_REQUEST_API.route('/rename/<space_id>/<item_id>', methods=['PUT'])
 @token_required
-def rename_item(item_id):
+def rename_item(space_id, item_id):
     """
     Path:
+        - space_id: id of space with item
         - item_id: id of item to rename
     """
 
     new_name = request.args.get('new_name', type=str)
     if new_name is not None:
         user = get_user_by_token()
-        result = dataStoreController.rename_item(user.email, item_id, new_name)
+        result = dataStoreController.rename_item(user.email, space_id, item_id, new_name)
         if result is not None:
             return jsonify({'new_name': result}), 200
         else:
@@ -556,9 +557,9 @@ def rename_item(item_id):
         return jsonify({'error': 'No new name presented. Use query parameter \'new_name\''}), 400
 
 
-@USER_REQUEST_API.route('/move/<item_id>', methods=['PUT'])
+@USER_REQUEST_API.route('/move/<space_id>/<item_id>', methods=['PUT'])
 @token_required
-def move_item(item_id):
+def move_item(space_id, item_id):
     """
     Path:
         - item_id: id of item to move
@@ -566,9 +567,11 @@ def move_item(item_id):
     """
 
     user = get_user_by_token()
+    target_space = request.args.get('target_space', type=str)
     target_directory = request.args.get('target_directory', type=str)
-    if target_directory is not None:
-        result = dataStoreController.move_item(user.email, item_id, uuid.UUID(hex=target_directory))
+    if target_directory is not None and target_space is not None:
+        result = dataStoreController.move_item(user.email, space_id, item_id,
+                                               uuid.UUID(hex=target_space), uuid.UUID(hex=target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:
@@ -617,9 +620,9 @@ def delete_by_item_id(item_id):
         return jsonify({'error': 'No such file or directory'}), 404
 
 
-@USER_REQUEST_API.route('/copy/<item_id>', methods=['POST'])
+@USER_REQUEST_API.route('/copy/<space_id>/<item_id>', methods=['POST'])
 @token_required
-def copy_item(item_id):
+def copy_item(space_id, item_id):
     """
     Path:
         - item_id: id of item to move
@@ -627,9 +630,11 @@ def copy_item(item_id):
     """
 
     user = get_user_by_token()
+    target_space = request.args.get('target_space', type=str)
     target_directory = request.args.get('target_directory', type=str)
-    if target_directory is not None:
-        result = dataStoreController.copy_item(user.email, item_id, uuid.UUID(hex=target_directory))
+    if target_directory is not None and target_space is not None:
+        result = dataStoreController.copy_item(user.email, space_id, item_id,
+                                               uuid.UUID(hex=target_space), uuid.UUID(hex=target_directory))
         if result is not None:
             return jsonify({'new_directory': result}), 200
         else:

@@ -67,8 +67,8 @@ class TestViewFileById:
         response = app_client_user.get(f'/file/{space_1_id}/{_id}/view')
         response2 = app_client_user.get(f'/file/{url_space_1_id}/{_id}/view')
 
-        with pytest.raises(SpaceNotFoundError):
-            app_client_user.get(f'/file/abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d76/{_id}/view')
+
+        assert app_client_user.get(f'/file/abd9cd7f-9ffd-41b0-d1e4-eb14b51a6d76/{_id}/view').status_code == 404
 
         client = Minio(
             endpoint=endpoint,
