@@ -11,6 +11,8 @@ root_dir_1_id = "bb01bafc-21f1-4af8-89f9-79aa0de840c0"
 # Create inner directories in root_dir_1_id:
 dir_2_id = "cbd9cd7f-9ffd-42b0-bce4-eb14b51a1fd1"
 dir_3_id = "abd9cd7f-9ffd-42b0-bce4-eb14b51a1f09"
+# Create inner directories in dir_3_id:
+dir_5_id = "bbd9cd7f-9ffd-42b0-bce4-eb14b51a1f09"
 
 
 space_2_id = "bdd9cd7f-9ffd-42b0-bce4-eb14b51a1fd2"

@@ -37,6 +37,11 @@ def user_space():
             name="Bla",
         )
 
+        test_dir_5 = DirectoryModel(
+            id=dir_5_id,
+            name="Bla2",
+        )
+
         test_file_2 = FileModel(
             id=file_2_id,
             name="test_file_for",
@@ -66,6 +71,8 @@ def user_space():
         test_dir.files.append(test_file)
         test_dir.inner_directories.append(test_dir_2)
         test_dir.inner_directories.append(test_dir_3)
+
+        test_dir_3.inner_directories.append(test_dir_5)
         db_.session.add(test_dir)
 
         url_space = UrlSpaceModel(
