@@ -12,7 +12,7 @@ from core.role import Role
 from core.user_cloud_space import SpaceType
 from decorators.token_required import token_required, get_user_by_token
 from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, UserNotFoundError, \
-    DepartmentNotFoundError, SpaceNotFoundError
+    DepartmentNotFoundError, SpaceNotFoundError, AccessError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -529,15 +529,19 @@ def rename_item(space_id, item_id):
     """
 
     new_name = request.args.get('new_name', type=str)
-    if new_name is not None:
-        user = get_user_by_token()
-        result = dataStoreController.rename_item(user.email, space_id, item_id, new_name)
-        if result is not None:
-            return jsonify({'new_name': result}), 200
+
+    try:
+        if new_name is not None:
+            user = get_user_by_token()
+            result = dataStoreController.rename_item(user.email, space_id, item_id, new_name)
+            if result is not None:
+                return jsonify({'new_name': result}), 200
+            else:
+                return jsonify({'error': 'Can\'t find item'}), 404
         else:
-            return jsonify({'error': 'Can\'t find item'}), 404
-    else:
-        return jsonify({'error': 'No new name presented. Use query parameter \'new_name\''}), 400
+            return jsonify({'error': 'No new name presented. Use query parameter \'new_name\''}), 400
+    except AccessError:
+        return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
 @USER_REQUEST_API.route('/move/<space_id>/<item_id>', methods=['PUT'])

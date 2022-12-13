@@ -6,7 +6,6 @@ from uuid import UUID
 from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess, Access
 from core.base_storage_item import BaseStorageItem
 from core.directory import Directory
-from core.directory_manager import DirectoryManager
 from core.files import FileManager, File
 from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace, SpaceType
@@ -49,9 +48,7 @@ class DataStoreService:
         space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
         possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
 
-        if space is None and possible_shared_url_space is None:
-            raise SpaceNotFoundError
-        elif space is None:
+        if space is None:
             directory = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
         else:
             directory = self.get_user_dir_in_space(space, dir_id)
@@ -217,8 +214,9 @@ class DataStoreService:
                 return file
         return None
 
-    def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file_name: str, new_file_type: str, new_file_data: str) -> UUID:
-        if not (self.is_user_file(user_email, dir_id)):
+    def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file_name: str,
+                     new_file_type: str, new_file_data: str) -> UUID:
+        if not (self.is_user_item(user_email, dir_id)):
             raise ItemNotFoundError
 
         dir_content = self.get_dir_content(user_email, space_id, dir_id)
@@ -250,7 +248,7 @@ class DataStoreService:
 
         return None
 
-    def get_user_file_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
+    def get_user_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
         space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
 
         for space in space_manager.get_spaces():
@@ -260,19 +258,21 @@ class DataStoreService:
                 if item is not None:
                     return item
 
-                file = self.get_file_in_directory_by_id(
-                    file_manager=space.get_directory_manager().file_manager,
-                    id_=item_id
-                )
-                if file is not None:
-                    return file
+            # CHECK We can't have files in space
+            # file = self.get_file_in_directory_by_id(
+            #     file_manager=space.get_directory_manager().file_manager,
+            #     id_=item_id
+            # )
+            # if file is not None:
+            #     return file
 
-        return None
+        # Check We always call this function after checking isUserItem condition
+        # return None
 
-    def is_user_file(self, user_mail: str, item_id: UUID) -> bool:
-        return self.get_user_file_by_id(user_mail, item_id) is not None
+    def is_user_item(self, user_mail: str, item_id: UUID) -> bool:
+        return self.get_user_item_by_id(user_mail, item_id) is not None
 
-    def set_url_access_for_file(self, item: BaseStorageItem, new_access: BaseAccess) -> str:
+    def set_url_access_for_item(self, item: BaseStorageItem, new_access: BaseAccess) -> str:
         add_new_access = True
 
         for access in item.accesses:
@@ -292,7 +292,7 @@ class DataStoreService:
             self.data_store_storage_repo.update_item_access(item)
             return "accesses updated"
 
-    def remove_url_access_for_file(self, item: BaseStorageItem) -> str:
+    def remove_url_access_for_item(self, item: BaseStorageItem) -> str:
         for access in item.accesses:
             if type(access) == UrlAccess:
                 item.accesses.remove(access)
@@ -301,7 +301,7 @@ class DataStoreService:
                 return "access removed"
         return "nothing to remove"
 
-    def add_email_access_for_file(self, item: BaseStorageItem, new_access: UserAccess) -> str:
+    def add_email_access_for_item(self, item: BaseStorageItem, new_access: UserAccess) -> str:
         add_new_access = True
 
         for access in item.accesses:
@@ -322,7 +322,7 @@ class DataStoreService:
             self.data_store_storage_repo.update_item_access(item)
             return "accesses updated"
 
-    def remove_email_access_for_file(self, item: BaseStorageItem, email: str) -> str:
+    def remove_email_access_for_item(self, item: BaseStorageItem, email: str) -> str:
         for access in item.accesses:
             if type(access) == UserAccess:
                 if access.get_email() == email:
@@ -332,7 +332,7 @@ class DataStoreService:
                     return "access removed"
         return "nothing to remove"
 
-    def add_department_access_for_file(self, item: BaseStorageItem, new_access: DepartmentAccess):
+    def add_department_access_for_item(self, item: BaseStorageItem, new_access: DepartmentAccess):
         add_new_access = True
 
         for access in item.accesses:
@@ -353,7 +353,7 @@ class DataStoreService:
             self.data_store_storage_repo.update_item_access(item)
             return "accesses updated"
 
-    def remove_department_access_for_file(self, item: BaseStorageItem, department_name: str):
+    def remove_department_access_for_item(self, item: BaseStorageItem, department_name: str):
         for access in item.accesses:
             if type(access) == DepartmentAccess:
                 if access.get_department_name() == department_name:
@@ -365,7 +365,6 @@ class DataStoreService:
 
     def get_accesses_for_item(self, item: BaseStorageItem) -> list[BaseAccess]:
         return item.accesses
-
 
     def rename_item_by_id(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
         item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
@@ -395,27 +394,28 @@ class DataStoreService:
         else:
             return None
 
-    def get_parent_directory_manager_by_item_id(self, user_mail: str, item_id: UUID) -> Optional[DirectoryManager]:
-        space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
-
-        for space in space_manager.get_spaces():
-            file = self.get_file_in_directory_by_id(
-                file_manager=space.get_directory_manager().file_manager,
-                id_=item_id
-            )
-            if file is not None:
-                return space.get_directory_manager()
-
-            directories_for_search = space.get_directory_manager().items
-
-            while len(directories_for_search):
-                directory = directories_for_search.pop(0)
-                item = self.get_item_in_directory_by_id(directory=directory, id_=item_id, recursive=False)
-                if item is not None:
-                    return directory.get_directory_manager()
-                else:
-                    directories_for_search.extend(directory.directory_manager.items)
-        return None
+    # def get_parent_directory_manager_by_item_id(self, user_mail: str, item_id: UUID) -> Optional[DirectoryManager]:
+    #     space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
+    #
+    #     for space in space_manager.get_spaces():
+    #         file = self.get_file_in_directory_by_id(
+    #             file_manager=space.get_directory_manager().file_manager,
+    #             id_=item_id
+    #         )
+    #         # There is no chance for creation file in root directory
+    #         # if file is not None:
+    #         #     return space.get_directory_manager()
+    #
+    #         directories_for_search = space.get_directory_manager().items
+    #
+    #         while len(directories_for_search):
+    #             directory = directories_for_search.pop(0)
+    #             item = self.get_item_in_directory_by_id(directory=directory, id_=item_id, recursive=False)
+    #             if item is not None:
+    #                 return directory.get_directory_manager()
+    #             else:
+    #                 directories_for_search.extend(directory.directory_manager.items)
+    #     return None
 
     def download_item(self, user_mail: str, space_id: UUID, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
         item = self.get_file_in_space_by_id(user_mail=user_mail, space_id=space_id, item_id=item_id)
@@ -433,27 +433,21 @@ class DataStoreService:
         return self.data_store_storage_repo.get_binary_file_from_cloud_by_id(file_id, file_type)
 
     def delete_item(self, user_mail: str, item_id: UUID) -> bool:
-        item = self.get_user_file_by_id(user_mail, item_id)
+        item = self.get_user_item_by_id(user_mail, item_id)
         if item is not None:
-            my_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
-            if my_directory_manager is not None:
-                if isinstance(item, File):
-                    # my_directory_manager.file_manager.remove_item(item)
-                    self.data_store_storage_repo.delete_item_from_db(item)
-                    return True
-                elif isinstance(item, Directory):
-                    if item.name == "Root":
-                        return False
-                    del_file_manager = item.directory_manager.file_manager
-                    for file in del_file_manager.items:
-                        self.data_store_storage_repo.delete_item_from_db(file)
-                    for subdirectory in item.directory_manager.items:
-                        self.delete_item(user_mail, item_id=subdirectory.id)
-                    self.data_store_storage_repo.delete_item_from_db(item)
-                    return True
-            else:
-                return False
-
+            if isinstance(item, File):
+                self.data_store_storage_repo.delete_item_from_db(item)
+                return True
+            elif isinstance(item, Directory):
+                if item.name == "Root":
+                    return False
+                del_file_manager = item.directory_manager.file_manager
+                for file in del_file_manager.items:
+                    self.data_store_storage_repo.delete_item_from_db(file)
+                for subdirectory in item.directory_manager.items:
+                    self.delete_item(user_mail, item_id=subdirectory.id)
+                self.data_store_storage_repo.delete_item_from_db(item)
+                return True
         else:
             return False
 

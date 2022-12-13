@@ -341,10 +341,11 @@ class DataStoreStorageRepository:
 
         if isinstance(item, File):
             for space in url_spaces:
-                if space.root_directory.files[0].id == str(item.id):
-                    url_spaces.remove(space)
-                    if space is not None:
-                        self.db.session.execute(delete(UrlSpaceModel).where(UrlSpaceModel.id == space.id))
+                if len(space.root_directory.files):
+                    if space.root_directory.files[0].id == str(item.id):
+                        url_spaces.remove(space)
+                        if space is not None:
+                            self.db.session.execute(delete(UrlSpaceModel).where(UrlSpaceModel.id == space.id))
         elif isinstance(item, Directory):
             for space in url_spaces:
                 if space.root_directory.id == str(item.id):
@@ -436,7 +437,7 @@ class DataStoreStorageRepository:
                 directory = DirectoryModel(
                     id=str(uuid.uuid4()),
                     name="Root",
-                    is_root=True,
+                    is_root=True
                 )
                 self.db.session.add(directory)
                 url_space.root_directory = directory
@@ -470,7 +471,7 @@ class DataStoreStorageRepository:
                     AccessModel(
                         access_level=access.access_type,
                         access_type=AccessType.Url,
-                        value=access.get_url(),
+                        value=access.get_url()
                     )
                 )
             elif type(access) is UserAccess:
@@ -478,7 +479,7 @@ class DataStoreStorageRepository:
                     AccessModel(
                         access_level=access.access_type,
                         access_type=AccessType.User,
-                        value=access.get_email(),
+                        value=access.get_email()
                     )
                 )
             elif type(access) is DepartmentAccess:
@@ -486,7 +487,7 @@ class DataStoreStorageRepository:
                     AccessModel(
                         access_level=access.access_type,
                         access_type=AccessType.Department,
-                        value=access.get_department_name(),
+                        value=access.get_department_name()
                     )
                 )
 
@@ -517,11 +518,9 @@ class DataStoreStorageRepository:
 
     def move_item_in_db(self, item, target_directory):
         if isinstance(item, File):
-            self.db.session.execute(update(FileDirectory).where(
-                FileDirectory.file_id == str(item.id)).values(directory_id=str(target_directory.id)))
+            self.db.session.execute(update(FileDirectory).where(FileDirectory.file_id == str(item.id)).values(directory_id=str(target_directory.id)))
         elif isinstance(item, Directory):
-            self.db.session.execute(update(DirectoryModel).where(
-                DirectoryModel.id == str(item.id)).values(parent_id=str(target_directory.id)))
+            self.db.session.execute(update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(parent_id=str(target_directory.id)))
         self.db.session.commit()
 
     def get_url_access(self, url_space_id):
@@ -529,30 +528,34 @@ class DataStoreStorageRepository:
         return access.access_level
 
     def get_shared_access(self, user_mail, item):
-        item_id = item.id
+        item_id = str(item.id)
+
         if isinstance(item, Directory):
             item_type = 'Directory'
         else:
             item_type = 'File'
+
         if item_type == 'File':
             user_access: AccessModel = AccessModel.query.filter_by(value=user_mail, parent_file_id=item_id).first()
         else:
             user_access: AccessModel = AccessModel.query.filter_by(value=user_mail, parent_id=item_id).first()
+
         if user_access is not None:
             return user_access.access_level
-        user_id = UserModel.query.filter_by(email=user_mail).first().user_id
+
+        user_id = UserModel.query.filter_by(email=user_mail).first().id
         departments: list[UserDepartment] = UserDepartment.query.filter_by(user_id=user_id).all()
         dep_names = []
         for department in departments:
-            dep_names.append(DepartmentModel.query.filter_by(department_id=department.department_id).first())
+            dep_names.append(DepartmentModel.query.filter_by(id=department.department_id).first())
         if item_type == 'File':
             for department in dep_names:
-                dep_access: AccessModel = AccessModel.query.filter_by(value=department, parent_file_id=item_id).first()
+                dep_access: AccessModel = AccessModel.query.filter_by(value=department.name, parent_file_id=item_id).first()
                 if dep_access.access_level == Access.Edit:
                     return dep_access.access_level
         else:
             for department in dep_names:
-                dep_access: AccessModel = AccessModel.query.filter_by(value=department, parent_id=item_id).first()
+                dep_access: AccessModel = AccessModel.query.filter_by(value=department.name, parent_id=item_id).first()
                 if dep_access.access_level == Access.Edit:
                     return dep_access.access_level
         return Access.View

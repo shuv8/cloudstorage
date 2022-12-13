@@ -1,6 +1,6 @@
 import pytest
 
-from tests.test_cc.conftest_constants import root_dir_1_id, file_1_id, dir_2_id
+from tests.test_cc.conftest_constants import root_dir_1_id, file_1_id, dir_2_id, dir_3_id
 
 
 class TestDeleteController:
@@ -15,6 +15,10 @@ class TestDeleteController:
 
     def test_delete_directory(self, app_client_user):
         response = app_client_user.delete(path=f"/delete/{dir_2_id}")
+        assert response.status_code == 200
+
+    def test_delete_directory_with_subdirectories(self, app_client_user):
+        response = app_client_user.delete(path=f"/delete/{dir_3_id}")
         assert response.status_code == 200
 
     def test_delete_not_found(self, app_client_user):
