@@ -556,15 +556,20 @@ def move_item(space_id, item_id):
     user = get_user_by_token()
     target_space = request.args.get('target_space', type=str)
     target_directory = request.args.get('target_directory', type=str)
-    if target_directory is not None and target_space is not None:
-        result = dataStoreController.move_item(user.email, space_id, item_id,
-                                               uuid.UUID(hex=target_space), uuid.UUID(hex=target_directory))
-        if result is not None:
-            return jsonify({'new_directory': result}), 200
+    try:
+        if target_directory is not None and target_space is not None:
+            result = dataStoreController.move_item(user.email, space_id, item_id,
+                                                   uuid.UUID(hex=target_space), uuid.UUID(hex=target_directory))
+            if result is not None:
+                return jsonify({'new_directory': result}), 200
+            else:
+                return jsonify({'error': 'Can\'t find one of items'}), 404
         else:
-            return jsonify({'error': 'Can\'t find one of items'}), 404
-    else:
-        return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
+            return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
+    except AccessError:
+        return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/download/<space_id>/<item_id>', methods=['GET'])
@@ -590,9 +595,9 @@ def download_by_item_id(space_id, item_id):
         return jsonify({'error': 'No such file or directory'}), 404
 
 
-@USER_REQUEST_API.route('/delete/<item_id>', methods=['DELETE'])
+@USER_REQUEST_API.route('/delete/<space_id>/<item_id>', methods=['DELETE'])
 @token_required
-def delete_by_item_id(item_id):
+def delete_by_item_id(space_id, item_id):
     """
     Path:
         - item_id: id of item to delete
@@ -601,11 +606,14 @@ def delete_by_item_id(item_id):
     """
 
     user = get_user_by_token()
-    result = dataStoreController.delete_item(user.email, item_id)
-    if result:
-        return jsonify({'delete': 'success'}), 200
-    else:
-        return jsonify({'error': 'No such file or directory'}), 404
+    try:
+        result = dataStoreController.delete_item(user.email, uuid.UUID(hex=space_id), uuid.UUID(hex=item_id))
+        if result:
+            return jsonify({'delete': 'success'}), 200
+    except AccessError:
+        return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
 
 
 @USER_REQUEST_API.route('/copy/<space_id>/<item_id>', methods=['POST'])
@@ -620,12 +628,19 @@ def copy_item(space_id, item_id):
     user = get_user_by_token()
     target_space = request.args.get('target_space', type=str)
     target_directory = request.args.get('target_directory', type=str)
-    if target_directory is not None and target_space is not None:
-        result = dataStoreController.copy_item(user.email, space_id, item_id,
-                                               uuid.UUID(hex=target_space), uuid.UUID(hex=target_directory))
-        if result is not None:
+    try:
+        if target_directory is not None and target_space is not None:
+            result = dataStoreController.copy_item(
+                user.email,
+                uuid.UUID(hex=space_id),
+                uuid.UUID(hex=item_id),
+                uuid.UUID(hex=target_space),
+                uuid.UUID(hex=target_directory)
+            )
             return jsonify({'new_directory': result}), 200
         else:
-            return jsonify({'error': 'Can\'t find one of items'}), 404
-    else:
-        return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
+            return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
+    except AccessError:
+        return jsonify({'error': 'Not allowed to do this action'}), 401
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404

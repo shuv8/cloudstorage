@@ -379,7 +379,11 @@ class DataStoreService:
     def move_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_directory_id: UUID, target_space: UUID):
         item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
+            if not self.check_edit_access(user_mail, space_id, item):
+                raise AccessError
             target_directory = self.get_directory_in_space(user_mail, target_space, target_directory_id)
+            if not self.check_edit_access(user_mail, target_space, target_directory):
+                raise AccessError
             if target_directory is not None and isinstance(target_directory, Directory):
                 # source_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
                 # if isinstance(item, Directory):
@@ -391,7 +395,7 @@ class DataStoreService:
                 self.data_store_storage_repo.move_item_in_db(item, target_directory)
                 return target_directory.name
         else:
-            return None
+            raise ItemNotFoundError
 
     # def get_parent_directory_manager_by_item_id(self, user_mail: str, item_id: UUID) -> Optional[DirectoryManager]:
     #     space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
@@ -431,40 +435,45 @@ class DataStoreService:
     def get_binary_file_from_cloud_by_id(self, file_id: uuid.UUID, file_type: str) -> Optional[BinaryIO]:
         return self.data_store_storage_repo.get_binary_file_from_cloud_by_id(file_id, file_type)
 
-    def delete_item(self, user_mail: str, item_id: UUID) -> bool:
+    def delete_item(self, user_mail: str, space_id: UUID, item_id: UUID) -> True:
         item = self.get_user_item_by_id(user_mail, item_id)
         if item is not None:
+            if not self.check_edit_access(user_mail, space_id, item):
+                raise AccessError
             if isinstance(item, File):
                 self.data_store_storage_repo.delete_item_from_db(item)
                 return True
             elif isinstance(item, Directory):
                 if item.name == "Root":
-                    return False
+                    raise AccessError
                 del_file_manager = item.directory_manager.file_manager
                 for file in del_file_manager.items:
                     self.data_store_storage_repo.delete_item_from_db(file)
                 for subdirectory in item.directory_manager.items:
-                    self.delete_item(user_mail, item_id=subdirectory.id)
+                    self.delete_item(user_mail, space_id, item_id=subdirectory.id)
                 self.data_store_storage_repo.delete_item_from_db(item)
                 return True
         else:
-            return False
+            raise ItemNotFoundError
 
     def copy_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_space: UUID, target_directory_id: UUID):
         item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
-            target_directory = self.get_directory_in_space(user_mail, target_space, target_directory_id)
-            if target_directory is not None and isinstance(target_directory, Directory):
-                if isinstance(item, Directory):
-                    new_directory = deepcopy(item)
-                    new_directory.id = self.copy_directory(new_directory, target_directory.id)
-                    target_directory.directory_manager.add_items([new_directory])
-                elif isinstance(item, File):
-                    new_item = deepcopy(item)
-                    new_item.id = self.data_store_storage_repo.copy_file(item, target_directory.id)
-                    target_directory.directory_manager.file_manager.add_item(new_item)
-                return target_directory.name
-        return None
+            target_directory = self.get_file_in_space_by_id(user_mail, target_space, target_directory_id)
+            if target_directory is not None:
+                if not self.check_edit_access(user_mail, target_space, target_directory):
+                    raise AccessError
+                if isinstance(target_directory, Directory):
+                    if isinstance(item, Directory):
+                        new_directory = deepcopy(item)
+                        new_directory.id = self.copy_directory(new_directory, target_directory.id)
+                        target_directory.directory_manager.add_items([new_directory])
+                    elif isinstance(item, File):
+                        new_item = deepcopy(item)
+                        new_item.id = self.data_store_storage_repo.copy_file(item, target_directory.id)
+                        target_directory.directory_manager.file_manager.add_item(new_item)
+                    return target_directory.name
+        raise ItemNotFoundError
 
     def copy_directory(self, directory: Directory, target_directory_id):
         new_dir_id = self.data_store_storage_repo.copy_directory(directory, target_directory_id)

@@ -1115,9 +1115,17 @@
         }
       }
     },
-    "/delete/{item_id}": {
+    "/delete/{space_id}/{item_id}": {
       "delete": {
         "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "Space of file or directory to copy",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "item_id",
             "in": "path",
