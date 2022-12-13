@@ -218,7 +218,7 @@ class DataStoreService:
 
     def add_new_file(self, user_email: str, space_id: uuid.UUID, dir_id: uuid.UUID, new_file_name: str, new_file_type: str, new_file_data: str) -> UUID:
         if not (self.is_user_file(user_email, dir_id)):
-            return None
+            raise ItemNotFoundError
 
         dir_content = self.get_dir_content(user_email, space_id, dir_id)
         for _item in dir_content:
