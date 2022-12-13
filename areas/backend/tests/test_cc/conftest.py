@@ -1,9 +1,10 @@
 import pytest
+from bcrypt import gensalt, hashpw
 
+from core.accesses import Access, AccessType
 from core.user_cloud_space import SpaceType
 from tests.test_cc.conftest_constants import *
 from web_server import create_app
-from bcrypt import gensalt, hashpw
 
 app_testing = create_app(True, 'sqlite:///:memory:')
 
@@ -13,7 +14,7 @@ def user_space():
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
-        from database.database import DirectoryModel, UserSpaceModel, FileModel, UrlSpaceModel
+        from database.database import DirectoryModel, UserSpaceModel, FileModel, UrlSpaceModel, AccessModel
 
         test_dir = DirectoryModel(
             id=root_dir_1_id,
@@ -35,6 +36,11 @@ def user_space():
         test_dir_3 = DirectoryModel(
             id=dir_3_id,
             name="Bla",
+        )
+
+        test_dir_5 = DirectoryModel(
+            id=dir_5_id,
+            name="Bl2",
         )
 
         test_file_2 = FileModel(
@@ -66,13 +72,40 @@ def user_space():
         test_dir.files.append(test_file)
         test_dir.inner_directories.append(test_dir_2)
         test_dir.inner_directories.append(test_dir_3)
+
+        test_dir_3.inner_directories.append(test_dir_5)
         db_.session.add(test_dir)
 
         url_space = UrlSpaceModel(
             id=url_space_1_id,
             root_directory_id=root_dir_1_id
         )
+
+        access_model = AccessModel(
+            id=access_1_id,
+            access_level=Access.Edit,
+            access_type=AccessType.Url,
+            value=str(url_space_1_id),
+            parent_id=root_dir_1_id
+        )
         db_.session.add(url_space)
+        db_.session.add(access_model)
+
+        url_space_2 = UrlSpaceModel(
+            id=url_space_2_id,
+            root_directory_id=dir_3_id
+        )
+
+        access_model_2 = AccessModel(
+            id=access_2_id,
+            access_level=Access.Edit,
+            access_type=AccessType.Url,
+            value=str(url_space_2_id),
+            parent_id=dir_3_id
+        )
+        db_.session.add(url_space_2)
+        db_.session.add(access_model_2)
+
         db_.session.commit()
 
         test_space = UserSpaceModel(
@@ -90,7 +123,7 @@ def admin_space():
     from app_db import get_current_db
     with app_testing.app_context():
         db_ = get_current_db(app_testing)
-        from database.database import DirectoryModel, UserSpaceModel, FileModel, UrlSpaceModel
+        from database.database import DirectoryModel, UserSpaceModel, FileModel
 
         test_dir = DirectoryModel(
             id=root_dir_2_id,

@@ -1,7 +1,7 @@
 import pytest
 
 from tests.test_cc.conftest_constants import file_2_id, dir_3_id, dir_4_id, file_5_id, \
-    casual_user_id, casual_user_2_id
+    casual_user_id, casual_user_2_id, file_1_id, dir_2_id
 
 
 class TestAccesses:
@@ -12,6 +12,9 @@ class TestAccesses:
 
         response = app_client_user.get(path=f'/accesses/abd9cd7f-9ffd-42b0-bce4-eb14b51a6d70')
         assert response.status_code == 401
+
+        response = app_client_user.get(path=f'/accesses/{file_1_id}')
+        assert response.status_code == 200
 
     def test_set_reset_access_url(self, app_client_user):
         response = app_client_user.put(path=f'/set_access/{file_2_id}?view_only=true')
@@ -34,15 +37,17 @@ class TestAccesses:
         assert response.status_code == 401
 
     def test_set_reset_access_url_directory(self, app_client_user):
-        response = app_client_user.put(path=f'/set_access/{dir_3_id}?view_only=true')
+        response = app_client_user.put(path=f'/set_access/{dir_2_id}?view_only=true')
         assert response.status_code == 200
-        response = app_client_user.put(path=f'/set_access/{dir_3_id}?view_only=false')
+        response = app_client_user.put(path=f'/set_access/{dir_2_id}?view_only=false')
         assert response.status_code == 200
-        response = app_client_user.get(path=f'/accesses/{dir_3_id}')
+        response = app_client_user.put(path=f'/set_access/{dir_2_id}?view_only=false')
         assert response.status_code == 200
-        response = app_client_user.delete(path=f'/reset_access/{dir_3_id}')
+        response = app_client_user.get(path=f'/accesses/{dir_2_id}')
         assert response.status_code == 200
-        response = app_client_user.delete(path=f'/reset_access/{dir_3_id}')
+        response = app_client_user.delete(path=f'/reset_access/{dir_2_id}')
+        assert response.status_code == 200
+        response = app_client_user.delete(path=f'/reset_access/{dir_2_id}')
         assert response.status_code == 200
         assert response.json['status'] == "nothing to remove"
 
@@ -218,8 +223,7 @@ class TestAccesses:
         response = client.put('/login', json=login_data)
         assert response.status_code == 200
 
-        response = client.put(
-            path=f'/add_access/{dir_4_id}/department/Test_department_1?view_only=true')
+        response = client.put(path=f'/add_access/{dir_4_id}/department/Test_department_1?view_only=true')
         assert response.status_code == 200
 
         data = {
@@ -251,12 +255,10 @@ class TestAccesses:
                 casual_user_2_id,
             ]
         }
-        response = client.delete(f'/department/users?name=Test_department_1',
-                                 json=data)
+        response = client.delete(f'/department/users?name=Test_department_1', json=data)
         assert response.status_code == 200
 
-        response = client.delete(
-            path=f'/remove_access/{dir_4_id}/department/Test_department_1')
+        response = client.delete(path=f'/remove_access/{dir_4_id}/department/Test_department_1')
         assert response.status_code == 200
 
         login_data = {'email': 'user@mail.com', 'password': 'password'}
@@ -274,8 +276,7 @@ class TestAccesses:
         response = client.put('/login', json=login_data)
         assert response.status_code == 200
 
-        response = client.put(
-            path=f'/add_access/{file_5_id}/department/Test_department_1?view_only=true')
+        response = client.put(path=f'/add_access/{file_5_id}/department/Test_department_1?view_only=true')
         assert response.status_code == 200
 
         data = {
@@ -284,8 +285,7 @@ class TestAccesses:
                 casual_user_2_id
             ]
         }
-        response = client.post(f'/department/users?name=Test_department_1',
-                               json=data)
+        response = client.post(f'/department/users?name=Test_department_1', json=data)
         assert response.status_code == 200
 
         login_data = {'email': 'user@mail.com', 'password': 'password'}
@@ -307,12 +307,10 @@ class TestAccesses:
                 casual_user_2_id,
             ]
         }
-        response = client.delete(f'/department/users?name=Test_department_1',
-                                 json=data)
+        response = client.delete(f'/department/users?name=Test_department_1', json=data)
         assert response.status_code == 200
 
-        response = client.delete(
-            path=f'/remove_access/{file_5_id}/department/Test_department_1')
+        response = client.delete(path=f'/remove_access/{file_5_id}/department/Test_department_1')
         assert response.status_code == 200
 
         login_data = {'email': 'user@mail.com', 'password': 'password'}
@@ -324,3 +322,69 @@ class TestAccesses:
         all_types = [elem['type'] for elem in response.json['spaces']]
         assert 'Regular' in all_types
         assert 'Shared' not in all_types
+
+    def test_users_department_accesses_file_2(self,  client, fill_db):
+        login_data = {'email': 'admin@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.put(
+            path=f'/add_access/{file_5_id}/department/Test_department_1?view_only=false')
+        assert response.status_code == 200
+
+        data = {
+            "users": [
+                casual_user_id,
+                casual_user_2_id
+            ]
+        }
+        response = client.post(f'/department/users?name=Test_department_1',
+                               json=data)
+        assert response.status_code == 200
+
+        login_data = {'email': 'user@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.get(path=f'/get_spaces')
+        assert response.status_code == 200
+        all_types = [elem['type'] for elem in response.json['spaces']]
+        all_ids = [elem['id'] for elem in response.json['spaces']]
+        assert 'Regular' in all_types
+        assert 'Shared' in all_types
+
+        response = client.put(path=f'/rename/{all_ids[1]}/{file_5_id}?new_name=test_name')
+        assert response.status_code == 200
+
+    def test_users_department_accesses_file_3(self,  client, fill_db):
+        login_data = {'email': 'admin@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.put(
+            path=f'/add_access/{dir_4_id}/department/Test_department_1?view_only=false')
+        assert response.status_code == 200
+
+        data = {
+            "users": [
+                casual_user_id,
+                casual_user_2_id
+            ]
+        }
+        response = client.post(f'/department/users?name=Test_department_1',
+                               json=data)
+        assert response.status_code == 200
+
+        login_data = {'email': 'user@mail.com', 'password': 'password'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.get(path=f'/get_spaces')
+        assert response.status_code == 200
+        all_types = [elem['type'] for elem in response.json['spaces']]
+        all_ids = [elem['id'] for elem in response.json['spaces']]
+        assert 'Regular' in all_types
+        assert 'Shared' in all_types
+
+        response = client.put(path=f'/rename/{all_ids[1]}/{dir_4_id}?new_name=test_name')
+        assert response.status_code == 200
