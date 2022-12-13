@@ -258,7 +258,7 @@ class DataStoreService:
                 if item is not None:
                     return item
 
-            # CHECK We can't have files in space
+            # We can't have files in space
             # file = self.get_file_in_directory_by_id(
             #     file_manager=space.get_directory_manager().file_manager,
             #     id_=item_id
@@ -266,8 +266,7 @@ class DataStoreService:
             # if file is not None:
             #     return file
 
-        # Check We always call this function after checking isUserItem condition
-        # return None
+        return None # pragma: no cover # Reason: We always call this function after checking isUserItem condition
 
     def is_user_item(self, user_mail: str, item_id: UUID) -> bool:
         return self.get_user_item_by_id(user_mail, item_id) is not None

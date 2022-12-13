@@ -1,6 +1,6 @@
 import pytest
 
-from tests.test_cc.conftest_constants import url_space_1_id, root_dir_1_id, space_1_id, dir_3_id
+from tests.test_cc.conftest_constants import url_space_1_id, root_dir_1_id, space_1_id, dir_3_id, dir_5_id
 
 
 class TestBase:
@@ -37,6 +37,11 @@ class TestBase:
     def test_dir_content_url_space_sub_folder(self, app_client_user):
         response = app_client_user.get(
             path=f'/get_dir/{url_space_1_id}/{dir_3_id}')
+        assert response.status_code == 200
+
+    def test_dir_content_url_space_sub_folder_2(self, app_client_user):
+        response = app_client_user.get(
+            path=f'/get_dir/{url_space_1_id}/{dir_5_id}')
         assert response.status_code == 200
 
     def test_dir_create(self, app_client_user):

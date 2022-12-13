@@ -37,10 +37,6 @@ class DataStoreStorageRepository:
         )
 
         found = client.bucket_exists("cloudstorage")
-        if not found:
-            client.make_bucket("cloudstorage")
-        else:
-            pass
 
         return client
 
@@ -558,4 +554,3 @@ class DataStoreStorageRepository:
                 dep_access: AccessModel = AccessModel.query.filter_by(value=department.name, parent_id=item_id).first()
                 if dep_access.access_level == Access.Edit:
                     return dep_access.access_level
-        return Access.View
