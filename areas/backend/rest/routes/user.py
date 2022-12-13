@@ -563,17 +563,18 @@ def move_item(space_id, item_id):
         return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
 
 
-@USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
+@USER_REQUEST_API.route('/download/<space_id>/<item_id>', methods=['GET'])
 @token_required
-def download_by_item_id(item_id):
+def download_by_item_id(space_id, item_id):
     """
     Path:
+        - space_id: id of space with item
         - item_id: id of item to download
     Result:
         file
     """
     user = get_user_by_token()
-    result = dataStoreController.download_item(user.email, item_id)
+    result = dataStoreController.download_item(user.email, space_id, item_id)
     if result[0] is not None:
         if isinstance(result[1], File):
             file_name = result[1].name + result[1].type

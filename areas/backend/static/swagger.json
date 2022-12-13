@@ -1081,9 +1081,17 @@
         }
       }
     },
-    "/download/{item_id}": {
+    "/download/{space_id}/{item_id}": {
       "get": {
         "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "space where located file or directory to download",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "item_id",
             "in": "path",
