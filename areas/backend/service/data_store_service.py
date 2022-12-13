@@ -273,23 +273,25 @@ class DataStoreService:
 
     def set_url_access_for_item(self, item: BaseStorageItem, new_access: BaseAccess) -> str:
         add_new_access = True
+        another_access_id = None
 
         for access in item.accesses:
             if type(access) == UrlAccess:
+                another_access_id = access.get_url()
                 if access.access_type != new_access.access_type:
                     access.access_type = new_access.access_type
                     add_new_access = False
                 else:
-                    return "nothing changed"
+                    return f"nothing changed: {another_access_id}"
 
         if add_new_access:
             item.add_access(new_access)
             self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
             self.data_store_storage_repo.update_item_access(item)
-            return "new access added"
+            return f"new access added: {item.id}"
         else:
             self.data_store_storage_repo.update_item_access(item)
-            return "accesses updated"
+            return f"accesses updated: {another_access_id}"
 
     def remove_url_access_for_item(self, item: BaseStorageItem) -> str:
         for access in item.accesses:
