@@ -1,4 +1,5 @@
 from flask import Flask, make_response, jsonify
+from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_sqlalchemy import SQLAlchemy
 
@@ -21,6 +22,7 @@ def create_app(testing=False, db_uri=app_db.SQLALCHEMY_DATABASE_URI):
     )
 
     app = Flask(__name__)
+    CORS(app, supports_credentials=True)
     app.config['TESTING'] = testing
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     with app.app_context():
