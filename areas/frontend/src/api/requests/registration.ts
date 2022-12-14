@@ -1,5 +1,5 @@
-import { UserRolesValues } from 'utils/constants';
 import { TRequest, TRequestParamsWithPayload } from '../types';
+import type { UserRolesValues } from '../schema';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
 
