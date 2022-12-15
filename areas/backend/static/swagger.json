@@ -1424,8 +1424,15 @@
           "users": {
             "type": "array",
             "items": {
-              "id": "string"
+               "$ref": "#/components/schemas/user_id"
             }
+          }
+        }
+      },
+      "user_id": {
+        "properties": {
+          "id": {
+            "type": "string"
           }
         }
       }

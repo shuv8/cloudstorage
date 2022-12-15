@@ -647,18 +647,15 @@ def copy_item(space_id, item_id):
         return jsonify({'error': 'Item not found'}), 404
 
 
-
 @USER_REQUEST_API.route('/whoiam', methods=['GET'])
 @token_required
 def get_user_list():
     """
-    Query:
-        - query: page
-        - query: limit
     Result:
         {
             id: string
             email: string
+            departments: string
             space_id: string
             root_dir_id: string
         }
