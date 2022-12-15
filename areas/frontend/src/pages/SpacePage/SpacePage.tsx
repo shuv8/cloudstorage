@@ -1,3 +1,12 @@
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import Folder from '@mui/icons-material/Folder';
+import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { AxiosError } from 'axios';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -34,38 +43,67 @@ function SpacePage(props: SpacePageProps) {
 
     return (
         <>
-            {!!data?.path.length && (
-                <div style={{ display: 'flex', marginBottom: '24px' }}>
-                    {data.path.map(({ id, name }) => (
-                        <>
-                            <button role="button" id={id} onClick={handleOpen}>
-                                {name}
-                            </button>{' '}
-                            /
-                        </>
+            <Box>
+                <Stack direction="row" spacing="8px" divider={<Divider orientation="vertical" flexItem />}>
+                    {data?.path.map(({ id, name }) => (
+                        <Button id={id} onClick={handleOpen} color="primary">
+                            {name}
+                        </Button>
                     ))}
-                </div>
-            )}
+                    <Button color="inherit">Имя текущей папки</Button>
+                </Stack>
+                <Divider />
+            </Box>
 
-            {data?.items.length ? (
-                <>
-                    {data?.items.map(({ id, entity, name }) => (
-                        <React.Fragment key={id}>
-                            <div>
-                                {entity === ITEM_ENTITY.directory && (
-                                    <button id={id} onClick={handleOpen}>
-                                        Открыть
-                                    </button>
-                                )}{' '}
-                                Entity: {entity} - Name: {name} - Id: {id}
-                            </div>
-                            <hr />
-                        </React.Fragment>
-                    ))}
-                </>
-            ) : (
-                <>Папка пуста!</>
-            )}
+            <Box padding="24px">
+                {data?.items.length ? (
+                    <Grid
+                        container
+                        columns={12}
+                        direction="row"
+                        justifyContent="flex-start"
+                        alignItems="center"
+                        columnSpacing="12px"
+                    >
+                        {data?.items.map(({ id, entity, name }) => (
+                            <Grid key={id} item>
+                                <Button
+                                    id={id}
+                                    onClick={entity === ITEM_ENTITY.directory ? handleOpen : undefined}
+                                    color="primary"
+                                >
+                                    <Stack spacing="4px" sx={{ width: 108, overflow: 'hidden' }}>
+                                        <Box component="div" display="flex" justifyContent="center">
+                                            {entity === ITEM_ENTITY.directory && <Folder sx={{ fontSize: 92 }} />}
+                                            {entity === ITEM_ENTITY.file && <InsertDriveFile sx={{ fontSize: 92 }} />}
+                                        </Box>
+                                        <Typography
+                                            sx={{
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                            }}
+                                        >
+                                            {name}
+                                        </Typography>
+                                    </Stack>
+                                </Button>
+                            </Grid>
+                        ))}
+                    </Grid>
+                ) : (
+                    <Box
+                        component="div"
+                        display="flex"
+                        flexDirection="column"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <AutoAwesomeIcon sx={{ fontSize: 92 }} />
+                        <Typography>НИХУЯ НЕТ</Typography>
+                    </Box>
+                )}
+            </Box>
         </>
     );
 }
