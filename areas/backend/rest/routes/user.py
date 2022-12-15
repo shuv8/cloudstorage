@@ -6,6 +6,7 @@ from flask import jsonify, Blueprint, make_response, request, send_file
 
 from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from core.department import Department
 from core.directory import Directory
 from core.files import File
 from core.role import Role
@@ -211,12 +212,11 @@ def add_new_directory():
     return jsonify({'id': directory_id}), 200
 
 
-@USER_REQUEST_API.route('/get_dir/<space_id>/<dir_id>', methods=['GET'])
+@USER_REQUEST_API.route('/get_dir/<dir_id>', methods=['GET'])
 @token_required
-def get_dir_in_space_content(space_id, dir_id):
+def get_dir_in_space_content(dir_id):
     """
     Query:
-        - space_id: id of space to search in
         - dir_id: id of dir to view
     Result:
         {
@@ -230,7 +230,7 @@ def get_dir_in_space_content(space_id, dir_id):
     user = get_user_by_token()
 
     try:
-        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user.email, UUID(space_id), UUID(dir_id))
+        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user.email, UUID(dir_id))
 
         items_content = []
         for item in items:
@@ -259,8 +259,6 @@ def get_dir_in_space_content(space_id, dir_id):
         ), 200
     except ItemNotFoundError:
         return jsonify("Can't find directory with ID"), 404
-    except SpaceNotFoundError:
-        return jsonify("Can't find space with ID"), 404
 
 
 @USER_REQUEST_API.route('/file', methods=['POST'])
@@ -644,3 +642,31 @@ def copy_item(space_id, item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except ItemNotFoundError:
         return jsonify({'error': 'Item not found'}), 404
+
+
+@USER_REQUEST_API.route('/whoiam', methods=['GET'])
+@token_required
+def get_user_list():
+    """
+    Result:
+        {
+            id: string
+            email: string
+            departments: string
+            space_id: string
+            root_dir_id: string
+        }
+    """
+
+    user = get_user_by_token()
+    user_info: tuple[list[str], UUID, UUID] = userController.get_user_info(user)
+
+    return jsonify(
+        {
+            "id": user.get_id(),
+            "email": user.email,
+            "departments": ' '.join(user_info[0]),
+            "root_space_id": str(user_info[1]),
+            "root_dir_id": str(user_info[2]),
+        }
+    ), 200

@@ -19,7 +19,7 @@ from core.space_manager import SpaceManager
 from core.user_cloud_space import UserCloudSpace, SpaceType
 from database.database import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory, \
     DepartmentModel, UrlSpaceModel, UserDepartment
-from exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError
+from exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError
 import shutil
 
 
@@ -37,15 +37,31 @@ class DataStoreStorageRepository:
         )
 
         found = client.bucket_exists("cloudstorage")
-        if not found: # pragma: no cover
-            client.make_bucket("cloudstorage") # pragma: no cover
-        else: # pragma: no cover
-            pass # pragma: no cover
+        if not found:  # pragma: no cover
+            client.make_bucket("cloudstorage")  # pragma: no cover
+        else:  # pragma: no cover
+            pass  # pragma: no cover
 
         return client
 
     def get_user_spaces(self, user_mail: str) -> list[UserCloudSpace]:
         return self.get_root_dir_by_user_mail(user_mail).get_spaces()
+
+    def find_possible_url_access(self, dir_id: uuid.UUID) -> Optional[uuid.UUID]:
+        parent_id = dir_id
+        while parent_id is not None:
+            url_space = UrlSpaceModel.query.filter_by(root_directory_id=str(dir_id)).first()
+            if url_space is not None:
+                return url_space.id
+
+            directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(parent_id)).first()
+
+            if directory is None:
+                raise ItemNotFoundError
+
+            parent_id = directory.parent_id
+
+        return None
 
     def get_url_space_content(self, space_id: uuid.UUID) -> Optional[Directory]:
         url_space: UrlSpaceModel = UrlSpaceModel.query.filter_by(id=str(space_id)).first()
@@ -73,6 +89,12 @@ class DataStoreStorageRepository:
         spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
         for space in spaces:
             if str(space.get_id()) == str(space_id):
+                return space
+
+    def get_root_user_space_content(self, user_mail: str) -> Optional[UserCloudSpace]:
+        spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
+        for space in spaces:
+            if space.get_space_type() == SpaceType.Regular:
                 return space
 
     def save_file_to_cloud(self, file_name):
@@ -425,7 +447,6 @@ class DataStoreStorageRepository:
         user.spaces.append(new_space)
         self.db.session.commit()
 
-
     def add_shared_space_by_type(self, item: BaseStorageItem, access: BaseAccess):
         if type(access) is UrlAccess:
             url_space = UrlSpaceModel(
@@ -518,9 +539,11 @@ class DataStoreStorageRepository:
 
     def move_item_in_db(self, item, target_directory):
         if isinstance(item, File):
-            self.db.session.execute(update(FileDirectory).where(FileDirectory.file_id == str(item.id)).values(directory_id=str(target_directory.id)))
+            self.db.session.execute(update(FileDirectory).where(FileDirectory.file_id == str(item.id)).values(
+                directory_id=str(target_directory.id)))
         elif isinstance(item, Directory):
-            self.db.session.execute(update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(parent_id=str(target_directory.id)))
+            self.db.session.execute(update(DirectoryModel).where(DirectoryModel.id == str(item.id)).values(
+                parent_id=str(target_directory.id)))
         self.db.session.commit()
 
     def get_url_access(self, url_space_id):
@@ -550,7 +573,8 @@ class DataStoreStorageRepository:
             dep_names.append(DepartmentModel.query.filter_by(id=department.department_id).first())
         if item_type == 'File':
             for department in dep_names:
-                dep_access: AccessModel = AccessModel.query.filter_by(value=department.name, parent_file_id=item_id).first()
+                dep_access: AccessModel = AccessModel.query.filter_by(value=department.name,
+                                                                      parent_file_id=item_id).first()
                 if dep_access.access_level == Access.Edit:
                     return dep_access.access_level
         else:

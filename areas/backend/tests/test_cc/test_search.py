@@ -13,5 +13,8 @@ class TestSearch:
         response = app_client_user.get(path=f'/search?query=Bl2')
         assert response.status_code == 200
 
+        response = app_client_user.get(path=f'/search?query=Root')
+        assert response.status_code == 200
+
         response = app_client_user.get(path=f'/search?query=pooooooooooooooower')
         assert response.status_code == 200

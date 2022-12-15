@@ -14,6 +14,7 @@ import {
     useAddAccessDepartmentLazy,
     useRemoveAccessDepartmentLazy,
     useCreateDirLazy,
+    useWhoAmILazy,
 } from 'api';
 
 export function App() {
@@ -22,6 +23,8 @@ export function App() {
     console.log({ registrationService });
     const loginService = useLoginLazy();
     console.log({ loginService });
+    const whoAmIService = useWhoAmILazy();
+    console.log({ whoAmIService });
 
     // Base part
     const getSpacesService = useGetSpacesLazy();
@@ -114,6 +117,10 @@ export function App() {
                 parent_id: '44e85d06-b760-4698-ab0a-c9bb326cbb28',
                 new_directory_name: 'New name',
             },
+        });
+
+        whoAmIService.fetch({
+            input: { },
         });
     }, []);
 
