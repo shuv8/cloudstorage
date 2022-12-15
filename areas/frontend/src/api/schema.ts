@@ -12,11 +12,26 @@ export type Space = {
     type: string;
 };
 
-export type Item = {
+export const ITEM_ENTITY = {
+    directory: 'Directory',
+    file: 'File',
+} as const;
+
+export type ItemEntityKeys = keyof typeof ITEM_ENTITY;
+export type ItemEntityValues = typeof ITEM_ENTITY[ItemEntityKeys];
+
+type Item = {
     id: string;
     name: string;
+};
+
+export type Directory = Item & {
+    entity: typeof ITEM_ENTITY['file'];
+};
+
+export type File = Item & {
+    entity: typeof ITEM_ENTITY['directory'];
     type: string;
-    entity: string;
 };
 
 export type Access = {

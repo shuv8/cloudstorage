@@ -1,4 +1,4 @@
-import type { Item } from '../schema';
+import type { Directory, File } from '../schema';
 import type { TRequest, TRequestParamsWithInput } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
@@ -8,7 +8,7 @@ export type GetDirRequestInput = {
 };
 
 type GetDirRequestResult = {
-    items: Item[];
+    items: (Directory | File)[];
 };
 
 const getDir: TRequest<TRequestParamsWithInput<GetDirRequestInput>, GetDirRequestResult> = ({ input, config }) => {
