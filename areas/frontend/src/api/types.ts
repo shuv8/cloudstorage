@@ -10,3 +10,24 @@ export type TRequestService<P extends TRequestParams<{}>, R> = {
     error?: AxiosError<TRequestError, P['input']> | Error | null;
     fetch: (params: P) => Promise<void>;
 };
+
+export type Space = {
+    id: string;
+    name: string;
+    type: string;
+};
+
+
+export type Item = {
+    id: string;
+    name: string;
+    type: string;
+    entity: string;
+};
+
+
+export type Access = {
+    class: string;
+    type: string;
+    content: string;
+};

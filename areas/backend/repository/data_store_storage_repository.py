@@ -37,6 +37,10 @@ class DataStoreStorageRepository:
         )
 
         found = client.bucket_exists("cloudstorage")
+        if not found: # pragma: no cover
+            client.make_bucket("cloudstorage") # pragma: no cover
+        else: # pragma: no cover
+            pass # pragma: no cover
 
         return client
 
