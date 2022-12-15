@@ -34,19 +34,38 @@ function SpacePage(props: SpacePageProps) {
 
     return (
         <>
-            {data?.items.map(({ id, entity, name }) => (
-                <React.Fragment key={id}>
-                    <div>
-                        {entity === ITEM_ENTITY.directory && (
-                            <button id={id} onClick={handleOpen}>
-                                Открыть
-                            </button>
-                        )}{' '}
-                        | Entity: {entity} - Name: {name} - Id: {id}
-                    </div>
-                    <hr />
-                </React.Fragment>
-            ))}
+            {!!data?.path.length && (
+                <div style={{ display: 'flex', marginBottom: '24px' }}>
+                    {data.path.map(({ id, name }) => (
+                        <>
+                            <button role="button" id={id} onClick={handleOpen}>
+                                {name}
+                            </button>{' '}
+                            /
+                        </>
+                    ))}
+                </div>
+            )}
+
+            {data?.items.length ? (
+                <>
+                    {data?.items.map(({ id, entity, name }) => (
+                        <React.Fragment key={id}>
+                            <div>
+                                {entity === ITEM_ENTITY.directory && (
+                                    <button id={id} onClick={handleOpen}>
+                                        Открыть
+                                    </button>
+                                )}{' '}
+                                Entity: {entity} - Name: {name} - Id: {id}
+                            </div>
+                            <hr />
+                        </React.Fragment>
+                    ))}
+                </>
+            ) : (
+                <>Папка пуста!</>
+            )}
         </>
     );
 }
