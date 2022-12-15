@@ -1,4 +1,4 @@
-import { TRequest, TRequestParams, Access } from '../types';
+import type { TRequest, TRequestParamsWithInput } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
 
@@ -8,22 +8,25 @@ export type AddAccessDepartmentRequestInput = {
     viewOnly: boolean;
 };
 
-type AddAccessDepartmentRequestResult = { };
+const addAccessDepartment: TRequest<TRequestParamsWithInput<AddAccessDepartmentRequestInput>, {}> = ({
+    input,
+    config,
+}) => {
+    const { itemId, department, viewOnly } = input;
 
-
-const addAccessDepartment: TRequest<TRequestParams<AddAccessDepartmentRequestInput>, AddAccessDepartmentRequestResult> = ({ input, config }) => {
-    const itemId = input?.itemId
-    const department = input?.department
-    const viewOnly = input?.viewOnly
-    return instance.put(`add_access/${itemId}/department/${department}?view_only=${viewOnly}`, { ...input }, { ...config });
+    return instance.put(
+        `add_access/${itemId}/department/${department}?view_only=${viewOnly}`,
+        { ...input },
+        { ...config }
+    );
 };
 
 export function useAddAccessDepartmentLazy() {
-    return useRequestLazy<TRequestParams<AddAccessDepartmentRequestInput>, {}>({
-        request: addAccessDepartment
+    return useRequestLazy<TRequestParamsWithInput<AddAccessDepartmentRequestInput>, {}>({
+        request: addAccessDepartment,
     });
 }
 
-export function useAddAccessDepartment(params: TRequestParams<AddAccessDepartmentRequestInput>) {
+export function useAddAccessDepartment(params: TRequestParamsWithInput<AddAccessDepartmentRequestInput>) {
     return useRequest({ service: useAddAccessDepartmentLazy(), params });
 }
