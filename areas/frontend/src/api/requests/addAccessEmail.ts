@@ -1,4 +1,4 @@
-import { TRequest, TRequestParams, Access } from '../types';
+import type { TRequest, TRequestParamsWithInput } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
 
@@ -8,22 +8,18 @@ export type AddAccessEmailRequestInput = {
     viewOnly: boolean;
 };
 
-type AddAccessEmailRequestResult = { };
+const addAccessEmail: TRequest<TRequestParamsWithInput<AddAccessEmailRequestInput>, {}> = ({ input, config }) => {
+    const { itemId, email, viewOnly } = input;
 
-
-const addAccessEmail: TRequest<TRequestParams<AddAccessEmailRequestInput>, AddAccessEmailRequestResult> = ({ input, config }) => {
-    const itemId = input?.itemId
-    const email = input?.email
-    const viewOnly = input?.viewOnly
     return instance.put(`add_access/${itemId}/email/${email}?view_only=${viewOnly}`, { ...input }, { ...config });
 };
 
 export function useAddAccessEmailLazy() {
-    return useRequestLazy<TRequestParams<AddAccessEmailRequestInput>, {}>({
-        request: addAccessEmail
+    return useRequestLazy<TRequestParamsWithInput<AddAccessEmailRequestInput>, {}>({
+        request: addAccessEmail,
     });
 }
 
-export function useAddAccessEmail(params: TRequestParams<AddAccessEmailRequestInput>) {
+export function useAddAccessEmail(params: TRequestParamsWithInput<AddAccessEmailRequestInput>) {
     return useRequest({ service: useAddAccessEmailLazy(), params });
 }

@@ -1,26 +1,22 @@
-import { TRequest, TRequestParams, Item } from '../types';
+import type { Item } from '../schema';
+import type { TRequest, TRequestParams } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
 
-export type SearchRequestConfig = {
-    query: string;
-};
-
 type SearchRequestResult = {
-    items: Item[]
+    items: Item[];
 };
 
-
-const search: TRequest<TRequestParams<SearchRequestConfig>, SearchRequestResult> = ({ config }) => {
-    return instance.get(`search`,  { ...config });
+const search: TRequest<TRequestParams<{}>, SearchRequestResult> = ({ config }) => {
+    return instance.get(`search`, { ...config });
 };
 
 export function useSearchLazy() {
-    return useRequestLazy<TRequestParams<SearchRequestConfig>, {}>({
-        request: search
+    return useRequestLazy<TRequestParams<{}>, {}>({
+        request: search,
     });
 }
 
-export function useSearch(params: TRequestParams<SearchRequestConfig>) {
+export function useSearch(params: TRequestParams<{}>) {
     return useRequest({ service: useSearchLazy(), params });
 }

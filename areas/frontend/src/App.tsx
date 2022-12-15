@@ -13,7 +13,7 @@ import {
     useRemoveAccessEmailLazy,
     useAddAccessDepartmentLazy,
     useRemoveAccessDepartmentLazy,
-    useCreateDirLazy
+    useCreateDirLazy,
 } from 'api';
 
 export function App() {
@@ -21,9 +21,9 @@ export function App() {
     const registrationService = useRegistrationLazy();
     console.log({ registrationService });
     const loginService = useLoginLazy();
-
-// Base part
     console.log({ loginService });
+
+    // Base part
     const getSpacesService = useGetSpacesLazy();
     console.log({ getSpacesService });
     const getSpaceByIdService = useGetSpaceByIdLazy();
@@ -59,68 +59,68 @@ export function App() {
                 email: 'chocho@mail.ru',
                 password: 'chochopass',
                 role: 2,
-                username: 'chocho'
-            }
+                username: 'chocho',
+            },
         });
 
         loginService.fetch({
             input: {
                 email: 'chocho@mail.ru',
-                password: 'chochopass'
-            }
+                password: 'chochopass',
+            },
         });
 
         getSpacesService.fetch({
-            input: {}
+            input: {},
         });
 
         getSpaceByIdService.fetch({
             input: {
-                spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037'
-            }
+                spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037',
+            },
         });
 
         getSpaceByIdService.fetch({
             input: {
-                spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037'
-            }
+                spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037',
+            },
         });
 
         getDirService.fetch({
             input: {
                 spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037',
-                dirId: '44e85d06-b760-4698-ab0a-c9bb326cbb28'
-            }
+                dirId: '44e85d06-b760-4698-ab0a-c9bb326cbb28',
+            },
         });
 
         searchService.fetch({
             config: {
                 params: {
-                    query: 'dir'
-                }
-            }
+                    query: 'dir',
+                },
+            },
         });
 
         addAccessDepartmentService.fetch({
             input: {
                 itemId: '44e85d06-b760-4698-ab0a-c9bb326cbb28',
                 department: 'club',
-                viewOnly: false
-            }
+                viewOnly: false,
+            },
         });
 
         accessesService.fetch({
             input: {
-                itemId: '44e85d06-b760-4698-ab0a-c9bb326cbb28'
-            }
+                itemId: '44e85d06-b760-4698-ab0a-c9bb326cbb28',
+            },
         });
 
         createDirectoryService.fetch({
             input: {
                 space_id: '3abd4de3-bcfe-47c6-ab49-fdf416406037',
                 parent_id: '44e85d06-b760-4698-ab0a-c9bb326cbb28',
-                new_directory_name: 'New name'
-            }
+                new_directory_name: 'New name',
+            },
         });
     }, []);
 

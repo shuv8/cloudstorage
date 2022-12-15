@@ -1,4 +1,4 @@
-import { TRequest, TRequestParams, Item } from '../types';
+import type { TRequest, TRequestParamsWithInput } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
 
@@ -9,20 +9,22 @@ export type CreateDirRequestInput = {
 };
 
 type CreateDirRequestResult = {
-    id: string
+    id: string;
 };
 
-
-const createDir: TRequest<TRequestParams<CreateDirRequestInput>, CreateDirRequestResult> = ({ input, config }) => {
+const createDir: TRequest<TRequestParamsWithInput<CreateDirRequestInput>, CreateDirRequestResult> = ({
+    input,
+    config,
+}) => {
     return instance.post(`directory`, { ...input }, { ...config });
 };
 
 export function useCreateDirLazy() {
-    return useRequestLazy<TRequestParams<CreateDirRequestInput>, {}>({
-        request: createDir
+    return useRequestLazy<TRequestParamsWithInput<CreateDirRequestInput>, {}>({
+        request: createDir,
     });
 }
 
-export function useCreateDir(params: TRequestParams<CreateDirRequestInput>) {
+export function useCreateDir(params: TRequestParamsWithInput<CreateDirRequestInput>) {
     return useRequest({ service: useCreateDirLazy(), params });
 }

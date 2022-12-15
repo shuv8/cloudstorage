@@ -1,6 +1,7 @@
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export type TRequestParams<I> = { input?: I; config?: AxiosRequestConfig<I> };
+export type TRequestParamsWithInput<I> = TRequestParams<I> & { input: I };
 export type TRequest<P extends TRequestParams<{}>, R> = (params: P) => Promise<AxiosResponse<R, P['input']>>;
 export type TRequestError = { error: string };
 
@@ -9,25 +10,4 @@ export type TRequestService<P extends TRequestParams<{}>, R> = {
     loading: boolean;
     error?: AxiosError<TRequestError, P['input']> | Error | null;
     fetch: (params: P) => Promise<void>;
-};
-
-export type Space = {
-    id: string;
-    name: string;
-    type: string;
-};
-
-
-export type Item = {
-    id: string;
-    name: string;
-    type: string;
-    entity: string;
-};
-
-
-export type Access = {
-    class: string;
-    type: string;
-    content: string;
 };

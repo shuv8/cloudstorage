@@ -1,4 +1,4 @@
-import { TRequest, TRequestParams, Access } from '../types';
+import type { TRequest, TRequestParamsWithInput } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
 
@@ -7,21 +7,17 @@ export type RemoveAccessEmailRequestInput = {
     email: string;
 };
 
-type RemoveAccessEmailRequestResult = { };
-
-
-const removeAccessEmail: TRequest<TRequestParams<RemoveAccessEmailRequestInput>, RemoveAccessEmailRequestResult> = ({ input, config }) => {
-    const itemId = input?.itemId
-    const email = input?.email
+const removeAccessEmail: TRequest<TRequestParamsWithInput<RemoveAccessEmailRequestInput>, {}> = ({ input, config }) => {
+    const { email, itemId } = input;
     return instance.delete(`remove_access/${itemId}/email/${email}`, { ...config });
 };
 
 export function useRemoveAccessEmailLazy() {
-    return useRequestLazy<TRequestParams<RemoveAccessEmailRequestInput>, {}>({
-        request: removeAccessEmail
+    return useRequestLazy<TRequestParamsWithInput<RemoveAccessEmailRequestInput>, {}>({
+        request: removeAccessEmail,
     });
 }
 
-export function useRemoveAccessEmail(params: TRequestParams<RemoveAccessEmailRequestInput>) {
+export function useRemoveAccessEmail(params: TRequestParamsWithInput<RemoveAccessEmailRequestInput>) {
     return useRequest({ service: useRemoveAccessEmailLazy(), params });
 }
