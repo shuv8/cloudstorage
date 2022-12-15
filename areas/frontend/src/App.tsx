@@ -82,7 +82,6 @@ export function App() {
 
         getDirService.fetch({
             input: {
-                spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037',
                 dirId: '44e85d06-b760-4698-ab0a-c9bb326cbb28',
             },
         });

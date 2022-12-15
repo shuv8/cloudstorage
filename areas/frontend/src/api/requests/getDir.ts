@@ -4,7 +4,6 @@ import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
 
 export type GetDirRequestInput = {
-    spaceId: string;
     dirId: string;
 };
 
@@ -13,8 +12,8 @@ type GetDirRequestResult = {
 };
 
 const getDir: TRequest<TRequestParamsWithInput<GetDirRequestInput>, GetDirRequestResult> = ({ input, config }) => {
-    const { spaceId, dirId } = input;
-    return instance.get(`get_dir/${spaceId}/${dirId}`, { ...config });
+    const { dirId } = input;
+    return instance.get(`get_dir/${dirId}`, { ...config });
 };
 
 export function useGetDirLazy() {
