@@ -37,6 +37,10 @@ class DataStoreStorageRepository:
         )
 
         found = client.bucket_exists("cloudstorage")
+        if not found:
+            client.make_bucket("cloudstorage")
+        else:
+            pass
 
         return client
 

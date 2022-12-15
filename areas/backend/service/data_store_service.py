@@ -138,10 +138,11 @@ class DataStoreService:
         return file_and_directories_with_paths
 
     @private
-    def search_in_directory(self, directory: Directory, query: str, path="/") -> list[tuple[BaseStorageItem, str]]:
+    def search_in_directory(self, directory: Directory, query: str, path="/", self_check=True) -> list[
+        tuple[BaseStorageItem, str]]:
         file_and_directories_with_paths = list[tuple[BaseStorageItem, str]]()
 
-        if query in directory.name:
+        if self_check and query in directory.name:
             file_and_directories_with_paths.append((directory, path + directory.name + "/"))
 
         directory_manager = directory.directory_manager
@@ -153,7 +154,8 @@ class DataStoreService:
                 self.search_in_directory(
                     directory=directory_,
                     query=query,
-                    path=path + directory_.name + "/"
+                    path=path + directory_.name + "/",
+                    self_check=False
                 )
             )
 
@@ -266,7 +268,7 @@ class DataStoreService:
             # if file is not None:
             #     return file
 
-        return None # pragma: no cover # Reason: We always call this function after checking isUserItem condition
+        return None  # pragma: no cover # Reason: We always call this function after checking isUserItem condition
 
     def is_user_item(self, user_mail: str, item_id: UUID) -> bool:
         return self.get_user_item_by_id(user_mail, item_id) is not None
