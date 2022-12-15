@@ -1,22 +1,29 @@
 import React from 'react';
-import { useLogin, useRegistration } from 'api';
+import { useLoginLazy, useRegistrationLazy } from 'api';
 
 export function App() {
-    useRegistration({
-        input: {
-            email: 'chocho@mail.ru',
-            password: 'chochopass',
-            role: 2,
-            username: 'chocho',
-        },
-    });
+    const registrationService = useRegistrationLazy();
+    console.log({ registrationService });
+    const loginService = useLoginLazy();
+    console.log({ loginService });
 
-    useLogin({
-        input: {
-            email: 'chocho@mail.ru',
-            password: 'chochopass',
-        },
-    });
+    React.useEffect(() => {
+        registrationService.fetch({
+            input: {
+                email: 'chocho@mail.ru',
+                password: 'chochopass',
+                role: 2,
+                username: 'chocho',
+            },
+        });
+
+        loginService.fetch({
+            input: {
+                email: 'chocho@mail.ru',
+                password: 'chochopass',
+            },
+        });
+    }, []);
 
     return <React.Fragment />;
 }
