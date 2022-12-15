@@ -64,24 +64,26 @@ class DataStoreService:
             parent_dir_id: uuid.UUID,
             new_directory_name: str
     ) -> UUID:
-        items = self.get_dir_content(user_email, space_id, parent_dir_id)
+        items = self.get_dir_content(user_email, parent_dir_id)
         for item in items:
             if item.get_name() == new_directory_name:
                 raise AlreadyExistsError
         new_directory = Directory(name=new_directory_name, _id=uuid.uuid4())
         return self.data_store_storage_repo.add_new_directory(new_directory, parent_dir_id)
 
-    def get_dir_content(self, user_mail: str, space_id: UUID, dir_id: UUID) -> list[BaseStorageItem]:
-        space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
-        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
+    def get_dir_content(self, user_mail: str, dir_id: UUID) -> list[BaseStorageItem]:
+        spaces = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail).get_spaces()
+        directory = None
 
-        if space is None and possible_shared_url_space is None:
-            raise SpaceNotFoundError
-        elif space is None:
-            directory = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
-        else:
-            space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+        for space in spaces:
             directory = self.get_user_dir_in_space(space, dir_id)
+            if directory is None:
+                break
+
+        if directory is None:
+            possible_shared_url_space_id = self.data_store_storage_repo.find_possible_url_access(dir_id)
+            possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(possible_shared_url_space_id)
+            directory = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
 
         if directory is None:
             raise ItemNotFoundError
@@ -221,7 +223,7 @@ class DataStoreService:
         if not (self.is_user_item(user_email, dir_id)):
             raise ItemNotFoundError
 
-        dir_content = self.get_dir_content(user_email, space_id, dir_id)
+        dir_content = self.get_dir_content(user_email, dir_id)
         for _item in dir_content:
             if _item.name == new_file_name:
                 raise AlreadyExistsError
@@ -259,14 +261,6 @@ class DataStoreService:
                 item = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
                 if item is not None:
                     return item
-
-            # We can't have files in space
-            # file = self.get_file_in_directory_by_id(
-            #     file_manager=space.get_directory_manager().file_manager,
-            #     id_=item_id
-            # )
-            # if file is not None:
-            #     return file
 
         return None  # pragma: no cover # Reason: We always call this function after checking isUserItem condition
 
@@ -389,40 +383,10 @@ class DataStoreService:
             if not self.check_edit_access(user_mail, target_space, target_directory):
                 raise AccessError
             if target_directory is not None and isinstance(target_directory, Directory):
-                # source_directory_manager = self.get_parent_directory_manager_by_item_id(user_mail, item_id)
-                # if isinstance(item, Directory):
-                #     source_directory_manager.remove_dir(item.name)
-                #     target_directory.directory_manager.add_items([item])
-                # elif isinstance(item, File):
-                #     source_directory_manager.file_manager.remove_item(item)
-                #     target_directory.directory_manager.file_manager.add_item(item)
                 self.data_store_storage_repo.move_item_in_db(item, target_directory)
                 return target_directory.name
         else:
             raise ItemNotFoundError
-
-    # def get_parent_directory_manager_by_item_id(self, user_mail: str, item_id: UUID) -> Optional[DirectoryManager]:
-    #     space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
-    #
-    #     for space in space_manager.get_spaces():
-    #         file = self.get_file_in_directory_by_id(
-    #             file_manager=space.get_directory_manager().file_manager,
-    #             id_=item_id
-    #         )
-    #         # There is no chance for creation file in root directory
-    #         # if file is not None:
-    #         #     return space.get_directory_manager()
-    #
-    #         directories_for_search = space.get_directory_manager().items
-    #
-    #         while len(directories_for_search):
-    #             directory = directories_for_search.pop(0)
-    #             item = self.get_item_in_directory_by_id(directory=directory, id_=item_id, recursive=False)
-    #             if item is not None:
-    #                 return directory.get_directory_manager()
-    #             else:
-    #                 directories_for_search.extend(directory.directory_manager.items)
-    #     return None
 
     def download_item(self, user_mail: str, space_id: UUID, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
         item = self.get_file_in_space_by_id(user_mail=user_mail, space_id=space_id, item_id=item_id)

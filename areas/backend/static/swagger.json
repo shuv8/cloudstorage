@@ -212,17 +212,9 @@
         }
       }
     },
-    "/get_dir/{space_id}/{dir_id}": {
+    "/get_dir/{dir_id}": {
       "get": {
         "parameters": [
-          {
-            "name": "space_id",
-            "in": "path",
-            "description": "File or directory to search for",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "dir_id",
             "in": "path",

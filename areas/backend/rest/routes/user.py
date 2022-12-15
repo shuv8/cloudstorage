@@ -212,12 +212,11 @@ def add_new_directory():
     return jsonify({'id': directory_id}), 200
 
 
-@USER_REQUEST_API.route('/get_dir/<space_id>/<dir_id>', methods=['GET'])
+@USER_REQUEST_API.route('/get_dir/<dir_id>', methods=['GET'])
 @token_required
-def get_dir_in_space_content(space_id, dir_id):
+def get_dir_in_space_content(dir_id):
     """
     Query:
-        - space_id: id of space to search in
         - dir_id: id of dir to view
     Result:
         {
@@ -231,7 +230,7 @@ def get_dir_in_space_content(space_id, dir_id):
     user = get_user_by_token()
 
     try:
-        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user.email, UUID(space_id), UUID(dir_id))
+        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user.email, UUID(dir_id))
 
         items_content = []
         for item in items:
@@ -260,8 +259,6 @@ def get_dir_in_space_content(space_id, dir_id):
         ), 200
     except ItemNotFoundError:
         return jsonify("Can't find directory with ID"), 404
-    except SpaceNotFoundError:
-        return jsonify("Can't find space with ID"), 404
 
 
 @USER_REQUEST_API.route('/file', methods=['POST'])
