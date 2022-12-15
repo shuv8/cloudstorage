@@ -80,12 +80,6 @@ export function App() {
             },
         });
 
-        getSpaceByIdService.fetch({
-            input: {
-                spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037',
-            },
-        });
-
         getDirService.fetch({
             input: {
                 spaceId: '3abd4de3-bcfe-47c6-ab49-fdf416406037',
