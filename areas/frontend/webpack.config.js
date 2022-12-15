@@ -36,10 +36,12 @@ module.exports = {
     devServer: {
         static: path.resolve(__dirname, 'dist'),
         port: 3000,
+        historyApiFallback: true,
     },
     output: {
-        filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
+        filename: 'bundle.js',
+        publicPath: '/',
         clean: true,
     },
 };
