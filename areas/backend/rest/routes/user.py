@@ -230,7 +230,7 @@ def get_dir_in_space_content(dir_id):
     user = get_user_by_token()
 
     try:
-        items: list[BaseStorageItem] = dataStoreController.get_dir_content(user.email, UUID(dir_id))
+        items, pathes = dataStoreController.get_dir_content(user.email, UUID(dir_id))
 
         items_content = []
         for item in items:
@@ -252,9 +252,19 @@ def get_dir_in_space_content(dir_id):
                     }
                 )
 
+        path_content = []
+        for path in pathes:
+            path_content.append(
+                {
+                    "id": path[0],
+                    "name": path[1],
+                }
+            )
+
         return jsonify(
             {
-                "items": items_content
+                "items": items_content,
+                "path": path_content
             }
         ), 200
     except ItemNotFoundError:

@@ -237,10 +237,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/item"
-                  }
+                  "$ref": "#/components/schemas/dir_with_path"
                 }
               }
             }
@@ -1284,6 +1281,32 @@
             "type": "string"
           },
           "id": {
+            "type": "string"
+          }
+        }
+      },
+      "dir_with_path": {
+        "properties": {
+          "path": {
+            "type": "array",
+            "items": {
+               "$ref": "#/components/schemas/path"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+               "$ref": "#/components/schemas/item"
+            }
+          }
+        }
+      },
+      "path": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
             "type": "string"
           }
         }

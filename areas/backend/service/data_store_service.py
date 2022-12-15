@@ -49,9 +49,9 @@ class DataStoreService:
         possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
 
         if space is None:
-            directory = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
+            directory, _ = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
         else:
-            directory = self.get_user_dir_in_space(space, dir_id)
+            directory, _ = self.get_user_dir_in_space(space, dir_id)
 
         if directory is None:
             return None
@@ -64,26 +64,27 @@ class DataStoreService:
             parent_dir_id: uuid.UUID,
             new_directory_name: str
     ) -> UUID:
-        items = self.get_dir_content(user_email, parent_dir_id)
+        items, _ = self.get_dir_content(user_email, parent_dir_id)
         for item in items:
             if item.get_name() == new_directory_name:
                 raise AlreadyExistsError
         new_directory = Directory(name=new_directory_name, _id=uuid.uuid4())
         return self.data_store_storage_repo.add_new_directory(new_directory, parent_dir_id)
 
-    def get_dir_content(self, user_mail: str, dir_id: UUID) -> list[BaseStorageItem]:
+    def get_dir_content(self, user_mail: str, dir_id: UUID) -> tuple[list[BaseStorageItem], list[tuple[str, str]]]:
         spaces = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail).get_spaces()
         directory = None
+        path = []
 
         for space in spaces:
-            directory = self.get_user_dir_in_space(space, dir_id)
+            directory, path = self.get_user_dir_in_space(space, dir_id)
             if directory is None:
                 break
 
         if directory is None:
             possible_shared_url_space_id = self.data_store_storage_repo.find_possible_url_access(dir_id)
             possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(possible_shared_url_space_id)
-            directory = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
+            directory, path = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
 
         if directory is None:
             raise ItemNotFoundError
@@ -92,35 +93,36 @@ class DataStoreService:
         items.extend(directory.get_directory_manager().items)
         items.extend(directory.get_directory_manager().file_manager.items)
 
-        return items
+        return items, path
 
-    def get_user_dir_in_space(self, space: UserCloudSpace, dir_id: UUID) -> Optional[Directory]:
+    def get_user_dir_in_space(self, space: UserCloudSpace, dir_id: UUID) -> tuple[Optional[Directory], list[tuple[str, str]]]:
         for directory in space.get_directory_manager().items:
             if str(directory.id) == str(dir_id):
-                return directory
+                return directory, []
             else:
-                possible_dir = self.get_user_dir_in_another_dir(directory, dir_id)
+                possible_dir, path = self.get_user_dir_in_another_dir(directory, dir_id)
                 if possible_dir is not None:
-                    return possible_dir
+                    return possible_dir,[(str(directory.id), directory.name)] + path
 
-        return None
+        return None, []
 
-    def get_dir_in_url_shared_space(self, root_directory, dir_id: UUID) -> Optional[Directory]:
+    def get_dir_in_url_shared_space(self, root_directory, dir_id: UUID) -> tuple[Optional[Directory], list[tuple[str, str]]]:
         if root_directory.id == dir_id:
-            return root_directory
+            return root_directory, []
         else:
-            return self.get_user_dir_in_another_dir(root_directory, dir_id)
+            dir_, path = self.get_user_dir_in_another_dir(root_directory, dir_id)
+            return dir_, [str(root_directory.id), root_directory.name] + path
 
-    def get_user_dir_in_another_dir(self, directory: Directory, dir_id: UUID) -> Optional[Directory]:
+    def get_user_dir_in_another_dir(self, directory: Directory, dir_id: UUID) -> tuple[Optional[Directory], list[tuple[str, str]]]:
         for directory in directory.get_directory_manager().items:
             if str(directory.id) == str(dir_id):
-                return directory
+                return directory, []
             else:
-                possible_dir = self.get_user_dir_in_another_dir(directory, dir_id)
+                possible_dir, path = self.get_user_dir_in_another_dir(directory, dir_id)
                 if possible_dir is not None:
-                    return possible_dir
+                    return possible_dir, [(str(directory.id), directory.name)] + path
 
-        return None
+        return None, []
 
     @private
     def search_in_spaces(self, space_manager: SpaceManager, query: str) -> list[tuple[BaseStorageItem, str]]:
@@ -223,7 +225,7 @@ class DataStoreService:
         if not (self.is_user_item(user_email, dir_id)):
             raise ItemNotFoundError
 
-        dir_content = self.get_dir_content(user_email, dir_id)
+        dir_content, _ = self.get_dir_content(user_email, dir_id)
         for _item in dir_content:
             if _item.name == new_file_name:
                 raise AlreadyExistsError
