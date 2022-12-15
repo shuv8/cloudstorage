@@ -10,12 +10,12 @@ type WhoAmIRequestResult = {
     root_dir_id: string;
 };
 
-const who: TRequest<TRequestParams<{}>, WhoAmIRequestResult> = ({ config, }) => {
+const who: TRequest<TRequestParams<{}>, WhoAmIRequestResult> = ({ config }) => {
     return instance.get(`whoiam`, { ...config });
 };
 
 export function useWhoAmILazy() {
-    return useRequestLazy<TRequestParams<{}>, {}>({
+    return useRequestLazy<TRequestParams<{}>, WhoAmIRequestResult>({
         request: who,
     });
 }
