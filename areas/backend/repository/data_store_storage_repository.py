@@ -75,6 +75,12 @@ class DataStoreStorageRepository:
             if str(space.get_id()) == str(space_id):
                 return space
 
+    def get_root_user_space_content(self, user_mail: str) -> Optional[UserCloudSpace]:
+        spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
+        for space in spaces:
+            if space.get_space_type() == SpaceType.Regular:
+                return space
+
     def save_file_to_cloud(self, file_name):
         self.minio_client.fput_object("cloudstorage", file_name, f"cache/{file_name}")
         print(f"'cache/{file_name}' is successfully uploaded as object 'test_file.py' to bucket 'cloud_storage'.")

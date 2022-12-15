@@ -33,6 +33,13 @@ class UserRepository:
             role=user.role
         )
 
+    def get_user_departments_by_id(self, _id: UUID) -> list[str]:
+        from database.database import UserModel
+        user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
+        if user is None:
+            raise UserNotFoundError
+        return [department.name for department in user.departments]
+
     def get_user_from_db_by_email(self, email: str) -> User:
         from database.database import UserModel
         user: UserModel = UserModel.query.filter_by(email=email).first()
@@ -189,3 +196,7 @@ class UserRepository:
                     user_model: UserModel = UserModel.query.filter_by(id=user_id).first()
                     if user_model is not None:
                         self.data_storage_repo.add_shared_space_for_directory_model_by_email(directory, user_model.email)
+
+
+    def get_root_user_space_content(self, user_email: str):
+        return self.data_storage_repo.get_root_user_space_content(user_email)

@@ -118,7 +118,7 @@ class UserModel(db.Model):
     passwordHash = db.Column(db.String(50))
     username = db.Column(db.String(200))
     role = db.Column(db.Enum(Role))
-    departments = db.relationship(
+    departments: list[DepartmentModel] = db.relationship(
         "DepartmentModel",
         secondary=UserDepartment.__table__,
         backref="users"

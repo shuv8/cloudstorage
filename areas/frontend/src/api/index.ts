@@ -3,6 +3,7 @@ export * from './schema';
 // Authentication
 export * from './requests/registration';
 export * from './requests/login';
+export * from './requests/whoiam';
 
 // Base
 export * from './requests/getSpaces';

@@ -413,6 +413,38 @@
         }
       }
     },
+    "/whoiam": {
+      "get": {
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns datailed user info",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/user_info_extended"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/set_access/{item_id}": {
       "put": {
         "parameters": [
@@ -1355,6 +1387,25 @@
           }
         }
       },
+      "user_info_extended": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "departments": {
+            "type": "string"
+          },
+          "root_space_id": {
+            "type": "string"
+          },
+          "root_dir_id": {
+            "type": "string"
+          }
+        }
+      },
       "department_with_users": {
         "properties": {
           "department_name": {
@@ -1373,8 +1424,15 @@
           "users": {
             "type": "array",
             "items": {
-              "id": "string"
+               "$ref": "#/components/schemas/user_id"
             }
+          }
+        }
+      },
+      "user_id": {
+        "properties": {
+          "id": {
+            "type": "string"
           }
         }
       }
