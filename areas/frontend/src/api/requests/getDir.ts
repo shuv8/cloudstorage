@@ -17,7 +17,7 @@ const getDir: TRequest<TRequestParamsWithInput<GetDirRequestInput>, GetDirReques
 };
 
 export function useGetDirLazy() {
-    return useRequestLazy<TRequestParamsWithInput<GetDirRequestInput>, {}>({
+    return useRequestLazy<TRequestParamsWithInput<GetDirRequestInput>, GetDirRequestResult>({
         request: getDir,
     });
 }
