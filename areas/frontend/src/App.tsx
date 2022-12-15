@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import {
     useLoginLazy,
     useRegistrationLazy,
@@ -16,6 +17,7 @@ import {
     useCreateDirLazy,
     useWhoAmILazy,
 } from 'api';
+import { SpacePage } from './pages/SpacePage';
 
 export function App() {
     // Authentication part
@@ -119,10 +121,22 @@ export function App() {
             },
         });
 
-        whoAmIService.fetch({
-            input: { },
-        });
+        whoAmIService.fetch({});
     }, []);
 
-    return <React.Fragment />;
+    if (whoAmIService.loading) {
+        return <>Загрузка...</>;
+    }
+
+    return (
+        <BrowserRouter>
+            {!!whoAmIService.data && (
+                <Routes>
+                    <Route path="/" element={<Navigate to={`dirs/${whoAmIService.data.root_dir_id}`} />} />
+                    <Route path="dirs/:dirId" element={<SpacePage />} />
+                    <Route path="*" element={<div>404</div>} />
+                </Routes>
+            )}
+        </BrowserRouter>
+    );
 }
