@@ -6,6 +6,7 @@ from flask import jsonify, Blueprint, make_response, request, send_file
 
 from controller.data_store_controller import *
 from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from core.department import Department
 from core.directory import Directory
 from core.files import File
 from core.role import Role
@@ -644,3 +645,34 @@ def copy_item(space_id, item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
     except ItemNotFoundError:
         return jsonify({'error': 'Item not found'}), 404
+
+
+
+@USER_REQUEST_API.route('/whoiam', methods=['GET'])
+@token_required
+def get_user_list():
+    """
+    Query:
+        - query: page
+        - query: limit
+    Result:
+        {
+            id: string
+            email: string
+            space_id: string
+            root_dir_id: string
+        }
+    """
+
+    user = get_user_by_token()
+    user_info: tuple[list[str], UUID, UUID] = userController.get_user_info(user)
+
+    return jsonify(
+        {
+            "id": user.get_id(),
+            "email": user.email,
+            "departments": ' '.join(user_info[0]),
+            "root_space_id": str(user_info[1]),
+            "root_dir_id": str(user_info[2]),
+        }
+    ), 200

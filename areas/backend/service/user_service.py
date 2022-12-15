@@ -67,7 +67,7 @@ class UserService:
             if checkpw(password.encode(), str(user.password).encode()) is False:
                 raise InvalidCredentialsError
             # TODO: get secret from env
-            token = encode({"id": str(user.get_id())}, "SUPER-SECRET-KEY", algorithm="HS256")  
+            token = encode({"id": str(user.get_id())}, "SUPER-SECRET-KEY", algorithm="HS256")
             return token
         except UserNotFoundError:
             raise InvalidCredentialsError
@@ -97,6 +97,11 @@ class UserService:
         for index in range(start_index, end_index):
             output_list.append(users[index])
         return output_list
+
+    def get_user_info(self, user: User) -> tuple[list[str], UUID, UUID]:
+        departments = self.user_repo.get_user_departments_by_id(user.get_id())
+        parent_space = self.user_repo.get_root_user_space_content(user.email)
+        return departments, parent_space.get_id(), parent_space.get_directory_manager().items[0].id
 
     def add_new_department(self, new_department: Department) -> None:
         try:

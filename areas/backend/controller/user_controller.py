@@ -1,5 +1,7 @@
 from typing import List
 
+from uuid import UUID
+
 from core.department import Department
 from core.role import Role
 from core.user import User
@@ -25,6 +27,9 @@ class UserController:
 
     def get_all_users(self, page: int, limit: int) -> List[User]:
         return self.user_service.get_all_users(page, limit)
+
+    def get_user_info(self, user: User) -> tuple[list[str], UUID, UUID]:
+        return self.user_service.get_user_info(user)
 
     def add_new_department(self, new_department: Department) -> None:
         self.user_service.add_new_department(new_department)
