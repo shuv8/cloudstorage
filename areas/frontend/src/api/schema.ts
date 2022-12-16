@@ -26,7 +26,7 @@ type Item = {
 };
 
 export type Directory = Item & {
-    entity: typeof ITEM_ENTITY['file'];
+    entity: typeof ITEM_ENTITY['directory'];
 };
 
 export type SpaceItem = {
@@ -37,14 +37,11 @@ export type SpaceItem = {
 };
 
 export type File = Item & {
-    entity: typeof ITEM_ENTITY['directory'];
+    entity: typeof ITEM_ENTITY['file'];
     type: string;
 };
 
-export type DirectoryPath =  {
-    id: string;
-    name: string;
-};
+export type DirectoryPath = Item[];
 
 export type Access = {
     class: string;
