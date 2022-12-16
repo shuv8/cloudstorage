@@ -126,7 +126,7 @@ export function App() {
     }, []);
 
     if (whoAmIService.loading) {
-        return <>Загрузка...</>;
+        return null;
     }
 
     return (
