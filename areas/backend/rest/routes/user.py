@@ -172,7 +172,7 @@ def get_space_content(space_id):
         for item in items:
             if type(item) == Directory:
 
-                inner_items, _ = dataStoreController.get_dir_content(user.email, item.id)
+                inner_items, _, _ = dataStoreController.get_dir_content(user.email, item.id)
 
                 items_inner_content = []
                 for item_ in inner_items:
@@ -261,7 +261,7 @@ def get_dir_in_space_content(dir_id):
     user = get_user_by_token()
 
     try:
-        items, pathes = dataStoreController.get_dir_content(user.email, UUID(dir_id))
+        items, pathes, name = dataStoreController.get_dir_content(user.email, UUID(dir_id))
 
         items_content = []
         for item in items:
@@ -295,7 +295,8 @@ def get_dir_in_space_content(dir_id):
         return jsonify(
             {
                 "items": items_content,
-                "path": path_content
+                "path": path_content,
+                "name": name
             }
         ), 200
     except ItemNotFoundError:

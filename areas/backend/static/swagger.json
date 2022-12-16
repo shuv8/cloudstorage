@@ -1298,6 +1298,9 @@
             "items": {
                "$ref": "#/components/schemas/item"
             }
+          },
+          "name": {
+            "type": "string"
           }
         }
       },

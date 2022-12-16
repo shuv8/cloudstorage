@@ -10,6 +10,7 @@ export type GetDirRequestInput = {
 type GetDirRequestResult = {
     items: (Directory | File)[];
     path: DirectoryPath[];
+    name: string
 };
 
 const getDir: TRequest<TRequestParamsWithInput<GetDirRequestInput>, GetDirRequestResult> = ({ input, config }) => {

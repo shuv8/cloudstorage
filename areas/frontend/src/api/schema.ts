@@ -51,3 +51,7 @@ export type Access = {
     type: string;
     content: string;
 };
+
+export type Department = {
+    department_name: string;
+};

@@ -64,14 +64,14 @@ class DataStoreService:
             parent_dir_id: uuid.UUID,
             new_directory_name: str
     ) -> UUID:
-        items, _ = self.get_dir_content(user_email, parent_dir_id)
+        items, _, _ = self.get_dir_content(user_email, parent_dir_id)
         for item in items:
             if item.get_name() == new_directory_name:
                 raise AlreadyExistsError
         new_directory = Directory(name=new_directory_name, _id=uuid.uuid4())
         return self.data_store_storage_repo.add_new_directory(new_directory, parent_dir_id)
 
-    def get_dir_content(self, user_mail: str, dir_id: UUID) -> tuple[list[BaseStorageItem], list[tuple[str, str]]]:
+    def get_dir_content(self, user_mail: str, dir_id: UUID) -> tuple[list[BaseStorageItem], list[tuple[str, str]], str]:
         spaces = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail).get_spaces()
         directory = None
         path = []
@@ -93,7 +93,7 @@ class DataStoreService:
         items.extend(directory.get_directory_manager().items)
         items.extend(directory.get_directory_manager().file_manager.items)
 
-        return items, path
+        return items, path, directory.name
 
     def get_user_dir_in_space(self, space: UserCloudSpace, dir_id: UUID) -> tuple[Optional[Directory], list[tuple[str, str]]]:
         for directory in space.get_directory_manager().items:
@@ -225,7 +225,7 @@ class DataStoreService:
         if not (self.is_user_item(user_email, dir_id)):
             raise ItemNotFoundError
 
-        dir_content, _ = self.get_dir_content(user_email, dir_id)
+        dir_content, _, _ = self.get_dir_content(user_email, dir_id)
         for _item in dir_content:
             if _item.name == new_file_name:
                 raise AlreadyExistsError
