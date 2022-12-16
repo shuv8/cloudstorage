@@ -134,7 +134,7 @@ export function App() {
             {!!whoAmIService.data && (
                 <SessionLayout>
                     <Routes>
-                        <Route path="/" element={<Navigate to={`dirs/${whoAmIService.data.root_dir_id}`} />} />
+                        <Route path="/" element={<Navigate to={`dirs/${whoAmIService.data.rootDirId}`} />} />
                         <Route path="dirs/:dirId" element={<SpacePage />} />
                         <Route path="*" element={<div>404</div>} />
                     </Routes>
