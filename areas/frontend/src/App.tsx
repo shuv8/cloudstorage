@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { UserContext } from 'context/UserContext';
 import { SessionLayout } from 'layouts/SessionLayout';
 import { SpacePage } from 'pages/SpacePage';
+import { NotFoundPage } from 'pages/NotFoundPage';
 import { Overlay } from 'layouts/Overlay';
 import { LoadingLayout } from 'layouts/LoadingLayout';
 import { withUserContext } from 'hocs/withUserContext';
@@ -20,7 +21,7 @@ function App() {
                             <Routes>
                                 <Route path="/" element={<Navigate to={`dirs/${rootDirId}`} />} />
                                 <Route path="dirs/:dirId" element={<SpacePage />} />
-                                <Route path="*" element={<div>404</div>} />
+                                <Route path="*" element={<NotFoundPage />} />
                             </Routes>
                         </SessionLayout>
                     )}
