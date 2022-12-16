@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import type { ReactChild } from 'react';
+import React from 'react';
 
 type OverlayProps = {
     children: ReactChild;
