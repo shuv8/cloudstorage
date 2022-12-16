@@ -17,7 +17,8 @@ import {
     useCreateDirLazy,
     useWhoAmILazy,
 } from 'api';
-import { SpacePage } from './pages/SpacePage';
+import { SessionLayout } from 'layouts/SessionLayout';
+import { SpacePage } from 'pages/SpacePage';
 
 export function App() {
     // Authentication part
@@ -131,11 +132,13 @@ export function App() {
     return (
         <BrowserRouter>
             {!!whoAmIService.data && (
-                <Routes>
-                    <Route path="/" element={<Navigate to={`dirs/${whoAmIService.data.root_dir_id}`} />} />
-                    <Route path="dirs/:dirId" element={<SpacePage />} />
-                    <Route path="*" element={<div>404</div>} />
-                </Routes>
+                <SessionLayout>
+                    <Routes>
+                        <Route path="/" element={<Navigate to={`dirs/${whoAmIService.data.root_dir_id}`} />} />
+                        <Route path="dirs/:dirId" element={<SpacePage />} />
+                        <Route path="*" element={<div>404</div>} />
+                    </Routes>
+                </SessionLayout>
             )}
         </BrowserRouter>
     );
