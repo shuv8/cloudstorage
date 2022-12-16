@@ -44,7 +44,6 @@ function SpacePage(props: SpacePageProps) {
         <>
             <Box>
                 <Stack direction="row" spacing="8px" divider={<Divider orientation="vertical" flexItem />}>
-                    <Button>Мой спейс</Button>
                     {path.map(({ id, name }) => (
                         <Button key={id} id={id} onClick={handlePathClick} color="primary">
                             {name}

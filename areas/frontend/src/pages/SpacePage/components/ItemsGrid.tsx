@@ -41,7 +41,7 @@ function ItemsGrid(props: ItemsGridProps) {
             setActiveDirectory({
                 entity: 'Directory',
                 id: dirId,
-                name: 'Текущая папка', // TODO: ИМЯ ЖДУ ОТ БЭКА
+                name: data.name,
             });
 
             setPath(data.path);
