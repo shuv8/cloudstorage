@@ -16,6 +16,7 @@ export function useRequestLazy<P extends TRequestParams<{}>, R>({ request }: Use
     const fetch: TRequestService<P, R>['fetch'] = React.useCallback(
         async (params: P) => {
             try {
+                setData(null);
                 setFetched(false);
                 setCalled(true);
                 setLoading(true);
