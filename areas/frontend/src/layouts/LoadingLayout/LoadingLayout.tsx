@@ -32,7 +32,7 @@ export function LoadingLayout(props: LoadingLayoutProps) {
         }
     }, [getSpacesService.data]);
 
-    if (loading || fetched) {
+    if (loading || !fetched) {
         return (
             <Box height="100%" display="flex" justifyContent="center" alignItems="center">
                 <CircularProgress />
