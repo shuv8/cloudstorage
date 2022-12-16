@@ -17,6 +17,7 @@ export function useRequestLazy<P extends TRequestParams<{}>, R>({ request }: Use
         async (params: P) => {
             try {
                 setData(null);
+                setError(null);
                 setFetched(false);
                 setCalled(true);
                 setLoading(true);
