@@ -5,8 +5,10 @@ import { SessionLayout } from 'layouts/SessionLayout';
 import { SpacePage } from 'pages/SpacePage';
 import { Overlay } from 'layouts/Overlay';
 import { LoadingLayout } from 'layouts/LoadingLayout';
+import { withUserContext } from 'hocs/withUserContext';
+import { compose } from 'utils/helpers';
 
-export function App() {
+function App() {
     const { authorized, rootDirId } = React.useContext(UserContext);
 
     return (
@@ -27,3 +29,6 @@ export function App() {
         </Overlay>
     );
 }
+
+const _App = compose(withUserContext)(App);
+export { _App as App };

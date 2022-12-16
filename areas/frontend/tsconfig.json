@@ -32,6 +32,7 @@
         "paths": {
             "api": ["api"],
 			"context": ["context"],
+			"hocs": ["hocs"],
 			"layouts": ["layouts"],
 			"pages": ["pages"],
             "utils": ["utils"]
