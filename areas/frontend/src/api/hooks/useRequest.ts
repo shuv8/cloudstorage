@@ -11,22 +11,30 @@ export function useRequestLazy<P extends TRequestParams<{}>, R>({ request }: Use
     const [loading, setLoading] = React.useState<TRequestService<P, R>['loading']>(false);
     const [error, setError] = React.useState<TRequestService<P, R>['error']>(null);
     const [fetched, setFetched] = React.useState<boolean>(false);
+    const [called, setCalled] = React.useState<boolean>(false);
 
-    const fetch: TRequestService<P, R>['fetch'] = React.useCallback(async (params: P) => {
-        try {
-            setLoading(true);
-            setData((await request(params)).data);
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                setError(error);
-            } else {
-                setError(new Error('Произошла непредвиденная ошибка'));
+    const fetch: TRequestService<P, R>['fetch'] = React.useCallback(
+        async (params: P) => {
+            try {
+                setData(null);
+                setError(null);
+                setFetched(false);
+                setCalled(true);
+                setLoading(true);
+                setData((await request(params)).data);
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    setError(error);
+                } else {
+                    setError(new Error('Произошла непредвиденная ошибка'));
+                }
+            } finally {
+                setLoading(false);
+                setFetched(true);
             }
-        } finally {
-            setLoading(false);
-            setFetched(true);
-        }
-    }, []);
+        },
+        [request]
+    );
 
     return {
         data,
@@ -34,6 +42,7 @@ export function useRequestLazy<P extends TRequestParams<{}>, R>({ request }: Use
         error,
         fetch,
         fetched,
+        called,
     };
 }
 
