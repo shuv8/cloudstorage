@@ -3,6 +3,8 @@ import type { Space } from 'api';
 import type { TRootDirId, TRootSpaceId } from './types';
 
 export type TUserContext = {
+    authorized: boolean;
+    setAuthorized(authorized: boolean): void;
     rootSpaceId: TRootSpaceId;
     setRootSpaceId(id: TRootSpaceId): void;
     rootDirId: TRootDirId;

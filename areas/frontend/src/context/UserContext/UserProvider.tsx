@@ -8,6 +8,7 @@ type UserProviderProps = {
 };
 
 export function UserProvider(props: UserProviderProps) {
+    const [authorized, setAuthorized] = React.useState<TUserContext['authorized']>(false);
     const [rootSpaceId, setRootSpaceId] = React.useState<TUserContext['rootSpaceId']>(null);
     const [rootDirId, setRootDirId] = React.useState<TUserContext['rootDirId']>(null);
     const [spaces, setSpaces] = React.useState<TUserContext['spaces']>([]);
@@ -15,8 +16,10 @@ export function UserProvider(props: UserProviderProps) {
     return (
         <UserContext.Provider
             value={{
+                authorized,
                 rootDirId,
                 rootSpaceId,
+                setAuthorized,
                 setRootDirId,
                 setRootSpaceId,
                 setSpaces,
