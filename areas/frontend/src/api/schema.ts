@@ -34,10 +34,7 @@ export type File = Item & {
     type: string;
 };
 
-export type DirectoryPath =  {
-    id: string;
-    name: string;
-};
+export type DirectoryPath = Item[];
 
 export type Access = {
     class: string;
