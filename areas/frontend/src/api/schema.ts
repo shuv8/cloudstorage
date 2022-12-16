@@ -26,11 +26,11 @@ type Item = {
 };
 
 export type Directory = Item & {
-    entity: typeof ITEM_ENTITY['file'];
+    entity: typeof ITEM_ENTITY['directory'];
 };
 
 export type File = Item & {
-    entity: typeof ITEM_ENTITY['directory'];
+    entity: typeof ITEM_ENTITY['file'];
     type: string;
 };
 
