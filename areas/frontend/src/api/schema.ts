@@ -29,6 +29,13 @@ export type Directory = Item & {
     entity: typeof ITEM_ENTITY['directory'];
 };
 
+export type SpaceItem = {
+    id: string;
+    name: string;
+    entity: typeof ITEM_ENTITY['directory'];
+    items: (Directory | File)[];
+};
+
 export type File = Item & {
     entity: typeof ITEM_ENTITY['file'];
     type: string;
@@ -40,4 +47,8 @@ export type Access = {
     class: string;
     type: string;
     content: string;
+};
+
+export type Department = {
+    department_name: string;
 };

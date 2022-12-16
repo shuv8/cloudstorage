@@ -27,13 +27,13 @@ export * from './requests/createDir';
 // TODO: export * from './requests/download';
 
 // Manipulation
-// TODO: export * from './requests/rename';
-// TODO: export * from './requests/move';
-// TODO: export * from './requests/delete';
-// TODO: export * from './requests/copy';
+export * from './requests/rename';
+export * from './requests/move';
+export * from './requests/delete';
+export * from './requests/copy';
 
 // Departments
-// TODO: export * from './requests/getDepartment';
+export * from './requests/getDepartment';
 // TODO: export * from './requests/createDepartment';
 // TODO: export * from './requests/deleteDepartment';
 // TODO: export * from './requests/getDepartmentUsers';
