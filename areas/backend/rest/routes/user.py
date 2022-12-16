@@ -171,11 +171,42 @@ def get_space_content(space_id):
         items_content = []
         for item in items:
             if type(item) == Directory:
+
+                inner_items, _ = dataStoreController.get_dir_content(user.email, item.id)
+
+                items_inner_content = []
+                for item_ in inner_items:
+                    if type(item_) == File:
+                        items_inner_content.append(
+                            {
+                                "id": str(item_.get_id()),
+                                "name": item_.name,
+                                "type": item_.type,
+                                "entity": item_.__class__.__name__,
+                            }
+                        )
+                    if type(item_) == Directory:
+                        items_inner_content.append(
+                            {
+                                "id": str(item_.get_id()),
+                                "name": item_.name,
+                                "entity": item_.__class__.__name__,
+                            }
+                        )
                 items_content.append(
                     {
                         "id": str(item.get_id()),
                         "name": item.name,
-                        "type": "",
+                        "entity": item.__class__.__name__,
+                        "items": items_inner_content
+                    }
+                )
+            if type(item) == File:
+                items_content.append(
+                    {
+                        "id": str(item.get_id()),
+                        "name": item.name,
+                        "type": item.type,
                         "entity": item.__class__.__name__,
                     }
                 )

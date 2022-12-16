@@ -173,7 +173,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/item"
+                    "$ref": "#/components/schemas/space_item"
                   }
                 }
               }
@@ -1324,6 +1324,28 @@
           },
           "entity": {
             "type": "string"
+          }
+        }
+      },
+      "space_item": {
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+               "$ref": "#/components/schemas/item"
+            }
           }
         }
       },

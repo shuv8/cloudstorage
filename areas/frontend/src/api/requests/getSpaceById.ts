@@ -2,13 +2,14 @@ import type { Directory, File } from '../schema';
 import { TRequest, TRequestParamsWithInput } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
+import { SpaceItem } from '../schema';
 
 export type GetSpaceByIdRequestInput = {
     spaceId: string;
 };
 
 type GetSpaceByIdRequestResult = {
-    items: (Directory | File)[];
+    items: SpaceItem[];
 };
 
 const getSpaceById: TRequest<TRequestParamsWithInput<GetSpaceByIdRequestInput>, GetSpaceByIdRequestResult> = ({
