@@ -45,14 +45,16 @@ function SpacePage(props: SpacePageProps) {
 
     return (
         <Stack height="100%" divider={<Divider />}>
-            <Stack direction="row" divider={<Divider orientation="vertical" flexItem />}>
-                {path.map(({ id, name }) => (
-                    <Button key={id} id={id} onClick={handlePathClick} color="primary">
-                        {name}
-                    </Button>
-                ))}
-                {activeDirectory && <Button color="inherit">{activeDirectory.name}</Button>}
-            </Stack>
+            {(path.length || activeDirectory) && (
+                <Stack direction="row" divider={<Divider orientation="vertical" flexItem />}>
+                    {path.map(({ id, name }) => (
+                        <Button key={id} id={id} onClick={handlePathClick} color="primary">
+                            {name}
+                        </Button>
+                    ))}
+                    {activeDirectory && <Button color="inherit">{activeDirectory.name}</Button>}
+                </Stack>
+            )}
 
             <Box height="100%">
                 <ItemsGrid dirId={dirId} onItemClick={handleItemClick} />
