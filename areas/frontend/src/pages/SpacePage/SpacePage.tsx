@@ -11,6 +11,7 @@ import { AxiosError } from 'axios';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ITEM_ENTITY, useGetDir } from 'api';
+import { SpaceProvider } from './context/SpaceContext';
 
 type SpacePageProps = {
     dirId: string;
@@ -108,6 +109,14 @@ function SpacePage(props: SpacePageProps) {
     );
 }
 
+function SpacePageWithContext(props: SpacePageProps) {
+    return (
+        <SpaceProvider>
+            <SpacePage {...props} />
+        </SpaceProvider>
+    );
+}
+
 function Mediator() {
     const { dirId } = useParams<'dirId'>();
     const navigate = useNavigate();
@@ -117,7 +126,7 @@ function Mediator() {
         return null;
     }
 
-    return <SpacePage dirId={dirId} />;
+    return <SpacePageWithContext dirId={dirId} />;
 }
 
 export { Mediator as SpacePage };
