@@ -17,7 +17,7 @@ type SessionLayoutProps = {
 
 export function SessionLayout(props: SessionLayoutProps) {
     const navigate = useNavigate();
-    const { data, loading, error, fetch } = useGetSpaceByIdLazy();
+    const { data, loading, error, fetch, fetched, called } = useGetSpaceByIdLazy();
 
     React.useEffect(() => {
         if (data?.items.length) {
@@ -39,7 +39,7 @@ export function SessionLayout(props: SessionLayoutProps) {
                 <SpacesList onSpaceClick={handleSpaceClick} />
             </Box>
             <Box flex={1}>
-                {loading ? (
+                {called && (loading || !fetched) ? (
                     <CenteredContainer>
                         <CircularProgress />
                     </CenteredContainer>
