@@ -10,6 +10,7 @@ export function useRequestLazy<P extends TRequestParams<{}>, R>({ request }: Use
     const [data, setData] = React.useState<TRequestService<P, R>['data']>(null);
     const [loading, setLoading] = React.useState<TRequestService<P, R>['loading']>(false);
     const [error, setError] = React.useState<TRequestService<P, R>['error']>(null);
+    const [fetched, setFetched] = React.useState<boolean>(false);
 
     const fetch: TRequestService<P, R>['fetch'] = React.useCallback(async (params: P) => {
         try {
@@ -23,6 +24,7 @@ export function useRequestLazy<P extends TRequestParams<{}>, R>({ request }: Use
             }
         } finally {
             setLoading(false);
+            setFetched(true);
         }
     }, []);
 
@@ -31,6 +33,7 @@ export function useRequestLazy<P extends TRequestParams<{}>, R>({ request }: Use
         loading,
         error,
         fetch,
+        fetched,
     };
 }
 
