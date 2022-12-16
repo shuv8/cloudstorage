@@ -20,7 +20,7 @@ const getSpaceById: TRequest<TRequestParamsWithInput<GetSpaceByIdRequestInput>, 
 };
 
 export function useGetSpaceByIdLazy() {
-    return useRequestLazy<TRequestParamsWithInput<GetSpaceByIdRequestInput>, {}>({
+    return useRequestLazy<TRequestParamsWithInput<GetSpaceByIdRequestInput>, GetSpaceByIdRequestResult>({
         request: getSpaceById,
     });
 }
