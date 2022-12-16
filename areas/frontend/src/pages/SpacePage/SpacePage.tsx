@@ -22,42 +22,42 @@ function SpacePage(props: SpacePageProps) {
         navigate({ pathname: `/dirs/${id}` });
     };
 
-    const handleItemClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const { id } = event.currentTarget;
+    const handleItemClick = React.useCallback(
+        (event: React.MouseEvent<HTMLButtonElement>) => {
+            const { id } = event.currentTarget;
 
-        const item = items.find((_item) => _item.id === id);
-        if (!item) {
-            // TODO: ALERT CALL
-            return;
-        }
+            const item = items.find((_item) => _item.id === id);
+            if (!item) {
+                // TODO: ALERT CALL
+                return;
+            }
 
-        if (item.entity === 'Directory') {
-            navigate({ pathname: `/dirs/${id}` });
-        }
+            if (item.entity === 'Directory') {
+                navigate({ pathname: `/dirs/${id}` });
+            }
 
-        if (item.entity === 'File') {
-            // TODO: нада думать
-        }
-    };
+            if (item.entity === 'File') {
+                // TODO: нада думать
+            }
+        },
+        [items, navigate]
+    );
 
     return (
-        <>
-            <Box>
-                <Stack direction="row" spacing="8px" divider={<Divider orientation="vertical" flexItem />}>
-                    {path.map(({ id, name }) => (
-                        <Button key={id} id={id} onClick={handlePathClick} color="primary">
-                            {name}
-                        </Button>
-                    ))}
-                    <Button color="inherit">{activeDirectory?.name}</Button>
-                </Stack>
-                <Divider />
-            </Box>
+        <Stack height="100%" divider={<Divider />}>
+            <Stack direction="row" divider={<Divider orientation="vertical" flexItem />}>
+                {path.map(({ id, name }) => (
+                    <Button key={id} id={id} onClick={handlePathClick} color="primary">
+                        {name}
+                    </Button>
+                ))}
+                {activeDirectory && <Button color="inherit">{activeDirectory.name}</Button>}
+            </Stack>
 
             <Box height="100%">
                 <ItemsGrid dirId={dirId} onItemClick={handleItemClick} />
             </Box>
-        </>
+        </Stack>
     );
 }
 

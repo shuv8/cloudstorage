@@ -11,15 +11,8 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import React from 'react';
 import { ITEM_ENTITY, useGetDir } from 'api';
+import { CenteredContainer } from 'components/CenteredContainer';
 import { SpaceContext } from '../context/SpaceContext';
-
-function StatusContainer(props: React.PropsWithChildren) {
-    return (
-        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100%">
-            {props.children}
-        </Box>
-    );
-}
 
 type ItemsGridProps = {
     dirId: string;
@@ -51,27 +44,31 @@ function ItemsGrid(props: ItemsGridProps) {
 
     if (loading || !fetched) {
         return (
-            <StatusContainer>
+            <CenteredContainer>
                 <CircularProgress />
-            </StatusContainer>
+            </CenteredContainer>
         );
     }
 
     if (error) {
         return (
-            <StatusContainer>
+            <CenteredContainer>
                 <ErrorIcon sx={{ fontSize: 168, color: 'red' }} />
-                <Typography>Не удалось загрузить содержимое</Typography>
-            </StatusContainer>
+                <Typography>
+                    Не удалось загрузить
+                    <br />
+                    содержимое
+                </Typography>
+            </CenteredContainer>
         );
     }
 
     if (!data?.items.length) {
         return (
-            <StatusContainer>
+            <CenteredContainer>
                 <AutoAwesomeIcon sx={{ fontSize: 168, color: 'yellow' }} />
                 <Typography>НИХУЯ НЕТ</Typography>
-            </StatusContainer>
+            </CenteredContainer>
         );
     }
 
