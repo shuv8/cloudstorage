@@ -27,6 +27,7 @@ module.exports = {
             hocs: path.resolve(__dirname, 'src/hocs'),
             layouts: path.resolve(__dirname, 'src/layouts'),
             pages: path.resolve(__dirname, 'src/pages'),
+            components: path.resolve(__dirname, 'src/components'),
             utils: path.resolve(__dirname, 'src/utils'),
         },
         extensions: ['.tsx', '.ts', '.jsx', '.js'],
