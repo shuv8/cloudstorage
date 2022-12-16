@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import React from 'react';
-import { ITEM_ENTITY, useGetDir } from 'api';
+import { ITEM_ENTITY, useGetDirLazy } from 'api';
 import { CenteredContainer } from 'components/CenteredContainer';
 import { SpaceContext } from '../context/SpaceContext';
 
@@ -23,7 +23,7 @@ function ItemsGrid(props: ItemsGridProps) {
     const { dirId, onItemClick } = props;
 
     const { setActiveDirectory, setPath, setItems } = React.useContext(SpaceContext);
-    const { data, loading, error, fetch, fetched } = useGetDir({ input: { dirId } });
+    const { data, loading, error, fetch, fetched } = useGetDirLazy();
 
     React.useEffect(() => {
         fetch({ input: { dirId } });
