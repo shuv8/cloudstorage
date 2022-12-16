@@ -19,6 +19,7 @@ import {
 } from 'api';
 import { SessionLayout } from 'layouts/SessionLayout';
 import { SpacePage } from 'pages/SpacePage';
+import { Overlay } from 'layouts/Overlay';
 
 export function App() {
     // Authentication part
@@ -130,16 +131,18 @@ export function App() {
     }
 
     return (
-        <BrowserRouter>
-            {!!whoAmIService.data && (
-                <SessionLayout>
-                    <Routes>
-                        <Route path="/" element={<Navigate to={`dirs/${whoAmIService.data.rootDirId}`} />} />
-                        <Route path="dirs/:dirId" element={<SpacePage />} />
-                        <Route path="*" element={<div>404</div>} />
-                    </Routes>
-                </SessionLayout>
-            )}
-        </BrowserRouter>
+        <Overlay>
+            <BrowserRouter>
+                {!!whoAmIService.data && (
+                    <SessionLayout>
+                        <Routes>
+                            <Route path="/" element={<Navigate to={`dirs/${whoAmIService.data.rootDirId}`} />} />
+                            <Route path="dirs/:dirId" element={<SpacePage />} />
+                            <Route path="*" element={<div>404</div>} />
+                        </Routes>
+                    </SessionLayout>
+                )}
+            </BrowserRouter>
+        </Overlay>
     );
 }
