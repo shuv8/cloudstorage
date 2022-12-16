@@ -67,7 +67,7 @@ function ItemsGrid(props: ItemsGridProps) {
         return (
             <CenteredContainer>
                 <AutoAwesomeIcon sx={{ fontSize: 168, color: 'yellow' }} />
-                <Typography>НИХУЯ НЕТ</Typography>
+                <Typography>Папка пуста</Typography>
             </CenteredContainer>
         );
     }
