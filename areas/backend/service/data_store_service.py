@@ -83,11 +83,12 @@ class DataStoreService:
 
         if directory is None:
             possible_shared_url_space_id = self.data_store_storage_repo.find_possible_url_access(dir_id)
-            possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(possible_shared_url_space_id)
-            directory, path = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
+            if possible_shared_url_space_id is None:
+                raise ItemNotFoundError
 
-        if directory is None:
-            raise ItemNotFoundError
+            possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(possible_shared_url_space_id)
+
+            directory, path = self.get_dir_in_url_shared_space(possible_shared_url_space, dir_id)
 
         items: list[BaseStorageItem] = []
         items.extend(directory.get_directory_manager().items)
@@ -240,18 +241,12 @@ class DataStoreService:
                 file = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
                 if file is not None:
                     return file
-                file = self.get_file_in_directory_by_id(
-                    file_manager=space.get_directory_manager().file_manager,
-                    id_=item_id
-                )
-                if file is not None:
-                    return file
 
         possible_shared_url_space_id = self.data_store_storage_repo.find_possible_url_access_for_file(item_id)
-        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(possible_shared_url_space_id)
-
-        if possible_shared_url_space is None:
+        if possible_shared_url_space_id is None:
             raise FileNotFoundError
+
+        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(possible_shared_url_space_id)
 
         file = self.get_file_in_directory_by_id(
             file_manager=possible_shared_url_space.get_directory_manager().file_manager,
@@ -260,7 +255,7 @@ class DataStoreService:
         if file is not None:
             return file
 
-        raise FileNotFoundError
+        raise FileNotFoundError # pragma: no cover reason: We never get this error
 
     def get_item_in_space_by_id(self, user_mail: str, space_id: UUID, item_id: UUID) -> Optional[BaseStorageItem]:
         space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
@@ -434,7 +429,7 @@ class DataStoreService:
                 result = self.data_store_storage_repo.get_binary_dir_by_id(item)
                 return [result, item]
         else:
-            raise ItemNotFoundError
+            raise ItemNotFoundError  # pragma: no cover reason: We never get this error
 
     def get_binary_file_from_cloud_by_id(self, file_id: uuid.UUID, file_type: str) -> Optional[BinaryIO]:
         return self.data_store_storage_repo.get_binary_file_from_cloud_by_id(file_id, file_type)

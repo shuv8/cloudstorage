@@ -36,8 +36,6 @@ class UserRepository:
     def get_user_departments_by_id(self, _id: UUID) -> list[str]:
         from database.database import UserModel
         user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
-        if user is None:
-            raise UserNotFoundError
         return [department.name for department in user.departments]
 
     def get_user_from_db_by_email(self, email: str) -> User:

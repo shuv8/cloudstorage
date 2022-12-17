@@ -50,18 +50,16 @@ class DataStoreStorageRepository:
     def find_possible_url_access(self, dir_id: uuid.UUID) -> Optional[uuid.UUID]:
         parent_id = dir_id
         while parent_id is not None:
-            url_space = UrlSpaceModel.query.filter_by(root_directory_id=str(dir_id)).first()
+            url_space = UrlSpaceModel.query.filter_by(root_directory_id=str(parent_id)).first()
             if url_space is not None:
                 return url_space.id
 
             directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(parent_id)).first()
 
             if directory is None:
-                raise ItemNotFoundError
+                return None
 
             parent_id = directory.parent_id
-
-        return None
 
     def find_possible_url_access_for_file(self, file_id: uuid.UUID) -> Optional[uuid.UUID]:
         file: FileModel = FileModel.query.filter_by(id=str(file_id)).first()

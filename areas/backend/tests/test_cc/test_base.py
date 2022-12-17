@@ -1,6 +1,6 @@
 import pytest
 
-from tests.test_cc.conftest_constants import url_space_1_id, root_dir_1_id, space_1_id, dir_3_id, dir_5_id
+from tests.test_cc.conftest_constants import root_dir_1_id, space_1_id, dir_3_id, dir_5_id
 
 
 class TestBase:
@@ -17,28 +17,47 @@ class TestBase:
         assert response.status_code == 404
 
     def test_dir_content(self, app_client_user):
-        response = app_client_user.get(
-            path=f'/get_dir/{root_dir_1_id}')
+        response = app_client_user.get(path=f'/get_dir/{root_dir_1_id}')
         assert response.status_code == 200
 
-        response = app_client_user.get(
-            path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa0')
+        response = app_client_user.get(path=f'/get_dir/abd9cd7f-9ffd-42b0-bce4-eb14b51a1fa0')
         assert response.status_code == 404
 
-    def test_dir_content_url_space(self, app_client_user):
-        response = app_client_user.get(
-            path=f'/get_dir/{root_dir_1_id}')
+    def test_dir_content_sub_sub_folder(self, app_client_user):
+        response = app_client_user.get(path=f'/get_dir/{dir_5_id}')
         assert response.status_code == 200
 
-    def test_dir_content_url_space_sub_folder(self, app_client_user):
-        response = app_client_user.get(
-            path=f'/get_dir/{dir_3_id}')
+    def test_dir_content_url_space(self, client, fill_db):
+        login_data = {'email': 'user2@mail.com', 'password': 'password1'}
+        response = client.put('/login', json=login_data)
         assert response.status_code == 200
 
-    def test_dir_content_url_space_sub_folder_2(self, app_client_user):
-        response = app_client_user.get(
-            path=f'/get_dir/{dir_5_id}')
+        response = client.get(path=f'/get_dir/{root_dir_1_id}')
         assert response.status_code == 200
+
+    def test_dir_content_url_space_sub_folder(self, client, fill_db):
+        login_data = {'email': 'user2@mail.com', 'password': 'password1'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.get(path=f'/get_dir/{dir_3_id}')
+        assert response.status_code == 200
+
+    def test_dir_content_url_space_sub_sub_folder(self, client, fill_db):
+        login_data = {'email': 'user2@mail.com', 'password': 'password1'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.get(path=f'/get_dir/{dir_5_id}')
+        assert response.status_code == 200
+
+    def test_dir_content_url_space_sub_sub_folder_error(self, client, fill_db):
+        login_data = {'email': 'user2@mail.com', 'password': 'password1'}
+        response = client.put('/login', json=login_data)
+        assert response.status_code == 200
+
+        response = client.get(path=f'/get_dir/bbd9cd7f-9ffd-0000-bce4-eb14b51a1f09')
+        assert response.status_code == 404
 
     def test_dir_create(self, app_client_user):
         response = app_client_user.post(
