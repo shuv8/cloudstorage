@@ -25,7 +25,7 @@ def user_space():
         test_file = FileModel(
             id=file_1_id,
             name="file_for",
-            type=".vasya",
+            type=".png",
         )
 
         test_dir_2 = DirectoryModel(

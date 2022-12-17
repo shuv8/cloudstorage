@@ -62,10 +62,10 @@ class DataStoreController:
         return self.data_store_service.move_item(item_id=item_id, space_id=space_id, user_mail=user_mail,
                                                  target_space=target_space, target_directory_id=target_directory_id)
 
-    def get_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
+    def get_file_by_id(self, user_mail: str, item_id: UUID) -> File:
         return self.data_store_service.get_file_by_id(user_mail, item_id)
 
-    def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
+    def download_item(self, user_mail: str, item_id: UUID) -> [BinaryIO, File]:
         return self.data_store_service.download_item(user_mail=user_mail, item_id=item_id)
 
     def delete_item(self, user_mail: str, space_id, item_id: UUID) -> bool:

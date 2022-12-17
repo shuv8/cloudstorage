@@ -201,15 +201,6 @@ def get_space_content(space_id):
                         "items": items_inner_content
                     }
                 )
-            if type(item) == File:
-                items_content.append(
-                    {
-                        "id": str(item.get_id()),
-                        "name": item.name,
-                        "type": item.type,
-                        "entity": item.__class__.__name__,
-                    }
-                )
 
         return jsonify(
             {
@@ -337,7 +328,7 @@ def view_file_by_id(file_id):
     """
     user = get_user_by_token()
     try:
-        file: Optional[File] = dataStoreController.get_item_by_id(user.email, UUID(hex=file_id))
+        file: Optional[File] = dataStoreController.get_file_by_id(user.email, UUID(hex=file_id))
     except FileNotFoundError:
         return jsonify({'error': 'File not found'}), 404
 
@@ -627,18 +618,13 @@ def download_by_item_id(item_id):
     user = get_user_by_token()
     try:
         result = dataStoreController.download_item(user.email, item_id)
-        if result[0] is not None:
-            if isinstance(result[1], File):
-                file_name = result[1].name + result[1].type
-                return send_file(result[0], download_name=file_name, as_attachment=True), 200
-            elif isinstance(result[1], Directory):
-                file_name = result[1].name
-                return send_file(result[0], download_name=file_name, as_attachment=True), 200
-        else:
-            return jsonify({'error': 'No such file or directory'}), 404
+        if isinstance(result[1], File):
+            file_name = result[1].name + result[1].type
+            return send_file(result[0], download_name=file_name, as_attachment=True), 200
+        elif isinstance(result[1], Directory):
+            file_name = result[1].name
+            return send_file(result[0], download_name=file_name, as_attachment=True), 200
     except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
-    except FileNotFoundError:
         return jsonify({'error': 'Item not found'}), 404
 
 

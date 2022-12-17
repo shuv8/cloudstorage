@@ -420,10 +420,12 @@ class DataStoreService:
         else:
             raise ItemNotFoundError
 
-    def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
-        item = self.get_file_by_id(user_mail=user_mail, item_id=item_id)
-        if item is None:
+    def download_item(self, user_mail: str, item_id: UUID) -> [BinaryIO, File]:
+        try:
+            item = self.get_file_by_id(user_mail=user_mail, item_id=item_id)
+        except FileNotFoundError:
             item = self.get_dir_content(user_mail=user_mail, dir_id=item_id)
+
         if item is not None:
             if isinstance(item, File):
                 result = self.data_store_storage_repo.get_binary_file_from_cloud_by_id(item.id, item.type)
@@ -432,7 +434,7 @@ class DataStoreService:
                 result = self.data_store_storage_repo.get_binary_dir_by_id(item)
                 return [result, item]
         else:
-            return [None, None]
+            raise ItemNotFoundError
 
     def get_binary_file_from_cloud_by_id(self, file_id: uuid.UUID, file_type: str) -> Optional[BinaryIO]:
         return self.data_store_storage_repo.get_binary_file_from_cloud_by_id(file_id, file_type)

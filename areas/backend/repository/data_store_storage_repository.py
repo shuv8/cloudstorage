@@ -69,9 +69,9 @@ class DataStoreStorageRepository:
         if file is None:
             return None
 
-        parent_dir = file.directory
+        parent_dir = file.directory[0]
 
-        return self.find_possible_url_access(parent_dir)
+        return self.find_possible_url_access(parent_dir.id)
 
     def get_url_space_content(self, space_id: uuid.UUID) -> Optional[Directory]:
         url_space: UrlSpaceModel = UrlSpaceModel.query.filter_by(id=str(space_id)).first()
