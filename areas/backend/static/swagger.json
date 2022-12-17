@@ -283,17 +283,9 @@
         }
       }
     },
-    "/file/{space_id}/{file_id}/view": {
+    "/file/{file_id}/view": {
       "get": {
         "parameters": [
-          {
-            "name": "space_id",
-            "in": "path",
-            "description": "Id of space to find file in",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "file_id",
             "in": "path",
@@ -1102,17 +1094,9 @@
         }
       }
     },
-    "/download/{space_id}/{item_id}": {
+    "/download/{item_id}": {
       "get": {
         "parameters": [
-          {
-            "name": "space_id",
-            "in": "path",
-            "description": "space where located file or directory to download",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "item_id",
             "in": "path",

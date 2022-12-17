@@ -78,7 +78,7 @@ class DataStoreService:
 
         for space in spaces:
             directory, path = self.get_user_dir_in_space(space, dir_id)
-            if directory is None:
+            if directory is not None:
                 break
 
         if directory is None:
@@ -214,7 +214,7 @@ class DataStoreService:
             self,
             file_manager: FileManager,
             id_: UUID
-    ) -> Optional[BaseStorageItem]:
+    ) -> Optional[File]:
         for file in file_manager.items:
             if str(file.id) == str(id_):
                 return file
@@ -232,7 +232,37 @@ class DataStoreService:
         new_file = File(new_file_name, new_file_type, _id=uuid.uuid4())
         return self.data_store_storage_repo.add_new_file(dir_id, new_file, new_file_data)
 
-    def get_file_in_space_by_id(self, user_mail: str, space_id: UUID, item_id: UUID) -> Optional[BaseStorageItem]:
+    def get_file_by_id(self, user_mail: str, item_id: UUID) -> File:
+        spaces = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail).get_spaces()
+
+        for space in spaces:
+            for directory in space.get_directory_manager().items:
+                file = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
+                if file is not None:
+                    return file
+                file = self.get_file_in_directory_by_id(
+                    file_manager=space.get_directory_manager().file_manager,
+                    id_=item_id
+                )
+                if file is not None:
+                    return file
+
+        possible_shared_url_space_id = self.data_store_storage_repo.find_possible_url_access_for_file(item_id)
+        possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(possible_shared_url_space_id)
+
+        if possible_shared_url_space is None:
+            raise FileNotFoundError
+
+        file = self.get_file_in_directory_by_id(
+            file_manager=possible_shared_url_space.get_directory_manager().file_manager,
+            id_=item_id
+        )
+        if file is not None:
+            return file
+
+        raise FileNotFoundError
+
+    def get_item_in_space_by_id(self, user_mail: str, space_id: UUID, item_id: UUID) -> Optional[BaseStorageItem]:
         space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
         possible_shared_url_space = self.data_store_storage_repo.get_url_space_content(space_id)
 
@@ -366,7 +396,7 @@ class DataStoreService:
         return item.accesses
 
     def rename_item_by_id(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
-        item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
+        item = self.get_item_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
             if not self.check_edit_access(user_mail, space_id, item):
                 raise AccessError
@@ -377,7 +407,7 @@ class DataStoreService:
             return None
 
     def move_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_directory_id: UUID, target_space: UUID):
-        item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
+        item = self.get_item_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
             if not self.check_edit_access(user_mail, space_id, item):
                 raise AccessError
@@ -390,8 +420,10 @@ class DataStoreService:
         else:
             raise ItemNotFoundError
 
-    def download_item(self, user_mail: str, space_id: UUID, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
-        item = self.get_file_in_space_by_id(user_mail=user_mail, space_id=space_id, item_id=item_id)
+    def download_item(self, user_mail: str, item_id: UUID) -> [Optional[BinaryIO], Optional[File]]:
+        item = self.get_file_by_id(user_mail=user_mail, item_id=item_id)
+        if item is None:
+            item = self.get_dir_content(user_mail=user_mail, dir_id=item_id)
         if item is not None:
             if isinstance(item, File):
                 result = self.data_store_storage_repo.get_binary_file_from_cloud_by_id(item.id, item.type)
@@ -427,9 +459,9 @@ class DataStoreService:
             raise ItemNotFoundError
 
     def copy_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_space: UUID, target_directory_id: UUID):
-        item = self.get_file_in_space_by_id(user_mail, space_id, item_id)
+        item = self.get_item_in_space_by_id(user_mail, space_id, item_id)
         if item is not None:
-            target_directory = self.get_file_in_space_by_id(user_mail, target_space, target_directory_id)
+            target_directory = self.get_item_in_space_by_id(user_mail, target_space, target_directory_id)
             if target_directory is not None:
                 if not self.check_edit_access(user_mail, target_space, target_directory):
                     raise AccessError

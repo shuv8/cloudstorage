@@ -326,9 +326,9 @@ def add_new_file():
     return jsonify({'id': new_file_id}), 200
 
 
-@USER_REQUEST_API.route('/file/<space_id>/<file_id>/view', methods=['GET'])
+@USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
 @token_required
-def view_file_by_id(space_id, file_id):
+def view_file_by_id(file_id):
     """
     Path:
         - file_id: id of file to view
@@ -336,8 +336,9 @@ def view_file_by_id(space_id, file_id):
         file to view
     """
     user = get_user_by_token()
-    file: Optional[File] = dataStoreController.get_item_by_id(user.email, UUID(hex=space_id), UUID(hex=file_id))
-    if file is None:
+    try:
+        file: Optional[File] = dataStoreController.get_item_by_id(user.email, UUID(hex=file_id))
+    except FileNotFoundError:
         return jsonify({'error': 'File not found'}), 404
 
     allowed_file_type_to_view = ['.png', '.pdf',
@@ -353,6 +354,7 @@ def view_file_by_id(space_id, file_id):
     }
     if file.type not in allowed_file_type_to_view:
         return jsonify({'error': 'Cannot view such type of file'}), 403
+
     try:
         binary_file = dataStoreController.get_binary_file_from_cloud_by_id(file.id, file.type)
         return send_file(binary_file, mimetype_dict[file.type])
@@ -612,9 +614,9 @@ def move_item(space_id, item_id):
         return jsonify({'error': 'Item not found'}), 404
 
 
-@USER_REQUEST_API.route('/download/<space_id>/<item_id>', methods=['GET'])
+@USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
 @token_required
-def download_by_item_id(space_id, item_id):
+def download_by_item_id(item_id):
     """
     Path:
         - space_id: id of space with item
@@ -623,16 +625,22 @@ def download_by_item_id(space_id, item_id):
         file
     """
     user = get_user_by_token()
-    result = dataStoreController.download_item(user.email, space_id, item_id)
-    if result[0] is not None:
-        if isinstance(result[1], File):
-            file_name = result[1].name + result[1].type
-            return send_file(result[0], download_name=file_name, as_attachment=True), 200
-        elif isinstance(result[1], Directory):
-            file_name = result[1].name
-            return send_file(result[0], download_name=file_name, as_attachment=True), 200
-    else:
-        return jsonify({'error': 'No such file or directory'}), 404
+    try:
+        result = dataStoreController.download_item(user.email, item_id)
+        if result[0] is not None:
+            if isinstance(result[1], File):
+                file_name = result[1].name + result[1].type
+                return send_file(result[0], download_name=file_name, as_attachment=True), 200
+            elif isinstance(result[1], Directory):
+                file_name = result[1].name
+                return send_file(result[0], download_name=file_name, as_attachment=True), 200
+        else:
+            return jsonify({'error': 'No such file or directory'}), 404
+    except ItemNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
+    except FileNotFoundError:
+        return jsonify({'error': 'Item not found'}), 404
+
 
 
 @USER_REQUEST_API.route('/delete/<space_id>/<item_id>', methods=['DELETE'])
