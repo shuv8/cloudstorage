@@ -12,7 +12,7 @@ const getSpaces: TRequest<TRequestParams<{}>, GetSpacesRequestResult> = ({ confi
 };
 
 export function useGetSpacesLazy() {
-    return useRequestLazy<TRequestParams<{}>, {}>({
+    return useRequestLazy<TRequestParams<{}>, GetSpacesRequestResult>({
         request: getSpaces,
     });
 }

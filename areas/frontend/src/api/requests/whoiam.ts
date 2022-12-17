@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import type { User } from '../schema';
 import type { TRequest, TRequestParams } from '../types';
 import { useRequest, useRequestLazy } from '../hooks/useRequest';
 import { instance } from '../instance';
@@ -10,12 +12,15 @@ type WhoAmIRequestResult = {
     root_dir_id: string;
 };
 
-const who: TRequest<TRequestParams<{}>, WhoAmIRequestResult> = ({ config }) => {
-    return instance.get(`whoiam`, { ...config });
+const who: TRequest<TRequestParams<{}>, User> = async ({ config }) => {
+    const result = await instance.get<{}, AxiosResponse<WhoAmIRequestResult>, {}>(`whoiam`, { ...config });
+    const { root_dir_id, root_space_id } = result.data;
+    const adaptedData = { rootDirId: root_dir_id, rootSpaceId: root_space_id };
+    return { ...result, data: adaptedData };
 };
 
 export function useWhoAmILazy() {
-    return useRequestLazy<TRequestParams<{}>, WhoAmIRequestResult>({
+    return useRequestLazy<TRequestParams<{}>, User>({
         request: who,
     });
 }
