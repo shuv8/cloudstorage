@@ -130,13 +130,20 @@ def get_spaces():
     for item in items:
 
         space_name = "Main"
+        owner = user.email
         if item.get_space_type() == SpaceType.Shared:
             space_name = item.get_directory_manager().items[0].name  # We have only 1 root folder in shared space
+            try:
+                owner = item.get_directory_manager().items[0].accesses[0].owner
+            except:
+                directory: Directory = item.get_directory_manager().items[0]
+                owner = directory.directory_manager.get_file_manager().items[0].accesses[0].owner
 
         spaces_content.append(
             {
                 "type": str(item.get_space_type().name),
                 "name": space_name,
+                "owner": owner,
                 "id": str(item.get_id()),
             }
         )
@@ -204,7 +211,7 @@ def get_space_content(space_id):
 
         return jsonify(
             {
-                "items": items_content
+                "items": items_content,
             }
         ), 200
     except SpaceNotFoundError:

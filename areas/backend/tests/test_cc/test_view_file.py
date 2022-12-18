@@ -30,6 +30,7 @@ class TestViewFileById:
             endpoint=endpoint,
             access_key=access_key,
             secret_key=secret_key,
+            secure=False
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         response = app_client_user.get(f'/file/{_id}/view')
@@ -50,6 +51,7 @@ class TestViewFileById:
             endpoint=endpoint,
             access_key=access_key,
             secret_key=secret_key,
+            secure=False
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         assert response.status_code == 200

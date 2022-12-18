@@ -1,5 +1,5 @@
 # Public MinIO config
 
-endpoint= "play.min.io"
-access_key = "Q3AM3UQ867SPQQA43P2F"
-secret_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+endpoint= "172.23.0.2:9000"
+access_key = "grigorev.mp"
+secret_key = "12341234"

@@ -2,6 +2,7 @@ from flask import Flask, make_response, jsonify
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_sqlalchemy import SQLAlchemy
+from gevent.pywsgi import WSGIServer
 
 import app_db
 
@@ -67,4 +68,8 @@ def create_app(testing=False, db_uri=app_db.SQLALCHEMY_DATABASE_URI):
 
 if __name__ == '__main__':
     app = create_app() # pragma: no cover
-    app.run()  # pragma: no cover # TODO USE PRODUCTION SERVER
+    #app.run('0.0.0.0', port=5000)  # pragma: no cover  # TODO USE PRODUCTION SERVER
+
+    # Prod
+    http_server = WSGIServer(('0.0.0.0', 8080), app)
+    http_server.serve_forever()

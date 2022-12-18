@@ -24,6 +24,7 @@ class TestCopyController:
             endpoint=endpoint,
             access_key=access_key,
             secret_key=secret_key,
+            secure=False
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         assert response.status_code == 200
@@ -45,6 +46,7 @@ class TestCopyController:
             endpoint=endpoint,
             access_key=access_key,
             secret_key=secret_key,
+            secure=False
         )
         client.remove_object("cloudstorage", f"{_id}.jpeg")
         assert response.status_code == 200

@@ -34,6 +34,7 @@ class DataStoreStorageRepository:
             endpoint=endpoint,
             access_key=access_key,
             secret_key=secret_key,
+            secure=False
         )
 
         found = client.bucket_exists("cloudstorage")

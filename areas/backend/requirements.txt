@@ -18,3 +18,4 @@ flask-swagger-ui==4.11.1
 accessify~=0.3.1
 bcrypt~=4.0.1
 pyjwt~=2.6.0
+gevent~=22.10.2

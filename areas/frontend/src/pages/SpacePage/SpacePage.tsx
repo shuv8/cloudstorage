@@ -56,7 +56,7 @@ function SpacePage(props: SpacePageProps) {
                 </Stack>
             )}
 
-            <Box height="100%">
+            <Box height="100%">`
                 <ItemsGrid dirId={dirId} onItemClick={handleItemClick} />
             </Box>
         </Stack>
