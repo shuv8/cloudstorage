@@ -99,6 +99,12 @@ class DataStoreStorageRepository:
             if str(space.get_id()) == str(space_id):
                 return space
 
+    def get_user_space_content(self, user_mail: str, space_id: uuid.UUID) -> Optional[UserCloudSpace]:
+        spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
+        for space in spaces:
+            if str(space.get_id()) == str(space_id):
+                return space
+
     def get_root_user_space_content(self, user_mail: str) -> Optional[UserCloudSpace]:
         spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
         for space in spaces:
@@ -195,26 +201,26 @@ class DataStoreStorageRepository:
         accesses: list[BaseAccess] = []
         for access in directory.accesses:
             if access.access_type == AccessType.Url:
-                accesses.append(
-                    UrlAccess(
-                        url=access.value,
-                        access_type=access.access_level
-                    )
+                new_access = UrlAccess(
+                    url=access.value,
+                    access_type=access.access_level
                 )
+                new_access.owner = access.owner
+                accesses.append(new_access)
             if access.access_type == AccessType.User:
-                accesses.append(
-                    UserAccess(
-                        email=access.value,
-                        access_type=access.access_level
-                    )
+                new_access = UserAccess(
+                    email=access.value,
+                    access_type=access.access_level
                 )
+                new_access.owner = access.owner
+                accesses.append(new_access)
             if access.access_type == AccessType.Department:
-                accesses.append(
-                    DepartmentAccess(
-                        department_name=access.value,
-                        access_type=access.access_level
-                    )
+                new_access = DepartmentAccess(
+                    department_name=access.value,
+                    access_type=access.access_level
                 )
+                new_access.owner = access.owner
+                accesses.append(new_access)
         partly_root_directory.accesses = accesses
 
         files_in_directory: list[File] = []
@@ -223,26 +229,26 @@ class DataStoreStorageRepository:
             accesses: list[BaseAccess] = []
             for access in file.accesses:
                 if access.access_type == AccessType.Url:
-                    accesses.append(
-                        UrlAccess(
-                            url=access.value,
-                            access_type=access.access_level
-                        )
+                    new_access = UrlAccess(
+                        url=access.value,
+                        access_type=access.access_level
                     )
+                    new_access.owner = access.owner
+                    accesses.append(new_access)
                 if access.access_type == AccessType.User:
-                    accesses.append(
-                        UserAccess(
-                            email=access.value,
-                            access_type=access.access_level
-                        )
+                    new_access = UserAccess(
+                        email=access.value,
+                        access_type=access.access_level
                     )
+                    new_access.owner = access.owner
+                    accesses.append(new_access)
                 if access.access_type == AccessType.Department:
-                    accesses.append(
-                        DepartmentAccess(
-                            department_name=access.value,
-                            access_type=access.access_level
-                        )
+                    new_access = DepartmentAccess(
+                        department_name=access.value,
+                        access_type=access.access_level
                     )
+                    new_access.owner = access.owner
+                    accesses.append(new_access)
 
             files_in_directory.append(
                 File(
@@ -500,6 +506,7 @@ class DataStoreStorageRepository:
                     AccessModel(
                         access_level=access.access_type,
                         access_type=AccessType.Url,
+                        owner=access.owner,
                         value=access.get_url()
                     )
                 )
@@ -508,6 +515,7 @@ class DataStoreStorageRepository:
                     AccessModel(
                         access_level=access.access_type,
                         access_type=AccessType.User,
+                        owner=access.owner,
                         value=access.get_email()
                     )
                 )
@@ -516,6 +524,7 @@ class DataStoreStorageRepository:
                     AccessModel(
                         access_level=access.access_type,
                         access_type=AccessType.Department,
+                        owner=access.owner,
                         value=access.get_department_name()
                     )
                 )

@@ -83,6 +83,7 @@ def user_space():
 
         access_model = AccessModel(
             id=access_1_id,
+            owner='user@mail.com',
             access_level=Access.Edit,
             access_type=AccessType.Url,
             value=str(url_space_1_id),
@@ -98,6 +99,7 @@ def user_space():
 
         access_model_2 = AccessModel(
             id=access_2_id,
+            owner='user@mail.com',
             access_level=Access.Edit,
             access_type=AccessType.Url,
             value=str(url_space_2_id),

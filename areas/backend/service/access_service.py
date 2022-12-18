@@ -37,6 +37,7 @@ class AccessService:
             url=str(uuid.uuid4()),
             access_type=access_type
         )
+        new_access.owner = user.email
 
         return self.data_store_service.set_url_access_for_item(item, new_access)
 
@@ -65,6 +66,7 @@ class AccessService:
             email=email,
             access_type=access_type
         )
+        new_access.owner = user.email
 
         return self.data_store_service.add_email_access_for_item(item, new_access)
 
@@ -93,6 +95,7 @@ class AccessService:
             department_name=department,
             access_type=access_type
         )
+        new_access.owner = user.email
 
         return self.data_store_service.add_department_access_for_item(item, new_access)
 

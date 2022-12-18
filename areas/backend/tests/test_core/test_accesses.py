@@ -47,5 +47,8 @@ class TestAccesses:
         department_access.access_type = Access.Edit
         assert department_access.access_type == Access.Edit
 
+        department_access.owner = "who"
+        assert department_access.owner == "who"
+
         with pytest.raises(TypeError):
             department_access.access_type = "42"

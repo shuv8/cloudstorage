@@ -37,6 +37,7 @@ class AccessModel(db.Model):
     access_level = db.Column(db.Enum(Access))
     access_type = db.Column(db.Enum(AccessType))
     value = db.Column(db.String)
+    owner = db.Column(db.String)
 
     parent_file_id = db.Column('parent_file_id', db.String, db.ForeignKey("file.file_id"), nullable=True)
     parent_id = db.Column('parent_id', db.String, db.ForeignKey("directory.directory_id"), nullable=True)
