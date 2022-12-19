@@ -4,6 +4,7 @@ import { UserContext } from 'context/UserContext';
 import { SessionLayout } from 'layouts/SessionLayout';
 import { SpacePage } from 'pages/SpacePage';
 import { NotFoundPage } from 'pages/NotFoundPage';
+import { LoginPage } from 'pages/LoginPage';
 import { Overlay } from 'layouts/Overlay';
 import { LoadingLayout } from 'layouts/LoadingLayout';
 import { withUserContext } from 'hocs/withUserContext';
@@ -24,6 +25,11 @@ function App() {
                                 <Route path="*" element={<NotFoundPage />} />
                             </Routes>
                         </SessionLayout>
+                    )}
+                    {!authorized && (
+                        <Routes>
+                            <Route path='/login' element={<LoginPage />} />
+                        </Routes>
                     )}
                 </BrowserRouter>
             </LoadingLayout>
