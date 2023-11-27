@@ -1,18 +1,25 @@
+import uuid
+from datetime import datetime
+from uuid import uuid4
+
 import pytest
 
-from core.department_manager import DepartmentManager
-from core.role import Role
-from core.space_manager import SpaceManager
-from core.user import User
-from core.user_cloud_space import SpaceType
+from areas.backend.core.branch import Branch
+from areas.backend.core.department_manager import DepartmentManager
+from areas.backend.core.document import Document
+from areas.backend.core.role import Role
+from areas.backend.core.user import User
+from areas.backend.core.workspace import WorkSpace
+from areas.backend.core.workspace_status import WorkSpaceStatus
 
 
 @pytest.fixture()
-def user():
+def user(space_manager):
     return User(
         email="test_mail@mail.com",
         password="password",
         username="username",
+        workSpaces=[space_manager]
     )
 
 
@@ -24,9 +31,35 @@ def department_manager():
 
 
 @pytest.fixture()
-def space_manager():
-    return SpaceManager(
-        spaces=None
+def file():
+    return Document(
+        name="Test Document",
+        task_id=uuid.uuid4(),
+        file=uuid.uuid4(),
+        time=datetime.now(),
+    )
+
+
+@pytest.fixture(scope='function')
+def branch(file):
+    return Branch(
+        name="test_space",
+        author=uuid4(),
+        parent=uuid4(),
+        document=file,
+    )
+
+
+@pytest.fixture()
+def space_manager(branch):
+    return WorkSpace(
+        title="test_space",
+        description="test desc",
+        branches=[],
+        requests=[],
+        main_branch=branch,
+        status=WorkSpaceStatus.Active,
+        accesses=[],
     )
 
 
@@ -81,7 +114,7 @@ class TestUser:
             pass
 
     def test_get_default_space_manager(self, user):
-        assert user.space_manager.get_spaces()[0].get_space_type() == SpaceType.Regular
+        assert user.workSpaces[0].title == "test_space"
 
     def test_set_space_manager(self, user, space_manager):
         user.space_manager = space_manager

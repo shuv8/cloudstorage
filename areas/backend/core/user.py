@@ -3,11 +3,9 @@ from __future__ import annotations
 from typing import Optional
 from uuid import UUID, uuid4
 
-from core.role import Role
-from core.space_manager import SpaceManager
-from core.files import File
-
-from core import department_manager
+from areas.backend.core import department_manager
+from areas.backend.core.role import Role
+from areas.backend.core import workspace
 
 
 class User:
@@ -16,17 +14,18 @@ class User:
             email: Optional[str],
             password: Optional[str],
             username: Optional[str],
+            workSpaces: list[workspace.WorkSpace] = None,
             _id: Optional[UUID] = None,
             role: Role = Role.Client,
-            space_manager: Optional[SpaceManager] = None,
             _department_manager: Optional[department_manager.DepartmentManager] = None
     ):
         self.__id: UUID = _id or uuid4()
         self.__email: str = email
         self.__password: str = password
         self.__username: str = username
+        self.__workSpaces: list[workspace.WorkSpace] = workSpaces
         self.__role: Role = role
-        self.__space_manager: SpaceManager = space_manager or SpaceManager(spaces=None)
+
         self.__department_manager: department_manager.DepartmentManager = _department_manager
 
     def get_id(self) -> UUID:
@@ -76,16 +75,16 @@ class User:
 
     role = property(get_role, set_role)
 
-    def get_space_manager(self) -> SpaceManager:
-        return self.__space_manager
+    def get_workSpaces(self) -> list[workspace.WorkSpace]:
+        return self.__workSpaces
 
-    def set_space_manager(self, new_space_manager: SpaceManager):
-        if isinstance(new_space_manager, SpaceManager):
-            self.__space_manager = new_space_manager
+    def set_workSpaces(self, new_workSpaces: list[workspace.WorkSpace]):
+        if isinstance(new_workSpaces, list):
+            self.__workSpaces = new_workSpaces
         else:
             raise TypeError
 
-    space_manager = property(get_space_manager, set_space_manager)
+    workSpaces = property(get_workSpaces, set_workSpaces)
 
     def get_department_manager(self) -> department_manager.DepartmentManager:
         return self.__department_manager
@@ -97,4 +96,3 @@ class User:
             raise TypeError
 
     department_manager = property(get_department_manager, set_department_manager)
-    

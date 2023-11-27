@@ -1,10 +1,9 @@
 import uuid
-from uuid import UUID
 
 import pytest
 
-from core.user import User
-from core.user_manager import UserManager, UserNotFoundError
+from areas.backend.core.user import User
+from areas.backend.core.user_manager import UserManager, UserNotFoundError
 
 
 @pytest.fixture()

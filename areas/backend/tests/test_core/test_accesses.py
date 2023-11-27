@@ -1,6 +1,6 @@
 import pytest
 
-from core.accesses import UrlAccess, UserAccess, DepartmentAccess, Access
+from areas.backend.core.accesses import UrlAccess, UserAccess, DepartmentAccess, Access
 
 
 @pytest.fixture()
