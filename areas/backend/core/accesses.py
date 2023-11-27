@@ -13,9 +13,8 @@ class AccessType(Enum):
 
 
 class BaseAccess:
-    def __init__(self, access_type: Access = Access.View, owner: str = "root") -> None:
+    def __init__(self, access_type: Access = Access.View) -> None:
         self.__access_type = access_type
-        self.__owner = owner
 
     def get_access_type(self) -> Access:
         return self.__access_type
@@ -27,17 +26,6 @@ class BaseAccess:
             raise TypeError
 
     access_type = property(get_access_type, set_access_type)
-
-    def get_owner(self) -> str:
-        return self.__owner
-
-    def set_owner(self, owner: str) -> None:
-        if isinstance(owner, str):
-            self.__owner = owner
-        else:
-            raise TypeError
-
-    owner = property(get_owner, set_owner)
 
 
 class UrlAccess(BaseAccess):
