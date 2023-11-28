@@ -154,7 +154,6 @@ def get_workspaces():
     ), 200
 
 
-# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/get_workspace/<space_id>', methods=['GET'])
 @token_required
 def get_workspace_content(space_id):
@@ -211,7 +210,6 @@ def get_workspace_content(space_id):
         return jsonify("Can't find space with ID"), 404
 
 
-
 """
     ===================
     Block with Branches
@@ -223,8 +221,6 @@ def get_workspace_content(space_id):
 # View branch
 
 # Create new branch from current
-
-# Create Request
 
 """
     ===================
@@ -238,8 +234,6 @@ def get_workspace_content(space_id):
 
 # View Request
 
-# Create new branch
-
 # Change Request status
 
 """
@@ -247,6 +241,7 @@ def get_workspace_content(space_id):
     Block with Files
     ===================
 """
+
 
 # TODO REFACTOR OLD
 @USER_REQUEST_API.route('/file', methods=['POST'])

@@ -4,7 +4,7 @@ from enum import Enum
 class RequestStatus(Enum):
     Open = 1
     InReview = 2
-    Approved = 3
+    Merged = 3
     Declined = 4
     Closed = 5
 
@@ -15,7 +15,7 @@ class RequestStatus(Enum):
         elif str(value) == "2":
             return RequestStatus.InReview
         elif str(value) == "3":
-            return RequestStatus.Approved
+            return RequestStatus.Merged
         elif str(value) == "4":
             return RequestStatus.Declined
         elif str(value) == "5":
