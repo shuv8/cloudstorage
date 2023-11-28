@@ -6,13 +6,21 @@ Web application of "Documents storing system" <MEPhI course>
 ### Admin
 
 [CHECK] 1) `/department` - Get department list
+
 [CHECK] 2) `/department` - Add new department
+
 [CHECK] 3) `/department` - Delete department
+
 [CHECK] 4) `/department/users` - Get users in department
+
 [CHECK] 5) `/department/users` - Add users to department
+
 [CHECK] 6) `/department/users` - Remove users from department
+
 [CHECK] 7) `/user` - Get user list
+
 [TODO] 8) `/unarchive` - Unarchive workspace
+
 [TODO] 9) `/delete` - Delete workspace forever
 
 ### User
