@@ -4,6 +4,7 @@ from uuid import UUID
 
 from areas.backend.core.accesses import BaseAccess
 from areas.backend.core.branch import Branch
+from areas.backend.core.document import Document
 from areas.backend.core.request import Request
 from areas.backend.core.workspace import WorkSpace
 from areas.backend.exceptions.exceptions import NotAllowedError
@@ -37,7 +38,7 @@ class DataStoreController:
     # SEARCH
 
     # TODO UPDATE
-    def search_in_cloud(self, user_mail: str, file_name: str) -> list[tuple[BaseStorageItem, str]]:
+    def search_in_cloud(self, user_mail: str, file_name: str) -> list[tuple[Document, str]]:
         return self.data_store_service.search_in_cloud(user_mail, file_name)
 
     # WORKSPACES
@@ -84,10 +85,10 @@ class DataStoreController:
         return self.data_store_service.move_item(item_id=item_id, space_id=space_id, user_mail=user_mail,
                                                  target_space=target_space, target_directory_id=target_directory_id)
 
-    def get_file_by_id(self, user_mail: str, item_id: UUID) -> File:
+    def get_file_by_id(self, user_mail: str, item_id: UUID) -> Document:
         return self.data_store_service.get_file_by_id(user_mail, item_id)
 
-    def download_item(self, user_mail: str, item_id: UUID) -> [BinaryIO, File]:
+    def download_item(self, user_mail: str, item_id: UUID) -> [BinaryIO, Document]:
         return self.data_store_service.download_item(user_mail=user_mail, item_id=item_id)
 
     def delete_item(self, user_mail: str, space_id, item_id: UUID) -> bool:

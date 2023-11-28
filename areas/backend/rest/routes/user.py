@@ -7,6 +7,7 @@ from flask import jsonify, Blueprint, make_response, request, send_file
 from areas.backend.controller.data_store_controller import DataStoreController, AccessEditTypeEnum, AccessClassEnum
 from areas.backend.controller.user_controller import UserController
 from areas.backend.core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from areas.backend.core.document import Document
 from areas.backend.core.role import Role
 from areas.backend.core.workspace import WorkSpace
 from areas.backend.decorators.token_required import token_required, get_user_by_token
@@ -89,7 +90,7 @@ def search_for():
     user = get_user_by_token()
     query = request.args.get('query', default=".", type=str)
 
-    items: list[tuple[BaseStorageItem, str]] = dataStoreController.search_in_cloud(user.email, query)
+    items: list[tuple[Document, str]] = dataStoreController.search_in_cloud(user.email, query)
     items_content = []
     for (item, path) in items:
         items_content.append(
@@ -106,6 +107,13 @@ def search_for():
             "items": items_content
         }
     ), 200
+
+
+"""
+    ===================
+    Block with Workspaces
+    ===================
+"""
 
 
 @USER_REQUEST_API.route('/get_workspaces', methods=['GET'])
@@ -149,7 +157,7 @@ def get_workspaces():
 # TODO REFACTOR OLD
 @USER_REQUEST_API.route('/get_workspace/<space_id>', methods=['GET'])
 @token_required
-def get_space_content(space_id):
+def get_workspace_content(space_id):
     """
     Query:
         - space_id: id of space to view
@@ -203,6 +211,43 @@ def get_space_content(space_id):
         return jsonify("Can't find space with ID"), 404
 
 
+
+"""
+    ===================
+    Block with Branches
+    ===================
+"""
+
+# Delete branch
+
+# View branch
+
+# Create new branch from current
+
+# Create Request
+
+"""
+    ===================
+    Block with Request
+    ===================
+"""
+
+# Add Request
+
+# Delete Request
+
+# View Request
+
+# Create new branch
+
+# Change Request status
+
+"""
+    ===================
+    Block with Files
+    ===================
+"""
+
 # TODO REFACTOR OLD
 @USER_REQUEST_API.route('/file', methods=['POST'])
 def add_new_file():
@@ -240,7 +285,7 @@ def view_file_by_id(file_id):
     """
     user = get_user_by_token()
     try:
-        file: Optional[File] = dataStoreController.get_file_by_id(user.email, uuid.UUID(hex=file_id))
+        file: Optional[Document] = dataStoreController.get_file_by_id(user.email, uuid.UUID(hex=file_id))
     except FileNotFoundError:
         return jsonify({'error': 'File not found'}), 404
 
@@ -270,6 +315,10 @@ def view_file_by_id(file_id):
     Block with Accesses
     ===================
 """
+
+
+# TODO !!!!!!!!!!!!!!!!!!! Вот тут всё переписать на доступы к Wortkspace !!!!!!!!!!!!!!!!!!!
+# TODO ! На самый низкий слой запилить проверку доступа к чужому воркспейсу и прокидывать наверх эксепшн
 
 
 # TODO REFACTOR OLD
@@ -471,7 +520,10 @@ def remove_access_by_department(item_id, department):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
+# FILE CONTROL
+
 # TODO REFACTOR OLD
+# TODO space_id -> branch_id
 @USER_REQUEST_API.route('/rename/<space_id>/<item_id>', methods=['PUT'])
 @token_required
 def rename_item(space_id, item_id):
@@ -498,35 +550,6 @@ def rename_item(space_id, item_id):
 
 
 # TODO REFACTOR OLD
-@USER_REQUEST_API.route('/move/<space_id>/<item_id>', methods=['PUT'])
-@token_required
-def move_item(space_id, item_id):
-    """
-    Path:
-        - item_id: id of item to move
-        - target_directory: new target directory of item
-    """
-
-    user = get_user_by_token()
-    target_space = request.args.get('target_space', type=str)
-    target_directory = request.args.get('target_directory', type=str)
-    try:
-        if target_directory is not None and target_space is not None:
-            result = dataStoreController.move_item(user.email, space_id, item_id,
-                                                   uuid.UUID(hex=target_space), uuid.UUID(hex=target_directory))
-            if result is not None:
-                return jsonify({'new_directory': result}), 200
-            else:
-                return jsonify({'error': 'Can\'t find one of items'}), 404
-        else:
-            return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
-    except AccessError:
-        return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
-
-
-# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
 @token_required
 def download_by_item_id(item_id):
@@ -539,69 +562,13 @@ def download_by_item_id(item_id):
     """
     user = get_user_by_token()
     try:
-        result = dataStoreController.download_item(user.email, item_id)
-        if isinstance(result[1], File):
-            file_name = result[1].name + result[1].type
-            return send_file(result[0], download_name=file_name, as_attachment=True), 200
-        elif isinstance(result[1], Directory):
-            file_name = result[1].name
-            return send_file(result[0], download_name=file_name, as_attachment=True), 200
+        result: Document = dataStoreController.download_item(user.email, item_id)
+        return send_file(result[0], download_name=result.name, as_attachment=True), 200
     except ItemNotFoundError:
         return jsonify({'error': 'Item not found'}), 404
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/delete/<space_id>/<item_id>', methods=['DELETE'])
-@token_required
-def delete_by_item_id(space_id, item_id):
-    """
-    Path:
-        - item_id: id of item to delete
-    Result:
-        bool status of deleting
-    """
-
-    user = get_user_by_token()
-    try:
-        result = dataStoreController.delete_item(user.email, uuid.UUID(hex=space_id), uuid.UUID(hex=item_id))
-        if result:
-            return jsonify({'delete': 'success'}), 200
-    except AccessError:
-        return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
-
-
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/copy/<space_id>/<item_id>', methods=['POST'])
-@token_required
-def copy_item(space_id, item_id):
-    """
-    Path:
-        - item_id: id of item to move
-        - target_directory: new target directory of item
-    """
-
-    user = get_user_by_token()
-    target_space = request.args.get('target_space', type=str)
-    target_directory = request.args.get('target_directory', type=str)
-    try:
-        if target_directory is not None and target_space is not None:
-            result = dataStoreController.copy_item(
-                user.email,
-                uuid.UUID(hex=space_id),
-                uuid.UUID(hex=item_id),
-                uuid.UUID(hex=target_space),
-                uuid.UUID(hex=target_directory)
-            )
-            return jsonify({'new_directory': result}), 200
-        else:
-            return jsonify({'error': 'No target directory presented. Use query parameter \'target_directory\''}), 400
-    except AccessError:
-        return jsonify({'error': 'Not allowed to do this action'}), 401
-    except ItemNotFoundError:
-        return jsonify({'error': 'Item not found'}), 404
-
+# ????????
 
 # TODO REFACTOR OLD
 @USER_REQUEST_API.route('/whoiam', methods=['GET'])
