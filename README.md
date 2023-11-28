@@ -77,6 +77,7 @@ Web application of "Documents storing system" <MEPhI course>
 [NEED REFACTOR] 20) `/whoiam` - Who am I
 
 * Accesses *
+  
 [NEED REFACTOR] 21) `/accesses/<space_id>` - Get all accesses
 
 [NEED REFACTOR] 22) `/set_access/<space_id>` - Set access
