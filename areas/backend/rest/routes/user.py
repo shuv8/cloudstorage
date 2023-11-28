@@ -8,9 +8,10 @@ from areas.backend.controller.data_store_controller import DataStoreController, 
 from areas.backend.controller.user_controller import UserController
 from areas.backend.core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
 from areas.backend.core.role import Role
+from areas.backend.core.workspace import WorkSpace
 from areas.backend.decorators.token_required import token_required, get_user_by_token
 from areas.backend.exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, \
-    NotAllowedError, UserNotFoundError, DepartmentNotFoundError, AccessError
+    NotAllowedError, UserNotFoundError, DepartmentNotFoundError, AccessError, SpaceNotFoundError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -107,13 +108,12 @@ def search_for():
     ), 200
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/get_spaces', methods=['GET'])
+@USER_REQUEST_API.route('/get_workspaces', methods=['GET'])
 @token_required
-def get_spaces():
+def get_workspaces():
     """
     Query:
-        - query: get all spaces
+        - query: get all workspaces
     Result:
         {
             spaces: [{
@@ -125,32 +125,29 @@ def get_spaces():
     # query date
     user = get_user_by_token()
 
-    items: list[UserCloudSpace] = dataStoreController.get_spaces(user.email)
+    items: list[WorkSpace] = dataStoreController.get_workspaces(user.email)
 
-    spaces_content = []
+    workspaces_content = []
     for item in items:
-
-        space_name = "Main"
-        if item.get_space_type() == SpaceType.Shared:
-            space_name = item.get_directory_manager().items[0].name  # We have only 1 root folder in shared space
-
-        spaces_content.append(
+        workspaces_content.append(
             {
-                "type": str(item.get_space_type().name),
-                "name": space_name,
+                "branches_num": len(item.branches),
+                "title": item.title,
+                "description": item.description,
+                "status": item.status.value,
                 "id": str(item.get_id()),
             }
         )
 
     return jsonify(
         {
-            "spaces": spaces_content
+            "workspaces": workspaces_content
         }
     ), 200
 
 
 # TODO REFACTOR OLD
-@USER_REQUEST_API.route('/get_space/<space_id>', methods=['GET'])
+@USER_REQUEST_API.route('/get_workspace/<space_id>', methods=['GET'])
 @token_required
 def get_space_content(space_id):
     """
@@ -158,7 +155,7 @@ def get_space_content(space_id):
         - space_id: id of space to view
     Result:
         {
-            items: [{
+            workspace: [{
               files and dirs in space
             }]
         }
@@ -168,134 +165,42 @@ def get_space_content(space_id):
     user = get_user_by_token()
 
     try:
-        items: list[BaseStorageItem] = dataStoreController.get_space_content(user.email, UUID(space_id))
+        item: WorkSpace = dataStoreController.get_workspace_by_id(user.email, uuid.UUID(space_id))
 
-        items_content = []
-        for item in items:
-            if type(item) == Directory:
-
-                inner_items, _, _ = dataStoreController.get_dir_content(user.email, item.id)
-
-                items_inner_content = []
-                for item_ in inner_items:
-                    if type(item_) == File:
-                        items_inner_content.append(
-                            {
-                                "id": str(item_.get_id()),
-                                "name": item_.name,
-                                "type": item_.type,
-                                "entity": item_.__class__.__name__,
-                            }
-                        )
-                    if type(item_) == Directory:
-                        items_inner_content.append(
-                            {
-                                "id": str(item_.get_id()),
-                                "name": item_.name,
-                                "entity": item_.__class__.__name__,
-                            }
-                        )
-                items_content.append(
-                    {
-                        "id": str(item.get_id()),
-                        "name": item.name,
-                        "entity": item.__class__.__name__,
-                        "items": items_inner_content
-                    }
-                )
-
-        return jsonify(
-            {
-                "items": items_content
-            }
-        ), 200
-    except SpaceNotFoundError:
-        return jsonify("Can't find space with ID"), 404
-
-
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/directory', methods=['POST'])
-@token_required
-def add_new_directory():
-    request_data = request.get_json()
-    try:
-        space_id = request_data['space_id']
-        parent_id = request_data['parent_id']
-        new_directory_name = request_data['new_directory_name']
-    except KeyError:
-        return jsonify({'error': 'Invalid request body'}), 400
-    try:
-        user = get_user_by_token()
-        directory_id = dataStoreController.add_new_directory(
-            user_email=user.get_email(),
-            space_id=UUID(space_id),
-            parent_id=UUID(parent_id),
-            new_directory_name=new_directory_name
-        )
-    except AlreadyExistsError:
-        return jsonify({'error': 'directory name already exist'}), 403
-    return jsonify({'id': directory_id}), 200
-
-
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/get_dir/<dir_id>', methods=['GET'])
-@token_required
-def get_dir_in_space_content(dir_id):
-    """
-    Query:
-        - dir_id: id of dir to view
-    Result:
-        {
-            items: [{
-              files and dirs in dir
-            }]
-        }
-    """
-
-    # query date
-    user = get_user_by_token()
-
-    try:
-        items, pathes, name = dataStoreController.get_dir_content(user.email, UUID(dir_id))
-
-        items_content = []
-        for item in items:
-            if type(item) == File:
-                items_content.append(
-                    {
-                        "id": str(item.get_id()),
-                        "name": item.name,
-                        "type": item.type,
-                        "entity": item.__class__.__name__,
-                    }
-                )
-            if type(item) == Directory:
-                items_content.append(
-                    {
-                        "id": str(item.get_id()),
-                        "name": item.name,
-                        "entity": item.__class__.__name__,
-                    }
-                )
-
-        path_content = []
-        for path in pathes:
-            path_content.append(
+        requests = []
+        for request in item.requests:
+            requests.append(
                 {
-                    "id": path[0],
-                    "name": path[1],
+                    "title": request.title,
+                    "description": request.description,
+                    "status": request.status.value,
+                    "id": request.get_id(),
+                }
+            )
+
+        branches = []
+        for branch in item.branches:
+            branches.append(
+                {
+                    "name": len(branch.name),
+                    "id": branch.get_id(),
                 }
             )
 
         return jsonify(
             {
-                "items": items_content,
-                "path": path_content,
-                "name": name
+                "branches_num": len(item.branches),
+                "title": item.title,
+                "description": item.description,
+                "status": item.status.value,
+                "main_branch": item.main_branch,
+                "branches": branches,
+                "requests": requests,
+                "id": str(item.get_id()),
             }
         ), 200
-    except ItemNotFoundError:
-        return jsonify("Can't find directory with ID"), 404
+    except SpaceNotFoundError:
+        return jsonify("Can't find space with ID"), 404
 
 
 # TODO REFACTOR OLD

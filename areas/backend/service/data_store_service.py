@@ -3,15 +3,12 @@ import uuid
 from copy import deepcopy
 from uuid import UUID
 
-from core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess, Access
-from core.base_storage_item import BaseStorageItem
-from core.directory import Directory
-from core.files import FileManager, File
-from core.space_manager import SpaceManager
-from core.user_cloud_space import UserCloudSpace, SpaceType
-from database.database import UrlSpaceModel
-from exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError, AccessError
-from repository.data_store_storage_repository import DataStoreStorageRepository
+from areas.backend.core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess, Access
+from areas.backend.core.branch import Branch
+from areas.backend.core.request import Request
+from areas.backend.core.workspace import WorkSpace
+from areas.backend.exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError, AccessError
+from areas.backend.repository.data_store_storage_repository import DataStoreStorageRepository
 from accessify import private
 import logging
 
@@ -29,20 +26,33 @@ class DataStoreService:
         founded_items: list[tuple[BaseStorageItem, str]] = self.search_in_spaces(space_manager, query)
         return founded_items
 
-    def get_spaces(self, user_mail: str) -> list[UserCloudSpace]:
-        return self.data_store_storage_repo.get_user_spaces(user_mail)
+    # WORKSPACES
 
-    def get_space_content(self, user_mail: str, space_id: UUID) -> list[BaseStorageItem]:
-        space: UserCloudSpace = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)
+    def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
+        return self.data_store_storage_repo.get_workspaces(user_mail)
+
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID) -> Optional[WorkSpace]:
+        space: Optional[WorkSpace] = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id)
 
         if space is None:
             raise SpaceNotFoundError
 
-        items: list[BaseStorageItem] = []
-        items.extend(space.get_directory_manager().items)
-        items.extend(space.get_directory_manager().file_manager.items)
+        return space
 
-        return items
+    # BRANCHES
+
+    def get_branch_in_workspace_by_id(
+            self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID
+    ) -> Optional[Branch]:
+        return self.data_store_storage_repo.get_branch_in_workspace_by_id(user_mail, space_id, branch_id)
+
+    # REQUESTS
+
+    def get_request_in_workspace_by_id(
+            self, user_mail: str, space_id: uuid.UUID, request_id: uuid.UUID
+    ) -> Optional[Request]:
+        return self.data_store_storage_repo.get_request_in_workspace_by_id(user_mail, space_id, request_id)
+
 
     def get_directory_in_space(self, user_mail: str, space_id: UUID, dir_id: UUID) -> Optional[Directory]:
         space = self.data_store_storage_repo.get_user_space_content(user_mail, space_id)

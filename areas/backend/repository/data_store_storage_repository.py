@@ -9,18 +9,16 @@ from minio import Minio
 from sqlalchemy import delete
 from sqlalchemy import update
 
-from app_db import get_current_db
-from config import *
-from core.accesses import BaseAccess, UrlAccess, AccessType, DepartmentAccess, UserAccess, Access
-from core.base_storage_item import BaseStorageItem
-from core.directory import Directory
-from core.files import File
-from core.space_manager import SpaceManager
-from core.user_cloud_space import UserCloudSpace, SpaceType
-from database.database import FileModel, UserModel, UserSpaceModel, DirectoryModel, AccessModel, FileDirectory, \
-    DepartmentModel, UrlSpaceModel, UserDepartment
-from exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError
+from areas.backend.app_db import get_current_db
+from areas.backend.core.accesses import BaseAccess, UrlAccess, AccessType, DepartmentAccess, UserAccess, Access
+from areas.backend.core.branch import Branch
+from areas.backend.core.request import Request
+from areas.backend.database.database import UserModel
+from areas.backend.exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError
 import shutil
+
+from areas.backend.config import endpoint, secret_key, access_key
+from areas.backend.core.workspace import WorkSpace
 
 
 class DataStoreStorageRepository:
@@ -44,8 +42,47 @@ class DataStoreStorageRepository:
 
         return client
 
-    def get_user_spaces(self, user_mail: str) -> list[UserCloudSpace]:
-        return self.get_root_dir_by_user_mail(user_mail).get_spaces()
+    # WORKSPACES
+
+    def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
+        return user.workSpaces
+
+    def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID) -> Optional[WorkSpace]:
+        spaces: list[WorkSpace] = self.get_workspaces(user_mail)
+        for space in spaces:
+            if str(space.get_id()) == str(space_id):
+                return space
+
+        return None
+
+    # BRANCHES
+
+    def get_branch_in_workspace_by_id(
+            self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID
+    ) -> Optional[Branch]:
+        workspace = self.get_workspace_by_id(user_mail, space_id)
+
+        for branch in workspace.branches:
+            if str(branch.get_id()) == str(branch_id):
+                return branch
+
+        return None
+
+    # REQUESTS
+
+    def get_request_in_workspace_by_id(
+            self, user_mail: str, space_id: uuid.UUID, request_id: uuid.UUID
+    ) -> Optional[Request]:
+        workspace = self.get_workspace_by_id(user_mail, space_id)
+
+        for request in workspace.requests:
+            if str(request.get_id()) == str(request_id):
+                return request
+
+        return None
+
+    # OLD
 
     def find_possible_url_access(self, dir_id: uuid.UUID) -> Optional[uuid.UUID]:
         parent_id = dir_id
@@ -92,12 +129,6 @@ class DataStoreStorageRepository:
             if str(space.id) == str(space_id):
                 return space
         return None
-
-    def get_user_space_content(self, user_mail: str, space_id: uuid.UUID) -> Optional[UserCloudSpace]:
-        spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
-        for space in spaces:
-            if str(space.get_id()) == str(space_id):
-                return space
 
     def get_user_space_content(self, user_mail: str, space_id: uuid.UUID) -> Optional[UserCloudSpace]:
         spaces: list[UserCloudSpace] = self.get_user_spaces(user_mail)
@@ -267,33 +298,6 @@ class DataStoreStorageRepository:
         partly_root_directory.get_directory_manager().file_manager.items = files_in_directory
 
         return partly_root_directory
-
-    def get_root_dir_by_user_mail(self, user_mail: str) -> SpaceManager:
-        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        user_space_models: list[UserSpaceModel] = UserSpaceModel.query.filter_by(user_id=user.id).all()
-
-        spaces: list[UserCloudSpace] = list()
-        for space_model in user_space_models:
-            user_cloud = UserCloudSpace(
-                _id=uuid.UUID(space_model.id),
-                space_type=space_model.space_type
-            )
-
-            directory: DirectoryModel = DirectoryModel.query.filter_by(id=space_model.root_directory.id).first()
-
-            root_directory = self.fill_directory_with_data(directory)
-
-            user_cloud.get_directory_manager().items = [root_directory]
-
-            spaces.append(
-                user_cloud
-            )
-
-        space_manager = SpaceManager(
-            spaces=spaces
-        )
-
-        return space_manager
 
     def copy_file(self, file, directory_id):
         new_id = uuid.uuid4()

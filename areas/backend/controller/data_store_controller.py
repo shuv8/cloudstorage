@@ -2,13 +2,13 @@ from enum import Enum
 from typing import Optional, BinaryIO
 from uuid import UUID
 
-from core.accesses import BaseAccess
-from core.base_storage_item import BaseStorageItem
-from core.files import File
-from core.user_cloud_space import UserCloudSpace
-from exceptions.exceptions import NotAllowedError
-from service.data_store_service import DataStoreService
-from service.access_service import AccessService
+from areas.backend.core.accesses import BaseAccess
+from areas.backend.core.branch import Branch
+from areas.backend.core.request import Request
+from areas.backend.core.workspace import WorkSpace
+from areas.backend.exceptions.exceptions import NotAllowedError
+from areas.backend.service.access_service import AccessService
+from areas.backend.service.data_store_service import DataStoreService
 
 
 class AccessEditTypeEnum(Enum):
@@ -34,14 +34,33 @@ class DataStoreController:
         ==================
     """
 
+    # SEARCH
+
+    # TODO UPDATE
     def search_in_cloud(self, user_mail: str, file_name: str) -> list[tuple[BaseStorageItem, str]]:
         return self.data_store_service.search_in_cloud(user_mail, file_name)
 
-    def get_spaces(self, user_mail: str) -> list[UserCloudSpace]:
-        return self.data_store_service.get_spaces(user_mail)
+    # WORKSPACES
 
-    def get_space_content(self, user_mail: str, space_id: UUID) -> list[BaseStorageItem]:
-        return self.data_store_service.get_space_content(user_mail, space_id)
+    def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
+        return self.data_store_service.get_workspaces(user_mail)
+
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID) -> WorkSpace:
+        return self.data_store_service.get_workspace_by_id(user_mail, space_id)
+
+    # BRANCHES
+
+    def get_branch_in_workspace_by_id(
+            self, user_mail: str, space_id: UUID, branch_id: UUID
+    ) -> Optional[Branch]:
+        return self.data_store_service.get_branch_in_workspace_by_id(user_mail, space_id, branch_id)
+
+    # REQUESTS
+
+    def get_request_in_workspace_by_id(
+            self, user_mail: str, space_id: UUID, request_id: UUID
+    ) -> Optional[Request]:
+        return self.data_store_service.get_request_in_workspace_by_id(user_mail, space_id, request_id)
 
     def add_new_directory(self, user_email: str, space_id: UUID, parent_id: UUID, new_directory_name: str) -> UUID:
         return self.data_store_service.add_new_directory(user_email, space_id, parent_id, new_directory_name)
@@ -49,11 +68,14 @@ class DataStoreController:
     def get_dir_content(self, user_mail: str, dir_id: UUID) -> tuple[list[BaseStorageItem], list[tuple[str, str]], str]:
         return self.data_store_service.get_dir_content(user_mail, dir_id)
 
-    def add_new_file(self, user_email: str, space_id: UUID, dir_id: UUID, new_file_name: str, new_file_type: str, new_file_data: str) -> UUID:
-        return self.data_store_service.add_new_file(user_email, space_id, dir_id, new_file_name, new_file_type, new_file_data)
+    def add_new_file(self, user_email: str, space_id: UUID, dir_id: UUID, new_file_name: str, new_file_type: str,
+                     new_file_data: str) -> UUID:
+        return self.data_store_service.add_new_file(user_email, space_id, dir_id, new_file_name, new_file_type,
+                                                    new_file_data)
 
     def rename_item(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
-        return self.data_store_service.rename_item_by_id(space_id=space_id, item_id=item_id, user_mail=user_mail, new_name=new_name)
+        return self.data_store_service.rename_item_by_id(space_id=space_id, item_id=item_id, user_mail=user_mail,
+                                                         new_name=new_name)
 
     def get_binary_file_from_cloud_by_id(self, file_id: UUID, file_type: str):
         return self.data_store_service.get_binary_file_from_cloud_by_id(file_id, file_type)
