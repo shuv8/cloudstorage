@@ -1,13 +1,13 @@
 """The Endpoints to manage the ADMIN_REQUESTS"""
 from flask import jsonify, Blueprint, request
 
-from controller.data_store_controller import *
-from controller.user_controller import UserController
-from core.department import Department
-from decorators.token_required import admin_access
-from exceptions.exceptions import AlreadyExistsError
-from core.department_manager import DepartmentNotFoundError
-from core.user_manager import UserNotFoundError
+from areas.backend.controller.data_store_controller import *
+from areas.backend.controller.user_controller import UserController
+from areas.backend.core.department import Department
+from areas.backend.decorators.token_required import admin_access
+from areas.backend.exceptions.exceptions import AlreadyExistsError
+from areas.backend.core.department_manager import DepartmentNotFoundError
+from areas.backend.core.user_manager import UserNotFoundError
 
 ADMIN_REQUEST_API = Blueprint('request_admin_api', __name__)
 
@@ -27,6 +27,7 @@ def get_blueprint():
 """
 
 
+# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department', methods=['GET'])
 @admin_access
 def get_department_list():
@@ -52,6 +53,7 @@ def get_department_list():
     ), 200
 
 
+# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department', methods=['POST'])
 @admin_access
 def add_new_department():
@@ -77,6 +79,7 @@ def add_new_department():
     return jsonify({}), 200
 
 
+# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department', methods=['DELETE'])
 @admin_access
 def delete_department():
@@ -102,6 +105,7 @@ def delete_department():
     return jsonify({}), 200
 
 
+# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department/users', methods=['GET'])
 @admin_access
 def get_department_with_users():
@@ -131,6 +135,7 @@ def get_department_with_users():
     ), 200
 
 
+# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department/users', methods=['POST'])
 @admin_access
 def add_users_to_department():
@@ -172,6 +177,7 @@ def add_users_to_department():
     ), 200
 
 
+# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department/users', methods=['DELETE'])
 @admin_access
 def delete_user_from_department():
@@ -211,6 +217,7 @@ def delete_user_from_department():
     ), 200
 
 
+# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/user', methods=['GET'])
 @admin_access
 def get_user_list():
@@ -234,4 +241,3 @@ def get_user_list():
             "users": items
         }
     ), 200
-

@@ -1,19 +1,16 @@
 """The Endpoints to manage the USER_REQUESTS"""
 import uuid
+from typing import Optional
 
-from controller.user_controller import UserController
 from flask import jsonify, Blueprint, make_response, request, send_file
 
-from controller.data_store_controller import *
-from core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
-from core.department import Department
-from core.directory import Directory
-from core.files import File
-from core.role import Role
-from core.user_cloud_space import SpaceType
-from decorators.token_required import token_required, get_user_by_token
-from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, UserNotFoundError, \
-    DepartmentNotFoundError, SpaceNotFoundError, AccessError
+from areas.backend.controller.data_store_controller import DataStoreController, AccessEditTypeEnum, AccessClassEnum
+from areas.backend.controller.user_controller import UserController
+from areas.backend.core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from areas.backend.core.role import Role
+from areas.backend.decorators.token_required import token_required, get_user_by_token
+from areas.backend.exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, \
+    NotAllowedError, UserNotFoundError, DepartmentNotFoundError, AccessError
 
 USER_REQUEST_API = Blueprint('request_user_api', __name__)
 
@@ -26,6 +23,7 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/registration', methods=['POST'])
 def registration():
     request_data = request.get_json()
@@ -43,6 +41,7 @@ def registration():
     return jsonify({}), 200
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/login', methods=['PUT'])
 def login():
     request_data = request.get_json()
@@ -67,6 +66,7 @@ def login():
 """
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/search', methods=['GET'])
 @token_required
 def search_for():
@@ -107,6 +107,7 @@ def search_for():
     ), 200
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/get_spaces', methods=['GET'])
 @token_required
 def get_spaces():
@@ -148,6 +149,7 @@ def get_spaces():
     ), 200
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/get_space/<space_id>', methods=['GET'])
 @token_required
 def get_space_content(space_id):
@@ -211,6 +213,7 @@ def get_space_content(space_id):
         return jsonify("Can't find space with ID"), 404
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/directory', methods=['POST'])
 @token_required
 def add_new_directory():
@@ -234,6 +237,7 @@ def add_new_directory():
     return jsonify({'id': directory_id}), 200
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/get_dir/<dir_id>', methods=['GET'])
 @token_required
 def get_dir_in_space_content(dir_id):
@@ -294,6 +298,7 @@ def get_dir_in_space_content(dir_id):
         return jsonify("Can't find directory with ID"), 404
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/file', methods=['POST'])
 def add_new_file():
     request_data = request.get_json()
@@ -307,7 +312,8 @@ def add_new_file():
         return jsonify({'error': 'Invalid request body'}), 400
     try:
         user = get_user_by_token()
-        new_file_id = dataStoreController.add_new_file(user.email, UUID(space_id), UUID(dir_id), new_file_name,
+        new_file_id = dataStoreController.add_new_file(user.email, uuid.UUID(space_id), uuid.UUID(dir_id),
+                                                       new_file_name,
                                                        new_file_type, new_file_data)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
@@ -317,6 +323,7 @@ def add_new_file():
     return jsonify({'id': new_file_id}), 200
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/file/<file_id>/view', methods=['GET'])
 @token_required
 def view_file_by_id(file_id):
@@ -328,7 +335,7 @@ def view_file_by_id(file_id):
     """
     user = get_user_by_token()
     try:
-        file: Optional[File] = dataStoreController.get_file_by_id(user.email, UUID(hex=file_id))
+        file: Optional[File] = dataStoreController.get_file_by_id(user.email, uuid.UUID(hex=file_id))
     except FileNotFoundError:
         return jsonify({'error': 'File not found'}), 404
 
@@ -360,6 +367,7 @@ def view_file_by_id(file_id):
 """
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
 @token_required
 def get_accesses(item_id):
@@ -402,6 +410,7 @@ def get_accesses(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
 @token_required
 def set_access_by_url(item_id):
@@ -427,6 +436,7 @@ def set_access_by_url(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
 @token_required
 def reset_access_by_url(item_id):
@@ -446,6 +456,7 @@ def reset_access_by_url(item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
 @token_required
 def add_access_by_user(item_id, email):
@@ -478,6 +489,7 @@ def add_access_by_user(item_id, email):
         return jsonify({'error': 'User not found'}), 404
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['DELETE'])
 @token_required
 def remove_access_by_user(item_id, email):
@@ -497,6 +509,7 @@ def remove_access_by_user(item_id, email):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
 @token_required
 def add_access_by_department(item_id, department):
@@ -529,6 +542,7 @@ def add_access_by_department(item_id, department):
         return jsonify({'error': 'Department not found'}), 404
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['DELETE'])
 @token_required
 def remove_access_by_department(item_id, department):
@@ -552,6 +566,7 @@ def remove_access_by_department(item_id, department):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/rename/<space_id>/<item_id>', methods=['PUT'])
 @token_required
 def rename_item(space_id, item_id):
@@ -577,6 +592,7 @@ def rename_item(space_id, item_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/move/<space_id>/<item_id>', methods=['PUT'])
 @token_required
 def move_item(space_id, item_id):
@@ -605,6 +621,7 @@ def move_item(space_id, item_id):
         return jsonify({'error': 'Item not found'}), 404
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/download/<item_id>', methods=['GET'])
 @token_required
 def download_by_item_id(item_id):
@@ -628,7 +645,7 @@ def download_by_item_id(item_id):
         return jsonify({'error': 'Item not found'}), 404
 
 
-
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/delete/<space_id>/<item_id>', methods=['DELETE'])
 @token_required
 def delete_by_item_id(space_id, item_id):
@@ -650,6 +667,7 @@ def delete_by_item_id(space_id, item_id):
         return jsonify({'error': 'Item not found'}), 404
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/copy/<space_id>/<item_id>', methods=['POST'])
 @token_required
 def copy_item(space_id, item_id):
@@ -680,6 +698,7 @@ def copy_item(space_id, item_id):
         return jsonify({'error': 'Item not found'}), 404
 
 
+# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/whoiam', methods=['GET'])
 @token_required
 def get_user_list():
@@ -695,7 +714,7 @@ def get_user_list():
     """
 
     user = get_user_by_token()
-    user_info: tuple[list[str], UUID, UUID] = userController.get_user_info(user)
+    user_info: tuple[list[str], uuid.UUID, uuid.UUID] = userController.get_user_info(user)
 
     return jsonify(
         {
