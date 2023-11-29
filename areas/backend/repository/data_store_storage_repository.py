@@ -45,6 +45,14 @@ class DataStoreStorageRepository:
         return client
 
     #############
+    # ACCESSS
+    #############
+
+    # TODO
+    def has_access_to_workspace(self):
+        pass
+
+    #############
     # WORKSPACES
     #############
 
