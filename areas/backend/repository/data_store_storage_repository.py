@@ -15,7 +15,8 @@ from areas.backend.core.branch import Branch
 from areas.backend.core.request import Request
 from areas.backend.core.request_status import RequestStatus
 from areas.backend.core.workspace_status import WorkSpaceStatus
-from areas.backend.database.database import UserModel, WorkspaceModel, RequestModel, BranchModel
+from areas.backend.database.database import UserModel, WorkspaceModel, RequestModel, BranchModel, DepartmentModel, \
+    BaseAccessModel
 from areas.backend.exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError
 import shutil
 
@@ -48,9 +49,22 @@ class DataStoreStorageRepository:
     # ACCESSES
     #############
 
-    # TODO
-    def has_access_to_workspace(self):
-        pass
+    def has_access_to_workspace(self, workspace: WorkspaceModel, user: UserModel):
+        accesses: list[BaseAccessModel] = DepartmentModel.query.filter_by(workspace_id=workspace.get_id()).all()
+
+        for access in accesses:
+            if access.access_type == AccessType.Url:
+                return True
+            if access.access_type == AccessType.User:
+                if user.email == access.value:
+                    return True
+            if access.access_type == AccessType.Department:
+                department: DepartmentModel = DepartmentModel.query.filter_by(name=access.value).first()
+
+                for user_ in department.users:
+                    if user_.email == user.email:
+                        return True
+        return False
 
     #############
     # WORKSPACES
@@ -58,7 +72,24 @@ class DataStoreStorageRepository:
 
     def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        return user.workSpaces
+        workspaces: list[BaseAccessModel] = WorkspaceModel.query.filter_by(user_id=user.get_id()).all()
+
+        workspaces_final = []
+
+        for workspace in workspaces:
+            workspaces_final.append(
+                WorkSpace(
+                    title=workspace.title,
+                    description=workspace.description,
+                    branches=workspace.branches,
+                    requests=workspace.requests,
+                    accesses=workspace.accesses,
+                    main_branch=workspace.main_branch,
+                    status=workspace.status,
+                )
+            )
+
+        return workspaces
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
