@@ -45,7 +45,7 @@ class DataStoreStorageRepository:
         return client
 
     #############
-    # ACCESSS
+    # ACCESSES
     #############
 
     # TODO
