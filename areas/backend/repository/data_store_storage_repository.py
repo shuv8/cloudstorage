@@ -117,6 +117,7 @@ class DataStoreStorageRepository:
         self.db.session.add(_branch)
         user.workspaces.append(_workspace)
 
+    # TODO All access only
     def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID) -> Optional[WorkSpace]:
         spaces: list[WorkSpace] = self.get_workspaces(user_mail)
         for space in spaces:
@@ -125,6 +126,7 @@ class DataStoreStorageRepository:
 
         return None
 
+    # TODO Author only
     def change_workspace_status(self, space_id: uuid.UUID, status: str):
         self.db.session.execute(update(WorkspaceModel).where(WorkspaceModel.id == str(space_id)).values(
             status=status
@@ -136,6 +138,7 @@ class DataStoreStorageRepository:
     # BRANCHES
     #############
 
+    # TODO Access to workspace needed
     def get_branch_in_workspace_by_id(
             self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID
     ) -> Optional[Branch]:
@@ -147,10 +150,12 @@ class DataStoreStorageRepository:
 
         return None
 
+    # TODO Author or author of workspace
     def delete_branch_from_workspace_by_id(self, branch_id: uuid.UUID):
         self.db.session.execute(delete(BranchModel).where(BranchModel.id == branch_id))
         self.db.session.commit()
 
+    # TODO Access to workspace needed
     def create_branch_for_workspace(self, user_mail: str, workspace_id: uuid.UUID, branch: Branch):
         workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
@@ -171,6 +176,7 @@ class DataStoreStorageRepository:
     # REQUESTS
     #############
 
+    # TODO Access to workspace needed
     def get_request_in_workspace_by_id(
             self, user_mail: str, space_id: uuid.UUID, request_id: uuid.UUID
     ) -> Optional[Request]:
@@ -182,6 +188,7 @@ class DataStoreStorageRepository:
 
         return None
 
+    # TODO Author or author of workspace
     def change_request_status(self, request_id: uuid.UUID, status: str):
         self.db.session.execute(update(RequestModel).where(RequestModel.id == str(request_id)).values(
             status=status
@@ -189,6 +196,7 @@ class DataStoreStorageRepository:
 
         self.db.session.commit()
 
+    # TODO Access to workspace needed
     def create_request_for_branch(self, user_mail: str, workspace_id: uuid.UUID, request: Request):
         workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
@@ -205,6 +213,7 @@ class DataStoreStorageRepository:
 
         self.db.session.commit()
 
+    # TODO Author of workspace
     def force_merge(self, user_mail: str, workspace_id: uuid.UUID, request_id: uuid.UUID, ):
         workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
