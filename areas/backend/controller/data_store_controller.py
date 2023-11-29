@@ -82,14 +82,14 @@ class DataStoreController:
     def create_branch_for_workspace(self, user_mail: str, workspace_id: UUID, branch: Branch):
         self.data_store_service.create_branch_for_workspace(user_mail, workspace_id, branch)
 
-    #############
-    # REQUESTS
-    #############
-
     # Add Request
 
     def create_request_for_branch(self, user_mail: str, workspace_id: UUID, request: Request):
         self.data_store_service.create_request_for_branch(user_mail, workspace_id, request)
+
+    #############
+    # REQUESTS
+    #############
 
     # Delete Request
 

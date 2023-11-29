@@ -15,7 +15,7 @@ class WorkSpace:
             description: Optional[str],
             branches: list[Branch],
             requests: list[Request],
-            main_branch: Branch,
+            main_branch: Optional[Branch],
             status: WorkSpaceStatus,
             accesses: list[BaseAccess],
 
@@ -27,7 +27,7 @@ class WorkSpace:
         self.__description: str = description
         self.__branches: list[Branch] = branches
         self.__requests: list[Request] = requests
-        self.__main_branch: Branch = main_branch
+        self.__main_branch: Optional[Branch] = main_branch
         self.__status: WorkSpaceStatus = status
         self.__accesses: list[BaseAccess] = accesses
 
@@ -65,7 +65,7 @@ class WorkSpace:
 
     status = property(get_status, set_status)
 
-    def get_main_branch(self) -> Branch:
+    def get_main_branch(self) -> Optional[Branch]:
         return self.__main_branch
 
     def set_main_branch(self, new_main_branch: Branch):

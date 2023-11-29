@@ -7,9 +7,13 @@ from flask import jsonify, Blueprint, make_response, request, send_file
 from areas.backend.controller.data_store_controller import DataStoreController, AccessEditTypeEnum, AccessClassEnum
 from areas.backend.controller.user_controller import UserController
 from areas.backend.core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from areas.backend.core.branch import Branch
 from areas.backend.core.document import Document
+from areas.backend.core.request import Request
+from areas.backend.core.request_status import RequestStatus
 from areas.backend.core.role import Role
 from areas.backend.core.workspace import WorkSpace
+from areas.backend.core.workspace_status import WorkSpaceStatus
 from areas.backend.decorators.token_required import token_required, get_user_by_token
 from areas.backend.exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError, ItemNotFoundError, \
     NotAllowedError, UserNotFoundError, DepartmentNotFoundError, AccessError, SpaceNotFoundError
@@ -124,8 +128,8 @@ def get_workspaces():
         - query: get all workspaces
     Result:
         {
-            spaces: [{
-              space
+            workspaces: [{
+              workspace
             }]
         }
     """
@@ -175,13 +179,13 @@ def get_workspace_content(space_id):
         item: WorkSpace = dataStoreController.get_workspace_by_id(user.email, uuid.UUID(space_id))
 
         requests = []
-        for request in item.requests:
+        for merge_request in item.requests:
             requests.append(
                 {
-                    "title": request.title,
-                    "description": request.description,
-                    "status": request.status.value,
-                    "id": request.get_id(),
+                    "title": merge_request.title,
+                    "description": merge_request.description,
+                    "status": merge_request.status.value,
+                    "id": merge_request.get_id(),
                 }
             )
 
@@ -210,19 +214,150 @@ def get_workspace_content(space_id):
         return jsonify("Can't find space with ID"), 404
 
 
+@USER_REQUEST_API.route('/workspace/add', methods=['POST'])
+def add_workspace():
+    request_data = request.get_json()
+    try:
+        title = request_data['title']
+        description = request_data['description']
+    except KeyError:
+        return jsonify({'error': 'Invalid request body'}), 400
+
+    try:
+        user = get_user_by_token()
+
+        workspace = WorkSpace(
+            title=title,
+            description=description,
+            branches=[],
+            requests=[],
+            accesses=[],
+            main_branch=None,
+            status=WorkSpaceStatus.Active.value,
+        )
+
+        new_file_id = dataStoreController.create_workspace(user.email, workspace)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'id': new_file_id}), 200
+
+
+@USER_REQUEST_API.route('/workspace/<space_id>/archive', methods=['POST'])
+def archive_workspace(space_id):
+    try:
+        # user = get_user_by_token()
+
+        new_file_id = dataStoreController.archive_workspace(space_id)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'id': new_file_id}), 200
+
+
 """
     ===================
     Block with Branches
     ===================
 """
 
-# Delete branch
 
-# View branch
+@USER_REQUEST_API.route('/workspace/<space_id>/<branch_id>', methods=['GET'])
+@token_required
+def get_branch_in_workspace_by_id(space_id, branch_id):
+    """
+    Query:
+        - space_id: id of space to view
+        - branch_id: id of branch to view
+    Result:
+        {
+            branch: [{
+              files and dirs in space
+            }]
+        }
+    """
 
-# Create new branch from current
+    # query date
+    user = get_user_by_token()
 
-# Change Request
+    try:
+        item: Branch = dataStoreController.get_branch_in_workspace_by_id(user.email, uuid.UUID(space_id),
+                                                                         uuid.UUID(branch_id))
+
+        return jsonify(
+            {
+                "name": item.name,
+                "author": item.author,
+                "parent": item.parent,
+                "document": item.document.name,
+                "task_id": item.document.task_id,
+                "file": item.document.file,
+            }
+        ), 200
+    except SpaceNotFoundError:
+        return jsonify("Can't find space with ID"), 404
+
+
+@USER_REQUEST_API.route('/workspace/<space_id>/add_branch', methods=['POST'])
+def add_branch(space_id):
+    request_data = request.get_json()
+    try:
+        name = request_data['name']
+        document_id = request_data['document_id']
+        parent_branch_id = request_data['parent_branch_id']
+    except KeyError:
+        return jsonify({'error': 'Invalid request body'}), 400
+
+    try:
+        user = get_user_by_token()
+
+        branch = Branch(
+            name=name,
+            author=user.id,
+            document=document_id,
+            parent=parent_branch_id,
+        )
+
+        new_file_id = dataStoreController.create_branch_for_workspace(user.email, space_id, branch)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'id': new_file_id}), 200
+
+
+@USER_REQUEST_API.route('/branch/<branch_id>', methods=['DELETE'])
+def delete_branch(branch_id):
+    try:
+        removed = dataStoreController.delete_branch(branch_id)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'removed': removed}), 200
+
+
+@USER_REQUEST_API.route('/workspace/<space_id>/request', methods=['POST'])
+def add_request_for_branch(space_id):
+    request_data = request.get_json()
+    try:
+        title = request_data['title']
+        description = request_data['description']
+        source_branch_id = request_data['source_branch_id']
+        target_branch_id = request_data['target_branch_id']
+    except KeyError:
+        return jsonify({'error': 'Invalid request body'}), 400
+
+    try:
+        user = get_user_by_token()
+
+        merge_request = Request(
+            title=title,
+            description=description,
+            status=RequestStatus.Open.value,
+            source_branch_id=source_branch_id,
+            target_branch_id=target_branch_id,
+        )
+
+        new_file_id = dataStoreController.create_request_for_branch(user.email, space_id, merge_request)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'id': new_file_id}), 200
+
 
 """
     ===================
@@ -230,15 +365,74 @@ def get_workspace_content(space_id):
     ===================
 """
 
-# Add Request
 
-# Delete Request
+@USER_REQUEST_API.route('/workspace/<space_id>/request/<request_id>', methods=['GET'])
+@token_required
+def get_request_in_workspace_by_id(space_id, request_id):
+    """
+    Query:
+        - space_id: id of space to view
+        - request_id: id of request to view
+    Result:
+        {
+            branch: [{
+              files and dirs in space
+            }]
+        }
+    """
 
-# View Request
+    # query date
+    user = get_user_by_token()
 
-# Force merge
+    try:
+        item: Request = dataStoreController.get_request_in_workspace_by_id(user.email, uuid.UUID(space_id),
+                                                                           uuid.UUID(request_id))
 
-# Change Request status
+        return jsonify(
+            {
+                "title": item.title,
+                "description": item.description,
+                "status": item.status.value,
+                "source_branch_id": item.get_source_branch_id(),
+                "target_branch_id": item.get_target_branch_id(),
+            }
+        ), 200
+    except SpaceNotFoundError:
+        return jsonify("Can't find space with ID"), 404
+
+
+@USER_REQUEST_API.route('/request/<request_id>/change_status', methods=['POST'])
+def change_request_status(request_id):
+    request_data = request.get_json()
+    try:
+        status = request_data['status']
+    except KeyError:
+        return jsonify({'error': 'Invalid request body'}), 400
+
+    try:
+        new_file_id = dataStoreController.change_request_status(request_id, status)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'id': new_file_id}), 200
+
+
+@USER_REQUEST_API.route('/request/<request_id>/close', methods=['POST'])
+def change_request_status(request_id):
+    try:
+        new_file_id = dataStoreController.close_request(request_id)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'id': new_file_id}), 200
+
+
+@USER_REQUEST_API.route('/workspace/<space_id>/request/<request_id>/force_merge', methods=['POST'])
+def force_merge(space_id, request_id):
+    try:
+        new_file_id = dataStoreController.force_merge(request_id, space_id, request_id)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect directory'}), 404
+    return jsonify({'id': new_file_id}), 200
+
 
 """
     ===================
