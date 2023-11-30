@@ -30,17 +30,17 @@ Web application of "Documents storing system" <MEPhI course>
 
 🟢 1) `/registration` - Registration
 
-🟡 2) `/login` - Login
+🟢 2) `/login` - Login
 
 [NEED REFACTOR] 3) `/search_for` - Search [ACCESS: Show all, open only workspaces with access]
 
 #### Workspaces
 
-🟡 4) `/get_workspaces` - Get workspaces
+🟢 4) `/get_workspaces` - Get workspaces
 
-🟡 5) `/get_workspace/<space_id>` - Get workspace [ACCESS: All access only]
+🟢 5) `/get_workspace/<space_id>` - Get workspace [ACCESS: All access only]
 
-🟡 6) `/workspace/add` - Add new workspace
+🟢 6) `/workspace/add` - Add new workspace
 
 🟡 7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
 

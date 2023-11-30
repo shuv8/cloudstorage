@@ -12,11 +12,12 @@ from sqlalchemy import update
 from areas.backend.app_db import get_current_db
 from areas.backend.core.accesses import BaseAccess, UrlAccess, AccessType, DepartmentAccess, UserAccess, Access
 from areas.backend.core.branch import Branch
+from areas.backend.core.document import Document
 from areas.backend.core.request import Request
 from areas.backend.core.request_status import RequestStatus
 from areas.backend.core.workspace_status import WorkSpaceStatus
 from areas.backend.database.database import UserModel, WorkspaceModel, RequestModel, BranchModel, DepartmentModel, \
-    BaseAccessModel
+    BaseAccessModel, DocumentModel
 from areas.backend.exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError, \
     SpaceNotFoundError, NotAllowedError
 import shutil
@@ -83,20 +84,76 @@ class DataStoreStorageRepository:
     @staticmethod
     def get_workspaces(user_mail: str) -> list[WorkSpace]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        workspaces: list[BaseAccessModel] = WorkspaceModel.query.filter_by(user_id=user.get_id()).all()
+        workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter_by(user_id=user.id).all()
 
         workspaces_final = []
 
         for workspace in workspaces:
+            branches: list[BranchModel] = BranchModel.query.filter_by(workspace_id=workspace.id).all()
+            accesses: list[BaseAccessModel] = BaseAccessModel.query.filter_by(workspace_id=workspace.id).all()
+
+            all_branches = []
+            all_requests = []
+
+            for br in branches:
+                documentModel: DocumentModel = DocumentModel.query.filter_by(id=br.document_id).first()
+                document = None
+
+                if documentModel is not None:
+                    document = Document(
+                        name=documentModel.name,
+                        task_id=documentModel.task_id,
+                        file=documentModel.file_id,
+                        time=documentModel.modification_time,
+                        _id=documentModel.id,
+                    )
+
+                all_branches.append(
+                    Branch(
+                        name=br.name,
+                        author=br.author,
+                        parent=br.parent_branch_id,
+                        document=document,
+                        _id=br.id,
+                    )
+                )
+
+                requests: list[RequestModel] = RequestModel.query.filter_by(source_branch_id=br.id).all()
+                requests2: list[RequestModel] = RequestModel.query.filter_by(target_branch_id=br.id).all()
+
+                for req in requests:
+                    all_requests.append(
+                        Request(
+                            title=req.title,
+                            description=req.description,
+                            status=req.status,
+                            source_branch_id=req.source_branch_id,
+                            target_branch_id=req.target_branch_id,
+                            _id=req.id,
+                        )
+                    )
+                for req in requests2:
+                    all_requests.append(
+                        Request(
+                            title=req.title,
+                            description=req.description,
+                            status=req.status,
+                            source_branch_id=req.source_branch_id,
+                            target_branch_id=req.target_branch_id,
+                            _id=req.id,
+                        )
+                    )
+
             workspaces_final.append(
                 WorkSpace(
                     title=workspace.title,
                     description=workspace.description,
-                    branches=workspace.branches,
-                    requests=workspace.requests,
-                    accesses=workspace.accesses,
+                    branches=all_branches,
+                    requests=all_requests,
+                    accesses=[],  # TODO ACCESSES
                     main_branch=workspace.main_branch,
                     status=workspace.status,
+                    _id=workspace.id,
                 )
             )
 
@@ -105,32 +162,40 @@ class DataStoreStorageRepository:
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
 
+        workspace_id = str(uuid.uuid4())
+
         _branch = BranchModel(
-            name="mater",
+            id=str(uuid.uuid4()),
+            name="master",
             author=user.id,
             document_id=-1,
             parent_branch_id=-1,
+            workspace_id=workspace_id
         )
 
+        self.db.session.add(_branch)
+        self.db.session.commit()
+
         _workspace = WorkspaceModel(
+            id=workspace_id,
             title=workspace.title,
             description=workspace.description,
-            branches=[_branch],
-            requests=[],
-            accesses=[],
-            main_branch=_branch,
+            main_branch=_branch.id,
             status=WorkSpaceStatus.Active.value,
+            user_id=user.id,
         )
+
+        self.db.session.add(_workspace)
 
         self.db.session.commit()
 
-        self.db.session.add(_workspace)
-        self.db.session.add(_branch)
-        user.workspaces.append(_workspace)
+        return _workspace.id
 
     def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID) -> Optional[WorkSpace]:
         spaces: list[WorkSpace] = self.get_workspaces(user_mail)
+        print(len(spaces))
         for space in spaces:
+            print(space.get_id())
             if str(space.get_id()) == str(space_id):
                 return space
 
@@ -187,6 +252,7 @@ class DataStoreStorageRepository:
 
         if self.has_access_to_workspace(workspace, user):
             _branch = BranchModel(
+                id=str(uuid.uuid4()),
                 name=branch.name,
                 author=branch.author,
                 workspace_id=workspace_id,
@@ -239,6 +305,7 @@ class DataStoreStorageRepository:
 
         if self.has_access_to_workspace(workspace, user):
             _request = RequestModel(
+                id=str(uuid.uuid4()),
                 title=request.title,
                 description=request.description,
                 status=request.status.value,

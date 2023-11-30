@@ -120,12 +120,12 @@
         }
       }
     },
-    "/get_spaces": {
+    "/get_workspaces": {
       "get": {
         "tags": [
           "UserRequest"
         ],
-        "summary": "Returns files and directories for user query",
+        "summary": "Returns all user workspaces",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -146,7 +146,7 @@
         }
       }
     },
-    "/get_space/{space_id}": {
+    "/get_workspace/{space_id}": {
       "get": {
         "parameters": [
           {
@@ -171,10 +171,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/space_item"
-                  }
+                  "$ref": "#/components/schemas/space_item"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/add": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/new_workspace"
+              },
+              "example": {
+                "title": "Test",
+                "description": "Description"
+              }
+            }
+          }
+        },
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+               "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1258,16 +1297,19 @@
       },
       "space": {
         "properties": {
-          "type": {
+          "branches_num": {
+            "type": "number"
+          },
+          "title": {
             "type": "string"
           },
-          "name": {
+          "description": {
             "type": "string"
           },
           "id": {
             "type": "string"
           },
-          "owner": {
+          "status": {
             "type": "string"
           }
         }
@@ -1319,23 +1361,61 @@
       },
       "space_item": {
         "properties": {
-          "type": {
+          "branches_num": {
+            "type": "number"
+          },
+          "main_branch": {
+            "type": "number"
+          },
+          "title": {
             "type": "string"
           },
-          "name": {
+          "description": {
             "type": "string"
           },
           "id": {
             "type": "string"
           },
-          "entity": {
+          "status": {
             "type": "string"
           },
-          "items": {
+          "branches": {
             "type": "array",
             "items": {
-               "$ref": "#/components/schemas/item"
+               "$ref": "#/components/schemas/branch_item"
             }
+          },
+          "requests": {
+            "type": "array",
+            "items": {
+               "$ref": "#/components/schemas/requests_item"
+            }
+          }
+        }
+      },
+      "branch_item": {
+        "properties": {
+          "name": {
+            "type": "number"
+          },
+          "id": {
+            "type": "number"
+          }
+        }
+      },
+      "requests_item": {
+        "properties": {
+          "status": {
+            "type": "number"
+          },
+          "id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
           }
         }
       },
@@ -1348,6 +1428,16 @@
             "type": "string"
           },
           "new_directory_name": {
+            "type": "string"
+          }
+        }
+      },
+      "new_workspace": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
             "type": "string"
           }
         }

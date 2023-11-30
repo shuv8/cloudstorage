@@ -35,6 +35,7 @@ class DocumentModel(db.Model):
 
     id = db.Column('document_id', db.String, primary_key=True)
 
+    name = db.Column(db.String)
     task_id = db.Column(db.String)
     modification_time = db.Column(db.Integer)
     file_id = db.Column(db.String)
@@ -76,6 +77,7 @@ class WorkspaceModel(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.Integer)
     status = db.Column(db.String)
+    main_branch = db.Column(db.String)
 
     user_id = db.Column(db.String, db.ForeignKey("user.user_id"))
 

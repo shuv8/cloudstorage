@@ -49,7 +49,7 @@ class DataStoreService:
         return space
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
-        self.data_store_storage_repo.create_workspace(user_mail, workspace)
+        return self.data_store_storage_repo.create_workspace(user_mail, workspace)
 
     #############
     # BRANCHES

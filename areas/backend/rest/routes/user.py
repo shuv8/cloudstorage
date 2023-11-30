@@ -146,7 +146,7 @@ def get_workspaces():
                 "branches_num": len(item.branches),
                 "title": item.title,
                 "description": item.description,
-                "status": item.status.value,
+                "status": item.status,
                 "id": str(item.get_id()),
             }
         )
@@ -203,7 +203,7 @@ def get_workspace_content(space_id):
                 "branches_num": len(item.branches),
                 "title": item.title,
                 "description": item.description,
-                "status": item.status.value,
+                "status": item.status,
                 "main_branch": item.main_branch,
                 "branches": branches,
                 "requests": requests,
@@ -285,8 +285,8 @@ def get_branch_in_workspace_by_id(space_id, branch_id):
     user = get_user_by_token()
 
     try:
-        item: Branch = dataStoreController.get_branch_in_workspace_by_id(user.email, uuid.UUID(space_id),
-                                                                         uuid.UUID(branch_id))
+        item: Branch = dataStoreController.get_branch_in_workspace_by_id(user.email, uuid.UUID(hex=space_id),
+                                                                         uuid.UUID(hex=branch_id))
 
         return jsonify(
             {
@@ -400,8 +400,8 @@ def get_request_in_workspace_by_id(space_id, request_id):
     user = get_user_by_token()
 
     try:
-        item: Request = dataStoreController.get_request_in_workspace_by_id(user.email, uuid.UUID(space_id),
-                                                                           uuid.UUID(request_id))
+        item: Request = dataStoreController.get_request_in_workspace_by_id(user.email, uuid.UUID(hex=space_id),
+                                                                           uuid.UUID(hex=request_id))
 
         return jsonify(
             {
@@ -480,7 +480,7 @@ def add_new_file():
         return jsonify({'error': 'Invalid request body'}), 400
     try:
         user = get_user_by_token()
-        new_file_id = dataStoreController.add_new_file(user.email, uuid.UUID(space_id), uuid.UUID(dir_id),
+        new_file_id = dataStoreController.add_new_file(user.email, uuid.UUID(space_id), uuid.UUID(hex=dir_id),
                                                        new_file_name,
                                                        new_file_type, new_file_data)
     except ItemNotFoundError:

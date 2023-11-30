@@ -59,7 +59,7 @@ class DataStoreController:
         self.data_store_service.change_workspace_status(space_id, user_mail, WorkSpaceStatus.Archived.value)
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
-        self.data_store_service.create_workspace(user_mail, workspace)
+        return self.data_store_service.create_workspace(user_mail, workspace)
 
     #############
     # BRANCHES
