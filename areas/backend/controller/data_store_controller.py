@@ -56,7 +56,7 @@ class DataStoreController:
         return self.data_store_service.get_workspace_by_id(user_mail, space_id)
 
     def archive_workspace(self, user_mail: str,  space_id: UUID):
-        self.data_store_service.change_workspace_status(space_id, user_mail, WorkSpaceStatus.Archived.value)
+        self.data_store_service.change_workspace_status(user_mail, space_id, WorkSpaceStatus.Archived.value)
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_service.create_workspace(user_mail, workspace)

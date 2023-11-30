@@ -251,12 +251,12 @@ def archive_workspace(space_id):
     try:
         user = get_user_by_token()
 
-        new_file_id = dataStoreController.archive_workspace(user.email, space_id)
+        dataStoreController.archive_workspace(user.email, uuid.UUID(space_id))
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
     except NotAllowedError:
         return jsonify("No access to this space"), 401
-    return jsonify({'id': new_file_id}), 200
+    return jsonify({'status': "ok"}), 200
 
 
 """
@@ -266,7 +266,7 @@ def archive_workspace(space_id):
 """
 
 
-@USER_REQUEST_API.route('/workspace/<space_id>/<branch_id>', methods=['GET'])
+@USER_REQUEST_API.route('/workspace/<space_id>/view/<branch_id>', methods=['GET'])
 @token_required
 def get_branch_in_workspace_by_id(space_id, branch_id):
     """
@@ -285,8 +285,8 @@ def get_branch_in_workspace_by_id(space_id, branch_id):
     user = get_user_by_token()
 
     try:
-        item: Branch = dataStoreController.get_branch_in_workspace_by_id(user.email, uuid.UUID(hex=space_id),
-                                                                         uuid.UUID(hex=branch_id))
+        item: Branch = dataStoreController.get_branch_in_workspace_by_id(user.email, uuid.UUID(space_id),
+                                                                         uuid.UUID(branch_id))
 
         return jsonify(
             {

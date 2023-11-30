@@ -42,7 +42,7 @@ Web application of "Documents storing system" <MEPhI course>
 
 🟢 6) `/workspace/add` - Add new workspace
 
-🟡 7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
+🟢 7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
 
 #### Branches 
 
