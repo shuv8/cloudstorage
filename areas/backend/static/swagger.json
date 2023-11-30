@@ -60,7 +60,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "Login",
+        "summary": "Login to account",
         "requestBody": {
           "content": {
             "application/json": {
@@ -90,7 +90,7 @@
           {
             "name": "query",
             "in": "query",
-            "description": "File or directory to search for",
+            "description": "File to search for",
             "schema": {
               "type": "string"
             }
@@ -99,7 +99,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "Returns files and directories for user query",
+        "summary": "Returns files for user query",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -164,7 +164,7 @@
           {
             "name": "space_id",
             "in": "path",
-            "description": "File or directory to search for",
+            "description": "Id of the user workspace",
             "schema": {
               "type": "string"
             }
@@ -173,7 +173,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "Returns files and directories for user query",
+        "summary": "Return user workspace",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -203,7 +203,7 @@
           {
             "name": "space_id",
             "in": "path",
-            "description": "File or directory to search for",
+            "description": "Id of the user workspace",
             "schema": {
               "type": "string"
             }
@@ -212,7 +212,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "Returns files and directories for user query",
+        "summary": "Archive user workspace",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -254,7 +254,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Create new workspace",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -307,7 +307,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Add new branch for user workspace",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -361,7 +361,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Create new merge request",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -408,7 +408,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Delete branch",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -455,7 +455,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "Returns files and directories for user query",
+        "summary": "Returns branch in workspace",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -502,7 +502,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "Returns files and directories for user query",
+        "summary": "Returns merge request",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -561,7 +561,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Change status of the request",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -608,7 +608,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Close merge request",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -655,7 +655,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Force merge request",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -672,69 +672,6 @@
               "application/json": {
                "schema": {
                   "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/directory": {
-      "post": {
-        "tags": [
-          "UserRequest"
-        ],
-        "summary": "Create new directory",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/new_directory"
-              },
-              "example": {
-                "space_id": "31277789-2a0a-49d5-a10f-60ca66faf4e2",
-                "parent_id": "a3699d10-54ec-485e-a436-febefaf20c3a",
-                "new_directory_name": "mega new dir"
-              }
-            }
-          }
-        },
-        "responses": {
-          "400": {
-            "description": "Failed. Bad post data."
-          },
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/get_dir/{dir_id}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "dir_id",
-            "in": "path",
-            "description": "File or directory to search for",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "tags": [
-          "UserRequest"
-        ],
-        "summary": "Returns files and directories for user query",
-        "responses": {
-          "400": {
-            "description": "Failed. Bad post data."
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/dir_with_path"
                 }
               }
             }
@@ -1269,59 +1206,6 @@
           },
           "404": {
             "description": "Item not found"
-          },
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/move/{space_id}/{item_id}": {
-      "put": {
-        "parameters": [
-          {
-            "name": "space_id",
-            "in": "path",
-            "description": "Space of file or directory to move",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "item_id",
-            "in": "path",
-            "description": "File or directory to move",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "target_space",
-            "in": "query",
-            "description": "New target directory space",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "target_directory",
-            "in": "query",
-            "description": "New target directory",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "tags": [
-          "UserRequest"
-        ],
-        "summary": "to do",
-        "responses": {
-          "400": {
-            "description": "Failed. Bad put data"
-          },
-          "404": {
-            "description": "Items not found"
           },
           "200": {
             "description": "OK"
