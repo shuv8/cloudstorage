@@ -1,13 +1,13 @@
 from typing import List
 from uuid import UUID
 
-from core.accesses import AccessType
-from core.user import User
-from core.department import Department
+from areas.backend.core.accesses import AccessType
+from areas.backend.core.user import User
+from areas.backend.core.department import Department
 from flask import current_app
-from core.user_manager import UserNotFoundError
-from app_db import get_current_db
-from repository.data_store_storage_repository import DataStoreStorageRepository
+from areas.backend.core.user_manager import UserNotFoundError
+from areas.backend.app_db import get_current_db
+from areas.backend.repository.data_store_storage_repository import DataStoreStorageRepository
 
 db = get_current_db(current_app)
 
@@ -21,7 +21,7 @@ class UserRepository:
         self.data_storage_repo = DataStoreStorageRepository()
 
     def get_user_from_db_by_id(self, _id: UUID):
-        from database.database import UserModel
+        from areas.backend.database.database import UserModel
         user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
         if user is None:
             raise UserNotFoundError
@@ -34,12 +34,12 @@ class UserRepository:
         )
 
     def get_user_departments_by_id(self, _id: UUID) -> list[str]:
-        from database.database import UserModel
+        from areas.backend.database.database import UserModel
         user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
         return [department.name for department in user.departments]
 
     def get_user_from_db_by_email(self, email: str) -> User:
-        from database.database import UserModel
+        from areas.backend.database.database import UserModel
         user: UserModel = UserModel.query.filter_by(email=email).first()
         if user is None:
             raise UserNotFoundError
@@ -51,22 +51,10 @@ class UserRepository:
             role=user.role
         )
 
-    def add_new_user_to_db(self, new_user: User) -> None:
-        from database.database import UserModel, UserSpaceModel, DirectoryModel
-        space_manager = new_user.get_space_manager()
-        root_space = space_manager.get_spaces()[0]
-        directory_manager = root_space.get_directory_manager()
-        root_directory = directory_manager.get_items()[0]
-        directory: DirectoryModel = DirectoryModel(
-            id=str(root_directory.get_id()),
-            name="Root",
-            is_root=True,
-        )
-        space: UserSpaceModel = UserSpaceModel(
-            id=str(root_space.get_id()),
-            space_type=root_space.get_space_type(),
-        )
-        space.root_directory = directory
+    @staticmethod
+    def add_new_user_to_db(new_user: User) -> None:
+        from areas.backend.database.database import UserModel
+
         user: UserModel = UserModel(
             id=str(new_user.get_id()),
             email=new_user.email,
@@ -74,11 +62,8 @@ class UserRepository:
             passwordHash=new_user.password,
             role=new_user.role
         )
-        user.spaces.append(space)
 
         db.session.add(user)
-        db.session.add(space)
-        db.session.add(directory)
         db.session.commit()
 
     """
@@ -86,13 +71,13 @@ class UserRepository:
     """
 
     def get_departments(self) -> List[Department]:
-        from database.database import DepartmentModel
+        from areas.backend.database.database import DepartmentModel
         departments: List[DepartmentModel] = DepartmentModel.query.all()
         departments_list = [Department(i.name, i.users) for i in departments]
         return departments_list
 
     def get_users(self) -> List[User]:
-        from database.database import UserModel
+        from areas.backend.database.database import UserModel
         users: List[UserModel] = UserModel.query.all()
         all_users = [
             User(
@@ -107,8 +92,8 @@ class UserRepository:
         return all_users
 
     def get_department_by_name(self, department_name) -> Department:
-        from database.database import DepartmentModel
-        from core.department_manager import DepartmentNotFoundError
+        from areas.backend.database.database import DepartmentModel
+        from areas.backend.core.department_manager import DepartmentNotFoundError
         department: DepartmentModel = DepartmentModel.query.filter_by(name=department_name).first()
         if department is None:
             raise DepartmentNotFoundError
@@ -128,14 +113,14 @@ class UserRepository:
         )
 
     def add_new_department(self, new_department: Department) -> None:
-        from database.database import DepartmentModel
+        from areas.backend.database.database import DepartmentModel
         department: DepartmentModel = DepartmentModel(name=new_department.department_name)
         db.session.add(department)
         db.session.commit()
 
     def delete_department_by_name(self, department_name: str) -> None:
-        from database.database import DepartmentModel
-        from core.department_manager import DepartmentNotFoundError
+        from areas.backend.database.database import DepartmentModel
+        from areas.backend.core.department_manager import DepartmentNotFoundError
         department: DepartmentModel = DepartmentModel.query.filter_by(name=department_name).first()
         if department is None:
             raise DepartmentNotFoundError
@@ -143,7 +128,7 @@ class UserRepository:
         db.session.commit()
 
     def update_department_users(self, department: Department) -> Department:
-        from database.database import DepartmentModel, UserModel
+        from areas.backend.database.database import DepartmentModel, UserModel
         department_model: DepartmentModel = DepartmentModel.query.filter_by(name=department.department_name).first()
         users = []
         for user in department.users:
@@ -155,7 +140,7 @@ class UserRepository:
 
     @staticmethod
     def remove_users_accesses(users_ids: List[str], department_name: str):
-        from database.database import UserModel
+        from areas.backend.database.database import UserModel
 
         for user in users_ids:
             user_model: UserModel = UserModel.query.filter_by(id=user).first()
@@ -175,7 +160,7 @@ class UserRepository:
         db.session.commit()
 
     def add_users_accesses(self, users_ids: List[str], department_name: str):
-        from database.database import AccessModel, FileModel, DirectoryModel, UserModel
+        from areas.backend.database.database import AccessModel, FileModel, DirectoryModel, UserModel
 
         accesses: list[AccessModel] = AccessModel.query.filter(
             (AccessModel.access_type == AccessType.Department) & (AccessModel.value == department_name)
@@ -193,8 +178,8 @@ class UserRepository:
                 for user_id in users_ids:
                     user_model: UserModel = UserModel.query.filter_by(id=user_id).first()
                     if user_model is not None:
-                        self.data_storage_repo.add_shared_space_for_directory_model_by_email(directory, user_model.email)
-
+                        self.data_storage_repo.add_shared_space_for_directory_model_by_email(directory,
+                                                                                             user_model.email)
 
     def get_root_user_space_content(self, user_email: str):
         return self.data_storage_repo.get_root_user_space_content(user_email)

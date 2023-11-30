@@ -28,41 +28,41 @@ Web application of "Documents storing system" <MEPhI course>
 
 #### Common
 
-[CHECK] 1) `/registration` - Registration
+🟢 1) `/registration` - Registration
 
-[CHECK] 2) `/login` - Login
+🟡 2) `/login` - Login
 
 [NEED REFACTOR] 3) `/search_for` - Search [ACCESS: Show all, open only workspaces with access]
 
 #### Workspaces
 
-4) `/get_workspaces` - Get workspaces
+🟡 4) `/get_workspaces` - Get workspaces
 
-5) `/get_workspace/<space_id>` - Get workspace [ACCESS: All access only]
+🟡 5) `/get_workspace/<space_id>` - Get workspace [ACCESS: All access only]
 
-6) `/workspace/add` - Add new workspace
+🟡 6) `/workspace/add` - Add new workspace
 
-7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
+🟡 7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
 
 #### Branches 
 
-8) `/branch/branch_id` - View branch [ACCESS: Access to workspace needed]
+🟡 8) `/branch/branch_id` - View branch [ACCESS: Access to workspace needed]
 
-9) `/branch/<space_id>` - Create branch [ACCESS: Access to workspace needed]
+🟡 9) `/branch/<space_id>` - Create branch [ACCESS: Access to workspace needed]
 
-10) `/branch/branch_id` - Remove branch [ACCESS: Author]
+🟡 10) `/branch/branch_id` - Remove branch [ACCESS: Author]
 
-11) `/branch/branch_id/request` - Create pull request [ACCESS: Author]
+🟡 11) `/branch/branch_id/request` - Create pull request [ACCESS: Author]
 
 #### Requests
 
-12) `/request/request_id` - View request
+🟡 12) `/request/request_id` - View request
 
-13) `/request/request_id` - Close request
+🟡 13) `/request/request_id` - Close request
 
-14) `/request/request_id/merge` - Merge request
+🟡 14) `/request/request_id/merge` - Merge request
 
-15) `/request/request_id` - Change status of Request
+🟡 15) `/request/request_id` - Change status of Request
 
 #### Files
 

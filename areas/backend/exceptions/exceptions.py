@@ -6,7 +6,6 @@ class ItemNotFoundError(Exception):
     pass
 
 
-
 class SpaceNotFoundError(Exception):
     pass
 
@@ -19,11 +18,8 @@ class InvalidCredentialsError(Exception):
     pass
 
 
-
 class UserNotFoundError(Exception):
     pass
-
-
 
 
 class DepartmentNotFoundError(Exception):

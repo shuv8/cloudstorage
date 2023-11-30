@@ -4,19 +4,13 @@ from uuid import UUID
 from bcrypt import checkpw, gensalt, hashpw
 from jwt import InvalidTokenError, decode, encode
 
-from core.accesses import Access, BaseAccess
-from core.department import Department
-from core.department_manager import DepartmentNotFoundError
-from core.directory import Directory
-from core.directory_manager import DirectoryManager
-from core.files import FileManager
-from core.role import Role
-from core.space_manager import SpaceManager
-from core.user_cloud_space import SpaceType, UserCloudSpace
-from core.user_manager import UserNotFoundError
-from exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
-from core.user import User
-from repository.user_storage_repository import UserRepository
+from areas.backend.core.department import Department
+from areas.backend.core.department_manager import DepartmentNotFoundError
+from areas.backend.core.role import Role
+from areas.backend.core.user import User
+from areas.backend.core.user_manager import UserNotFoundError
+from areas.backend.exceptions.exceptions import AlreadyExistsError, InvalidCredentialsError
+from areas.backend.repository.user_storage_repository import UserRepository
 
 
 class UserService:
@@ -28,32 +22,12 @@ class UserService:
             self.user_repo.get_user_from_db_by_email(email)
             raise AlreadyExistsError
         except UserNotFoundError:
-            directory = Directory(
-                accesses=[
-                    BaseAccess(access_type=Access.View),
-                    BaseAccess(access_type=Access.Edit),
-                ],
-                name="Root"
-            )
-            directory_manager = DirectoryManager(
-                items=[directory],
-                file_manager=FileManager(
-                    items=[]
-                )
-            )
-            space = UserCloudSpace(
-                space_type=SpaceType.Regular,
-                directory_manager=directory_manager
-            )
-            space_manager = SpaceManager(
-                spaces=[space]
-            )
             new_user = User(
                 email=email,
                 password=password,
                 role=role,
                 username=username,
-                space_manager=space_manager
+                workSpaces=[]
             )
             hash = hashpw(
                 str(new_user.password).encode(), gensalt()

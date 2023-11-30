@@ -418,7 +418,7 @@ def get_request_in_workspace_by_id(space_id, request_id):
         return jsonify("No access to this space"), 401
 
 
-@USER_REQUEST_API.route('/workspace/<space_id>//request/<request_id>/change_status', methods=['POST'])
+@USER_REQUEST_API.route('/workspace/<space_id>/request/<request_id>/change_status', methods=['POST'])
 def change_request_status(space_id, request_id):
     user = get_user_by_token()
     request_data = request.get_json()
@@ -436,8 +436,8 @@ def change_request_status(space_id, request_id):
     return jsonify({'id': new_file_id}), 200
 
 
-@USER_REQUEST_API.route('/workspace/<space_id>//request/<request_id>/close', methods=['POST'])
-def change_request_status(space_id, request_id):
+@USER_REQUEST_API.route('/workspace/<space_id>/request/<request_id>/close', methods=['POST'])
+def close_request(space_id, request_id):
     user = get_user_by_token()
     try:
         new_file_id = dataStoreController.close_request(user.email, space_id, request_id)

@@ -9,6 +9,7 @@ db = get_current_db(current_app)
 
 class DepartmentModel(db.Model):
     __tablename__ = 'department'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column('department_id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column('department_name', db.String, unique=True)
@@ -16,6 +17,7 @@ class DepartmentModel(db.Model):
 
 class UserModel(db.Model):
     __tablename__ = 'user'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column('user_id', db.String, primary_key=True)
 
@@ -29,6 +31,7 @@ class UserModel(db.Model):
 
 class DocumentModel(db.Model):
     __tablename__ = "document"
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column('document_id', db.String, primary_key=True)
 
@@ -39,6 +42,7 @@ class DocumentModel(db.Model):
 
 class RequestModel(db.Model):
     __tablename__ = "request"
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column('request_id', db.String, primary_key=True)
 
@@ -52,6 +56,7 @@ class RequestModel(db.Model):
 
 class BranchModel(db.Model):
     __tablename__ = "branch"
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column('branch_id', db.String, primary_key=True)
 
@@ -65,6 +70,7 @@ class BranchModel(db.Model):
 
 class WorkspaceModel(db.Model):
     __tablename__ = "workspace"
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column('workspace_id', db.String, primary_key=True)
     title = db.Column(db.String)
@@ -76,6 +82,7 @@ class WorkspaceModel(db.Model):
 
 class BaseAccessModel(db.Model):
     __tablename__ = 'access'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column('access_id', db.Integer, primary_key=True, autoincrement=True)
     access_level = db.Column(db.Enum(Access))
