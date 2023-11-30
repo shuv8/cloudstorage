@@ -46,23 +46,23 @@ Web application of "Documents storing system" <MEPhI course>
 
 #### Branches 
 
-🟡 8) `/branch/branch_id` - View branch [ACCESS: Access to workspace needed]
+🟢 8) `/branch/branch_id` - View branch [ACCESS: Access to workspace needed]
 
-🟡 9) `/branch/<space_id>` - Create branch [ACCESS: Access to workspace needed]
+🟢 9) `/branch/<space_id>` - Create branch [ACCESS: Access to workspace needed]
 
-🟡 10) `/branch/branch_id` - Remove branch [ACCESS: Author]
+🟢 10) `/branch/branch_id` - Remove branch [ACCESS: Author]
 
-🟡 11) `/branch/branch_id/request` - Create pull request [ACCESS: Author]
+🟢 11) `/branch/branch_id/request` - Create pull request [ACCESS: Author]
 
 #### Requests
 
-🟡 12) `/request/request_id` - View request
+🟢 12) `/request/request_id` - View request
 
-🟡 13) `/request/request_id` - Close request
+🟢 13) `/request/request_id` - Close request
 
-🟡 14) `/request/request_id/merge` - Merge request
+🟢 14) `/request/request_id/merge` - Merge request
 
-🟡 15) `/request/request_id` - Change status of Request
+🟢 15) `/request/request_id` - Change status of Request
 
 #### Files
 
