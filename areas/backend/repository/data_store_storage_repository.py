@@ -17,7 +17,8 @@ from areas.backend.core.request_status import RequestStatus
 from areas.backend.core.workspace_status import WorkSpaceStatus
 from areas.backend.database.database import UserModel, WorkspaceModel, RequestModel, BranchModel, DepartmentModel, \
     BaseAccessModel
-from areas.backend.exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError
+from areas.backend.exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError, \
+    SpaceNotFoundError, NotAllowedError
 import shutil
 
 from areas.backend.config import endpoint, secret_key, access_key
@@ -49,7 +50,7 @@ class DataStoreStorageRepository:
     # ACCESSES
     #############
 
-    def has_access_to_workspace(self, workspace: WorkspaceModel, user: UserModel):
+    def has_access_to_workspace_model(self, workspace: WorkspaceModel, user: UserModel):
         accesses: list[BaseAccessModel] = DepartmentModel.query.filter_by(workspace_id=workspace.get_id()).all()
 
         for access in accesses:
@@ -66,11 +67,37 @@ class DataStoreStorageRepository:
                         return True
         return False
 
+    def has_access_to_workspace(self, workspace: WorkSpace, user: UserModel):
+        accesses: list[BaseAccessModel] = DepartmentModel.query.filter_by(workspace_id=workspace.get_id()).all()
+
+        for access in accesses:
+            if access.access_type == AccessType.Url:
+                return True
+            if access.access_type == AccessType.User:
+                if user.email == access.value:
+                    return True
+            if access.access_type == AccessType.Department:
+                department: DepartmentModel = DepartmentModel.query.filter_by(name=access.value).first()
+
+                for user_ in department.users:
+                    if user_.email == user.email:
+                        return True
+        return False
+
+    def is_author_of_workspace(self, user_mail: str, space_id: uuid.UUID):
+        spaces: list[WorkSpace] = self.get_workspaces(user_mail)
+        for space in spaces:
+            if str(space.get_id()) == str(space_id):
+                return True
+
+        return False
+
     #############
     # WORKSPACES
     #############
 
-    def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
+    @staticmethod
+    def get_workspaces(user_mail: str) -> list[WorkSpace]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         workspaces: list[BaseAccessModel] = WorkspaceModel.query.filter_by(user_id=user.get_id()).all()
 
@@ -89,7 +116,7 @@ class DataStoreStorageRepository:
                 )
             )
 
-        return workspaces
+        return workspaces_final
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
@@ -117,125 +144,157 @@ class DataStoreStorageRepository:
         self.db.session.add(_branch)
         user.workspaces.append(_workspace)
 
-    # TODO All access only
     def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID) -> Optional[WorkSpace]:
         spaces: list[WorkSpace] = self.get_workspaces(user_mail)
         for space in spaces:
             if str(space.get_id()) == str(space_id):
                 return space
 
-        return None
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
+        space: WorkspaceModel = WorkspaceModel.query.filter_by(id=space_id).first()
+        if space is not None:
+            if self.has_access_to_workspace(space, user):
+                return space
+            else:
+                raise NotAllowedError()
 
-    # TODO Author only
-    def change_workspace_status(self, space_id: uuid.UUID, status: str):
-        self.db.session.execute(update(WorkspaceModel).where(WorkspaceModel.id == str(space_id)).values(
-            status=status
-        ))
+        raise SpaceNotFoundError()
 
-        self.db.session.commit()
+    def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
+        if self.is_author_of_workspace(user_mail, space_id):
+            self.db.session.execute(update(WorkspaceModel).where(WorkspaceModel.id == str(space_id)).values(
+                status=status
+            ))
+            self.db.session.commit()
+            return None
+        else:
+            raise NotAllowedError()
 
     #############
     # BRANCHES
     #############
 
-    # TODO Access to workspace needed
     def get_branch_in_workspace_by_id(
             self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID
     ) -> Optional[Branch]:
-        workspace = self.get_workspace_by_id(user_mail, space_id)
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
+        workspace: WorkSpace = self.get_workspace_by_id(user_mail, space_id)
 
-        for branch in workspace.branches:
-            if str(branch.get_id()) == str(branch_id):
-                return branch
+        if self.has_access_to_workspace(workspace, user):
+            for branch in workspace.branches:
+                if str(branch.get_id()) == str(branch_id):
+                    return branch
 
-        return None
+        raise SpaceNotFoundError()
 
-    # TODO Author or author of workspace
-    def delete_branch_from_workspace_by_id(self, branch_id: uuid.UUID):
-        self.db.session.execute(delete(BranchModel).where(BranchModel.id == branch_id))
-        self.db.session.commit()
+    def delete_branch_from_workspace_by_id(self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID):
+        branch: BranchModel = BranchModel.query.filter_by(id=branch_id).first()
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
 
-    # TODO Access to workspace needed
+        if self.is_author_of_workspace(user_mail, space_id) or branch.author == user.id:
+            self.db.session.execute(delete(BranchModel).where(BranchModel.id == branch_id))
+            self.db.session.commit()
+
+        raise NotAllowedError()
+
     def create_branch_for_workspace(self, user_mail: str, workspace_id: uuid.UUID, branch: Branch):
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
-        _branch = BranchModel(
-            name=branch.name,
-            author=branch.author,
-            workspace_id=workspace_id,
-            document_id=branch.document,
-            parent_branch_id=branch.get_parent_id(),
-        )
+        if self.has_access_to_workspace(workspace, user):
+            _branch = BranchModel(
+                name=branch.name,
+                author=branch.author,
+                workspace_id=workspace_id,
+                document_id=branch.document,
+                parent_branch_id=branch.get_parent_id(),
+            )
 
-        self.db.session.add(_branch)
-        workspace.branches.append(_branch)
+            self.db.session.add(_branch)
+            workspace.branches.append(_branch)
 
-        self.db.session.commit()
+            self.db.session.commit()
+
+        raise NotAllowedError()
 
     #############
     # REQUESTS
     #############
 
-    # TODO Access to workspace needed
     def get_request_in_workspace_by_id(
             self, user_mail: str, space_id: uuid.UUID, request_id: uuid.UUID
     ) -> Optional[Request]:
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         workspace = self.get_workspace_by_id(user_mail, space_id)
 
-        for request in workspace.requests:
-            if str(request.get_id()) == str(request_id):
-                return request
+        if self.has_access_to_workspace(workspace, user):
+            for request in workspace.requests:
+                if str(request.get_id()) == str(request_id):
+                    return request
 
-        return None
+        raise NotAllowedError()
 
-    # TODO Author or author of workspace
-    def change_request_status(self, request_id: uuid.UUID, status: str):
-        self.db.session.execute(update(RequestModel).where(RequestModel.id == str(request_id)).values(
-            status=status
-        ))
+    def change_request_status(self, user_mail: str, workspace_id: uuid.UUID, request_id: uuid.UUID, status: str):
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
+        workspace = self.get_workspace_by_id(user_mail, workspace_id)
+        request: RequestModel = RequestModel.query.filter_by(id=request_id).first()
+        branch: BranchModel = BranchModel.query.filter_by(id=request.source_branch_id).first()
 
-        self.db.session.commit()
+        if self.has_access_to_workspace(workspace, user) or branch.author == user.id:
+            self.db.session.execute(update(RequestModel).where(RequestModel.id == str(request_id)).values(
+                status=status
+            ))
 
-    # TODO Access to workspace needed
+            self.db.session.commit()
+
+        raise NotAllowedError()
+
     def create_request_for_branch(self, user_mail: str, workspace_id: uuid.UUID, request: Request):
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
-        _request = RequestModel(
-            title=request.title,
-            description=request.description,
-            status=request.status.value,
-            source_branch_id=request.get_source_branch_id(),
-            target_branch_id=request.get_target_branch_id(),
-        )
+        if self.has_access_to_workspace(workspace, user):
+            _request = RequestModel(
+                title=request.title,
+                description=request.description,
+                status=request.status.value,
+                source_branch_id=request.get_source_branch_id(),
+                target_branch_id=request.get_target_branch_id(),
+            )
 
-        self.db.session.add(_request)
-        workspace.requests.append(_request)
+            self.db.session.add(_request)
+            workspace.requests.append(_request)
 
-        self.db.session.commit()
+            self.db.session.commit()
 
-    # TODO Author of workspace
+        raise NotAllowedError()
+
     def force_merge(self, user_mail: str, workspace_id: uuid.UUID, request_id: uuid.UUID, ):
         workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
-        current_request: Optional[Request] = None
+        if self.is_author_of_workspace(user_mail, workspace_id):
 
-        for request in workspace.requests:
-            if str(request.get_id()) == str(request_id):
-                current_request = request
-                break
+            current_request: Optional[Request] = None
 
-        if current_request is None:
-            raise FileNotFoundError
+            for request in workspace.requests:
+                if str(request.get_id()) == str(request_id):
+                    current_request = request
+                    break
 
-        branch = self.get_branch_in_workspace_by_id(user_mail, workspace_id, current_request.get_source_branch_id())
+            if current_request is None:
+                raise FileNotFoundError
 
-        self.db.session.execute(
-            update(BranchModel).where(BranchModel.id == str(current_request.get_target_branch_id())).values(
-                document_id=branch.document.get_id()
-            ))
+            branch = self.get_branch_in_workspace_by_id(user_mail, workspace_id, current_request.get_source_branch_id())
 
-        self.delete_branch_from_workspace_by_id(branch.get_id())
-        self.change_request_status(request_id, RequestStatus.Merged.value)
+            self.db.session.execute(
+                update(BranchModel).where(BranchModel.id == str(current_request.get_target_branch_id())).values(
+                    document_id=branch.document.get_id()
+                ))
+
+            self.delete_branch_from_workspace_by_id(user_mail, workspace_id, branch.get_id())
+            self.change_request_status(user_mail, workspace_id, request_id, RequestStatus.Merged.value)
+
+        raise NotAllowedError()
 
     #############
     # LEGACY

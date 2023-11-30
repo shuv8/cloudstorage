@@ -37,8 +37,8 @@ class DataStoreService:
     def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
         return self.data_store_storage_repo.get_workspaces(user_mail)
 
-    def change_workspace_status(self, space_id: uuid.UUID, status: str):
-        self.data_store_storage_repo.change_workspace_status(space_id, status)
+    def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
+        self.data_store_storage_repo.change_workspace_status(user_mail, space_id, status)
 
     def get_workspace_by_id(self, user_mail: str, space_id: UUID) -> Optional[WorkSpace]:
         space: Optional[WorkSpace] = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id)
@@ -57,8 +57,8 @@ class DataStoreService:
 
     # Delete branch
 
-    def delete_branch(self, branch_id: uuid.UUID):
-        self.data_store_storage_repo.delete_branch_from_workspace_by_id(branch_id)
+    def delete_branch(self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID):
+        self.data_store_storage_repo.delete_branch_from_workspace_by_id(user_mail, space_id, branch_id)
 
     # View branch
 
@@ -90,8 +90,8 @@ class DataStoreService:
 
     # Change Request status
 
-    def change_request_status(self, request_id: uuid.UUID, status: str):
-        self.data_store_storage_repo.change_request_status(request_id, status)
+    def change_request_status(self, user_mail: str, workspace_id: UUID, request_id: uuid.UUID, status: str):
+        self.data_store_storage_repo.change_request_status(user_mail, workspace_id, request_id, status)
 
     # Merge Request
 

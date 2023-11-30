@@ -212,6 +212,8 @@ def get_workspace_content(space_id):
         ), 200
     except SpaceNotFoundError:
         return jsonify("Can't find space with ID"), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
 
 
 @USER_REQUEST_API.route('/workspace/add', methods=['POST'])
@@ -239,17 +241,21 @@ def add_workspace():
         new_file_id = dataStoreController.create_workspace(user.email, workspace)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'id': new_file_id}), 200
 
 
 @USER_REQUEST_API.route('/workspace/<space_id>/archive', methods=['POST'])
 def archive_workspace(space_id):
     try:
-        # user = get_user_by_token()
+        user = get_user_by_token()
 
-        new_file_id = dataStoreController.archive_workspace(space_id)
+        new_file_id = dataStoreController.archive_workspace(user.email, space_id)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'id': new_file_id}), 200
 
 
@@ -294,6 +300,8 @@ def get_branch_in_workspace_by_id(space_id, branch_id):
         ), 200
     except SpaceNotFoundError:
         return jsonify("Can't find space with ID"), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
 
 
 @USER_REQUEST_API.route('/workspace/<space_id>/add_branch', methods=['POST'])
@@ -319,15 +327,20 @@ def add_branch(space_id):
         new_file_id = dataStoreController.create_branch_for_workspace(user.email, space_id, branch)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'id': new_file_id}), 200
 
 
-@USER_REQUEST_API.route('/branch/<branch_id>', methods=['DELETE'])
-def delete_branch(branch_id):
+@USER_REQUEST_API.route('/workspace/<space_id>/branch/<branch_id>', methods=['DELETE'])
+def delete_branch(space_id, branch_id):
     try:
-        removed = dataStoreController.delete_branch(branch_id)
+        user = get_user_by_token()
+        removed = dataStoreController.delete_branch(user.email, space_id, branch_id)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'removed': removed}), 200
 
 
@@ -356,6 +369,8 @@ def add_request_for_branch(space_id):
         new_file_id = dataStoreController.create_request_for_branch(user.email, space_id, merge_request)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'id': new_file_id}), 200
 
 
@@ -399,10 +414,13 @@ def get_request_in_workspace_by_id(space_id, request_id):
         ), 200
     except SpaceNotFoundError:
         return jsonify("Can't find space with ID"), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
 
 
-@USER_REQUEST_API.route('/request/<request_id>/change_status', methods=['POST'])
-def change_request_status(request_id):
+@USER_REQUEST_API.route('/workspace/<space_id>//request/<request_id>/change_status', methods=['POST'])
+def change_request_status(space_id, request_id):
+    user = get_user_by_token()
     request_data = request.get_json()
     try:
         status = request_data['status']
@@ -410,18 +428,23 @@ def change_request_status(request_id):
         return jsonify({'error': 'Invalid request body'}), 400
 
     try:
-        new_file_id = dataStoreController.change_request_status(request_id, status)
+        new_file_id = dataStoreController.change_request_status(user.email, space_id, request_id, status)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'id': new_file_id}), 200
 
 
-@USER_REQUEST_API.route('/request/<request_id>/close', methods=['POST'])
-def change_request_status(request_id):
+@USER_REQUEST_API.route('/workspace/<space_id>//request/<request_id>/close', methods=['POST'])
+def change_request_status(space_id, request_id):
+    user = get_user_by_token()
     try:
-        new_file_id = dataStoreController.close_request(request_id)
+        new_file_id = dataStoreController.close_request(user.email, space_id, request_id)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'id': new_file_id}), 200
 
 
@@ -431,6 +454,8 @@ def force_merge(space_id, request_id):
         new_file_id = dataStoreController.force_merge(request_id, space_id, request_id)
     except ItemNotFoundError:
         return jsonify({'error': 'Incorrect directory'}), 404
+    except NotAllowedError:
+        return jsonify("No access to this space"), 401
     return jsonify({'id': new_file_id}), 200
 
 

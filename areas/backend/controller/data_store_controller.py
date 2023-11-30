@@ -55,8 +55,8 @@ class DataStoreController:
     def get_workspace_by_id(self, user_mail: str, space_id: UUID) -> WorkSpace:
         return self.data_store_service.get_workspace_by_id(user_mail, space_id)
 
-    def archive_workspace(self, space_id: UUID):
-        self.data_store_service.change_workspace_status(space_id, WorkSpaceStatus.Archived.value)
+    def archive_workspace(self, user_mail: str,  space_id: UUID):
+        self.data_store_service.change_workspace_status(space_id, user_mail, WorkSpaceStatus.Archived.value)
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         self.data_store_service.create_workspace(user_mail, workspace)
@@ -67,8 +67,8 @@ class DataStoreController:
 
     # Delete branch
 
-    def delete_branch(self, branch_id: UUID):
-        self.data_store_service.delete_branch(branch_id)
+    def delete_branch(self, user_mail: str, space_id: UUID, branch_id: UUID):
+        self.data_store_service.delete_branch(user_mail, space_id, branch_id)
 
     # View branch
 
@@ -93,8 +93,8 @@ class DataStoreController:
 
     # Delete Request
 
-    def close_request(self, request_id: UUID):
-        self.data_store_service.change_request_status(request_id, RequestStatus.Closed.value)
+    def close_request(self, user_mail: str, workspace_id: UUID, request_id: UUID):
+        self.data_store_service.change_request_status(user_mail, workspace_id, request_id, RequestStatus.Closed.value)
 
     # Merge Request
 
@@ -110,8 +110,8 @@ class DataStoreController:
 
     # Change Request status
 
-    def change_request_status(self, request_id: UUID, status: str):
-        self.data_store_service.change_request_status(request_id, status)
+    def change_request_status(self, user_mail: str, workspace_id: UUID, request_id: UUID, status: str):
+        self.data_store_service.change_request_status(user_mail, workspace_id, request_id, status)
 
     #############
     # LEGACY
