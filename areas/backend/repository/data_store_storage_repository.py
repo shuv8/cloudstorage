@@ -51,9 +51,11 @@ class DataStoreStorageRepository:
     # ACCESSES
     #############
 
-    @staticmethod
-    def has_access_to_workspace(workspace: WorkSpace, user: UserModel):
-        accesses: list[BaseAccessModel] = DepartmentModel.query.filter_by(workspace_id=workspace.get_id()).all()
+    def has_access_to_workspace(self, workspace: WorkSpace, user: UserModel):
+        accesses: list[BaseAccessModel] = BaseAccessModel.query.filter_by(workspace_id=workspace.get_id()).all()
+
+        if self.is_author_of_workspace(user.email, workspace.get_id()):
+            return True
 
         for access in accesses:
             if access.access_type == AccessType.Url:
@@ -254,16 +256,18 @@ class DataStoreStorageRepository:
             _branch = BranchModel(
                 id=str(uuid.uuid4()),
                 name=branch.name,
-                author=branch.author,
-                workspace_id=workspace_id,
+                author=str(branch.author),
+                workspace_id=str(workspace_id),
                 document_id=branch.document,
-                parent_branch_id=branch.get_parent_id(),
+                parent_branch_id=str(branch.get_parent_id()),
             )
 
             self.db.session.add(_branch)
             workspace.branches.append(_branch)
 
             self.db.session.commit()
+
+            return _branch.id
 
         raise NotAllowedError()
 
@@ -317,6 +321,8 @@ class DataStoreStorageRepository:
             workspace.requests.append(_request)
 
             self.db.session.commit()
+
+            return _request.id
 
         raise NotAllowedError()
 

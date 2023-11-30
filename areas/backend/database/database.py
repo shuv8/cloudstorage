@@ -62,7 +62,7 @@ class BranchModel(db.Model):
     id = db.Column('branch_id', db.String, primary_key=True)
 
     name = db.Column('branch_name', db.String)
-    parent_branch_id = db.Column(db.Integer)
+    parent_branch_id = db.Column(db.String)
     author = db.Column(db.String)
 
     document_id = db.Column(db.String, db.ForeignKey("document.document_id"))

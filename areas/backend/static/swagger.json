@@ -278,6 +278,407 @@
         }
       }
     },
+    "/workspace/{space_id}/add_branch": {
+      "post": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/new_branch"
+              },
+              "example": {
+                "name": "Test",
+                "document_id": "0",
+                "parent_branch_id": "1"
+              }
+            }
+          }
+        },
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+               "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}/request": {
+      "post": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/new_request"
+              },
+              "example": {
+                "title": "Test",
+                "description": "Description",
+                "source_branch_id": "2",
+                "target_branch_id": "1"
+              }
+            }
+          }
+        },
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+               "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}/branch/{branch_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "path",
+            "description": "Branch id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+               "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}/view/{branch_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "Workspace id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "branch_id",
+            "in": "path",
+            "description": "Branch id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Not allowed"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/branch_item_view"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}/request/{request_id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "Workspace id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "request_id",
+            "in": "path",
+            "description": "Branch id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Returns files and directories for user query",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "401": {
+            "description": "Not allowed"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/request_item_view"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}/request/{request_id}/change_status": {
+      "post": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "request_id",
+            "in": "path",
+            "description": "Request id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/change_request_status"
+              },
+              "example": {
+                "status": "1"
+              }
+            }
+          }
+        },
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+               "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}/request/{request_id}/close": {
+      "post": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "request_id",
+            "in": "path",
+            "description": "Request id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+               "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}/request/{request_id}/force_merge": {
+      "post": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "request_id",
+            "in": "path",
+            "description": "Request id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "to do",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+               "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/directory": {
       "post": {
         "tags": [
@@ -1450,6 +1851,47 @@
           }
         }
       },
+      "branch_item_view": {
+        "properties": {
+          "parent": {
+            "type": "number"
+          },
+          "author": {
+            "type": "number"
+          },
+          "document_id": {
+            "type": "number"
+          },
+          "task_id": {
+            "type": "number"
+          },
+          "file": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "request_item_view": {
+        "properties": {
+          "source_branch_id": {
+            "type": "number"
+          },
+          "target_branch_id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
       "branch_item": {
         "properties": {
           "name": {
@@ -1495,6 +1937,42 @@
             "type": "string"
           },
           "description": {
+            "type": "string"
+          }
+        }
+      },
+      "new_branch": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "document_id": {
+            "type": "string"
+          },
+          "parent_branch_id": {
+            "type": "string"
+          }
+        }
+      },
+      "new_request": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "source_branch_id": {
+            "type": "number"
+          },
+          "target_branch_id": {
+            "type": "number"
+          }
+        }
+      },
+      "change_request_status": {
+        "properties": {
+          "status": {
             "type": "string"
           }
         }

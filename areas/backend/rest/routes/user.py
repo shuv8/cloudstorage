@@ -285,15 +285,18 @@ def get_branch_in_workspace_by_id(space_id, branch_id):
     user = get_user_by_token()
 
     try:
-        item: Branch = dataStoreController.get_branch_in_workspace_by_id(user.email, uuid.UUID(space_id),
-                                                                         uuid.UUID(branch_id))
+        item: Branch = dataStoreController.get_branch_in_workspace_by_id(
+            user.email, uuid.UUID(space_id),
+            uuid.UUID(branch_id)
+        )
 
         return jsonify(
             {
                 "name": item.name,
                 "author": item.author,
-                "parent": item.parent,
+                "parent": item.get_parent_id(),
                 "document": item.document.name,
+                "document_id": item.document.get_id(),
                 "task_id": item.document.task_id,
                 "file": item.document.file,
             }
@@ -319,7 +322,7 @@ def add_branch(space_id):
 
         branch = Branch(
             name=name,
-            author=user.id,
+            author=user.get_id(),
             document=document_id,
             parent=parent_branch_id,
         )
@@ -407,7 +410,7 @@ def get_request_in_workspace_by_id(space_id, request_id):
             {
                 "title": item.title,
                 "description": item.description,
-                "status": item.status.value,
+                "status": item.status,
                 "source_branch_id": item.get_source_branch_id(),
                 "target_branch_id": item.get_target_branch_id(),
             }

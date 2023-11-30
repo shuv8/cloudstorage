@@ -70,7 +70,7 @@ class DataStoreService:
     # Create new branch from current
 
     def create_branch_for_workspace(self, user_mail: str, workspace_id: UUID, branch: Branch):
-        self.data_store_storage_repo.create_branch_for_workspace(user_mail, workspace_id, branch)
+        return self.data_store_storage_repo.create_branch_for_workspace(user_mail, workspace_id, branch)
 
     #############
     # REQUESTS
@@ -79,7 +79,7 @@ class DataStoreService:
     # Add Request
 
     def create_request_for_branch(self, user_mail: str, workspace_id: UUID, request: Request):
-        self.data_store_storage_repo.create_request_for_branch(user_mail, workspace_id, request)
+        return self.data_store_storage_repo.create_request_for_branch(user_mail, workspace_id, request)
 
     # View Request
 
