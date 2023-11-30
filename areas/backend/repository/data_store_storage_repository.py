@@ -50,24 +50,8 @@ class DataStoreStorageRepository:
     # ACCESSES
     #############
 
-    def has_access_to_workspace_model(self, workspace: WorkspaceModel, user: UserModel):
-        accesses: list[BaseAccessModel] = DepartmentModel.query.filter_by(workspace_id=workspace.get_id()).all()
-
-        for access in accesses:
-            if access.access_type == AccessType.Url:
-                return True
-            if access.access_type == AccessType.User:
-                if user.email == access.value:
-                    return True
-            if access.access_type == AccessType.Department:
-                department: DepartmentModel = DepartmentModel.query.filter_by(name=access.value).first()
-
-                for user_ in department.users:
-                    if user_.email == user.email:
-                        return True
-        return False
-
-    def has_access_to_workspace(self, workspace: WorkSpace, user: UserModel):
+    @staticmethod
+    def has_access_to_workspace(workspace: WorkSpace, user: UserModel):
         accesses: list[BaseAccessModel] = DepartmentModel.query.filter_by(workspace_id=workspace.get_id()).all()
 
         for access in accesses:
