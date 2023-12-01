@@ -84,7 +84,7 @@ Web application of "Documents storing system" <MEPhI course>
 
 [NEED REFACTOR] 19) `/download/<item_id>` - Download file
 
-🟢 20) `/whoiam` - Who am I
+🌐🟢 20) `/whoiam` - Who am I
 
 #### Accesses
 
