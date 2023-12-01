@@ -1,0 +1,65 @@
+/* RegistrationForm.css */
+.login-header {
+    font-size: xxx-large;
+    font-weight: bold;
+    padding: 24px;
+}
+
+.login-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full height of the viewport */
+    width: 100vw; /* Full width of the viewport */
+    background-color: #f8f8f8; /* Light background */
+    flex-direction: column;
+}
+
+.login-form {
+    display: flex;
+    width: 40%;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px; /* Spacing between form items */
+}
+
+.form-group label {
+    font-size: x-large;
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    height: 50%;
+    font-size: large;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    width: 50%;
+    align-self: center;
+    border-radius: 30px;
+    border: none;
+    font-size: x-large;
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white;
+    cursor: pointer;
+    margin: 30px 10px 10px 10px;
+}
+
+button:hover {
+    background-color: #0056b3; /* Darken button on hover */
+}

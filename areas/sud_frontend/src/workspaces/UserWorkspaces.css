@@ -1,0 +1,30 @@
+.workspaces-container {
+    display: flex;
+    justify-content: left;
+    height: 100vh; /* Full height of the viewport */
+    width: 100vw; /* Full width of the viewport */
+    background-color: #f8f8f8; /* Light background */
+    flex-direction: column;
+    padding-left: 20px;
+}
+
+.all-workspaces-container {
+    background-color: #e7e7e7; /* Light background */
+    padding: 15px;
+    width:max-content;
+    border-radius: 10px;
+}
+
+.workspace-item {
+    background-color: #ffffff; /* Light background */
+    padding: 15px;
+    min-width: 400px;
+    border-radius: 10px;
+    marker: none;
+    display: block;
+    margin: 10px;
+}
+
+.workspace-item:hover {
+    background-color: #f6f6f6;
+}

@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import './UserWorkspaces.css';
+
 const API_BASE_URL = 'http://localhost:5000';
 
 function UserWorkspaces() {
@@ -32,12 +34,12 @@ function UserWorkspaces() {
     }
 
     return (
-        <div>
-            <h1>User Workspaces</h1>
+        <div className="workspaces-container">
+            <h2>Рабочие пространства</h2>
             {workspaces.length > 0 ? (
-                <ul>
+                <ul className="all-workspaces-container">
                     {workspaces.map(workspace => (
-                        <li key={workspace.id}>{workspace.title}</li> // Assuming workspace object has id and name
+                        <li className="workspace-item" key={workspace.id}>{workspace.title}</li> // Assuming workspace object has id and name
                     ))}
                 </ul>
             ) : (

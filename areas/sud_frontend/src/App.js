@@ -1,9 +1,11 @@
 import React, {Fragment} from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import LoginForm from './LoginForm';
+import LoginForm from './login/LoginForm';
+import RegistrationForm from './registration/RegistrationForm';
 
-import {handleLogin} from './LoginForm';
-import UserWorkspaces from "./UserWorkspaces";
+import {handleLogin} from './login/LoginForm';
+import {handleRegistration} from './registration/RegistrationForm';
+import UserWorkspaces from "./workspaces/UserWorkspaces";
 
 function App() {
     return (
@@ -13,6 +15,7 @@ function App() {
                     <Routes>
                         <Route exact path="/login" element={<LoginForm onLogin={handleLogin}/>}/>
                         <Route exact path="/workspaces" element={<UserWorkspaces/>}/>
+                        <Route exact path="/registration" element={<RegistrationForm onRegistration={handleRegistration}/>}/>
                     </Routes>
                 </Fragment>
             </Router>

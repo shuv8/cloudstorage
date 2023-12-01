@@ -2,7 +2,15 @@
 
 Web application of "Documents storing system" <MEPhI course>
 
-## Backend API
+## Frontend
+
+Корень: sud_frontend
+Запуск: npm start
+
+## Backend
+
+🌐 - Работает Frontend
+🟢 - Работает API
 
 ### Admin
 
@@ -28,15 +36,15 @@ Web application of "Documents storing system" <MEPhI course>
 
 #### Common
 
-🟢 1) `/registration` - Registration
+🌐🟢 1) `/registration` - Registration
 
-🟢 2) `/login` - Login
+🌐🟢 2) `/login` - Login
 
 [NEED REFACTOR] 3) `/search_for` - Search [ACCESS: Show all, open only workspaces with access]
 
 #### Workspaces
 
-🟢 4) `/get_workspaces` - Get workspaces
+🌐🟢 4) `/get_workspaces` - Get workspaces
 
 🟢 5) `/get_workspace/<space_id>` - Get workspace [ACCESS: All access only]
 

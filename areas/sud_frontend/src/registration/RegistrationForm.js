@@ -1,21 +1,23 @@
 import React, {useState} from 'react';
-import {loginUser} from './api.js';
-import './LoginForm.css';
+import '../registration/RegistrationForm.css';
+import {RegisterUser} from "./api";
 
 
-function LoginForm({onLogin}) {
+function RegistrationForm({onRegistration}) {
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [role] = useState('1');
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        onLogin(email, password);
+        onRegistration(email, password, username, role);
     };
 
     return (
         <div className="login-form-container">
-            <header className="App-header">
-                Авторизация
+            <header className="login-header">
+                Регистрация
             </header>
             <form className="login-form" onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -29,6 +31,16 @@ function LoginForm({onLogin}) {
                     />
                 </div>
                 <div className="form-group">
+                    <label htmlFor="username">Имя пользователя</label>
+                    <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
                     <label htmlFor="password">Пароль</label>
                     <input
                         type="password"
@@ -38,25 +50,25 @@ function LoginForm({onLogin}) {
                         required
                     />
                 </div>
-                <button type="submit">Вход</button>
+                <button type="submit">Зарегистрироваться</button>
             </form>
         </div>);
 }
 
-export async function handleLogin(email, password) {
+export async function handleRegistration(email, password, username, role) {
   try {
-        const response = await loginUser({email, password});
+        const response = await RegisterUser({email, password, username, role});
 
         // Handle the response as needed... For example, save the token to localStorage
         if (response === 200) {
             localStorage.setItem('authToken', response.token);
 
-            window.location.href = '/workspaces'; // Redirect to the workspaces page
+            window.location.href = '/login'; // Redirect to the workspaces page
             // Show the user's workspaces, assuming UserWorkspaces() renders the required content
-            console.error('Login was successful, no token provided in the response.');
+            console.error('Registration was successful, token provided in the response.');
         } else {
             // If the response doesn't contain a token, let's log an error
-            console.error('Login was unsuccessful, no token provided in the response.');
+            console.error('Registration was unsuccessful, no token provided in the response.');
         }
     } catch (error) {
         // Handle error, e.g., log it to the console or show an error message to the user
@@ -65,4 +77,4 @@ export async function handleLogin(email, password) {
 }
 
 
-export default LoginForm;
+export default RegistrationForm;
