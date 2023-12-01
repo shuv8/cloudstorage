@@ -22,7 +22,7 @@ def create_app(testing=False, db_uri=app_db.SQLALCHEMY_DATABASE_URI):
     )
 
     app = Flask(__name__)
-    CORS(app, supports_credentials=True)
+    CORS(app, origins="http://localhost:3000", supports_credentials=True, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
     app.config['TESTING'] = testing
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     with app.app_context():

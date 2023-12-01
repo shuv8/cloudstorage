@@ -1,8 +1,9 @@
 from functools import wraps
 from flask import jsonify, request
 from jwt import InvalidTokenError
-from controller.user_controller import UserController
 
+from areas.backend.controller.user_controller import UserController
+from areas.backend.core.role import Role
 
 userController = UserController()
 
@@ -25,7 +26,6 @@ def token_required(f):
 def admin_access(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        from core.role import Role
         try:
             token = request.cookies.get('token')
             if token is None:
