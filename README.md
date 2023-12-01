@@ -14,33 +14,39 @@ Web application of "Documents storing system" <MEPhI course>
 
 ### Admin
 
-[CHECK] 1) `/department` - Get department list
+🟡 1) `/department` - Get department list
 
-[CHECK] 2) `/department` - Add new department
+🟡 2) `/department` - Add new department
 
-[CHECK] 3) `/department` - Delete department
+🟡  3) `/department` - Delete department
 
-[CHECK] 4) `/department/users` - Get users in department
+🟡  4) `/department/users` - Get users in department
 
-[CHECK] 5) `/department/users` - Add users to department
+🟡  5) `/department/users` - Add users to department
 
-[CHECK] 6) `/department/users` - Remove users from department
+🟡  6) `/department/users` - Remove users from department
 
-[CHECK] 7) `/user` - Get user list
+🟡  7) `/users` - Get user list
 
-[TODO] 8) `/unarchive` - Unarchive workspace
+🔴 8) `/all_workspaces` - All workspace for users
 
-[TODO] 9) `/delete` - Delete workspace forever
+🔴 8) `/unarchive` - Unarchive workspace
+
+🔴 9) `/delete` - Delete workspace forever
 
 ### User
 
-#### Common
+#### User
 
 🌐🟢 1) `/registration` - Registration
 
 🌐🟢 2) `/login` - Login
 
 🌐🟢 2) `/logout` - LogOut
+
+🌐🟢 20) `/whoiam` - Who I am
+
+#### Search
 
 [NEED REFACTOR] 3) `/search_for` - Search [ACCESS: Show all, open only workspaces with access]
 
@@ -76,29 +82,27 @@ Web application of "Documents storing system" <MEPhI course>
 
 #### Files
 
-[NEED REFACTOR] 16) `/file` - Add file
+🔴 16) `/file` - Add file
 
-[NEED REFACTOR] 17) `/file/<file_id>/view` - View file
+🔴 17) `/file/<file_id>/view` - View file
 
-[NEED REFACTOR] 18) `/rename/<space_id>/<item_id>` - Rename file
+🔴 18) `/rename/<space_id>/<item_id>` - Rename file
 
-[NEED REFACTOR] 19) `/download/<item_id>` - Download file
-
-🌐🟢 20) `/whoiam` - Who I am
+🔴 19) `/download/<item_id>` - Download file
 
 #### Accesses
 
-[NEED REFACTOR] 21) `/accesses/<space_id>` - Get all accesses
+🔴 21) `/accesses/<space_id>` - Get all accesses
 
-[NEED REFACTOR] 22) `/set_access/<space_id>` - Set access
+🔴 22) `/set_access/<space_id>` - Set access
 
-[NEED REFACTOR] 23) `/reset_access/<space_id>` - Remove access
+🔴 23) `/reset_access/<space_id>` - Remove access
 
-[NEED REFACTOR] 24) `/add_access/<space_id>/email/<email>` - Add access
+🔴 24) `/add_access/<space_id>/email/<email>` - Add access
 
-[NEED REFACTOR] 25) `/remove_access/<space_id>/email/<email>` - Remove access
+🔴 25) `/remove_access/<space_id>/email/<email>` - Remove access
 
-[NEED REFACTOR] 26) `/add_access/<space_id>/department/<department>` - Add access
+🔴 26) `/add_access/<space_id>/department/<department>` - Add access
 
-[NEED REFACTOR] 27) `/remove_access/<space_id>/department/<department>` - Remove access
+🔴 27) `/remove_access/<space_id>/department/<department>` - Remove access
 
