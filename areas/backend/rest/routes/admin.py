@@ -26,6 +26,12 @@ def get_blueprint():
     ===================
 """
 
+# ДОПОЛНИТЕЛЬНО
+
+# TODO Получиить список всех worspace (Имя, описание, статус) с именами авторов
+# TODO Изменить статус worspace (Для - разархивировать, архивировать, удалить)
+# TODO Получиить список всех worspace с именами авторов
+
 
 # TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department', methods=['GET'])
