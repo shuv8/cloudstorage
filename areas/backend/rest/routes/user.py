@@ -189,7 +189,7 @@ def get_workspace_content(space_id):
                 {
                     "title": merge_request.title,
                     "description": merge_request.description,
-                    "status": merge_request.status.value,
+                    "status": merge_request.status,
                     "id": merge_request.get_id(),
                 }
             )
@@ -290,20 +290,33 @@ def get_branch_in_workspace_by_id(space_id, branch_id):
     user = get_user_by_token()
 
     try:
-        item: Branch = dataStoreController.get_branch_in_workspace_by_id(
+        (item, userName, parentName, merge_requests) = dataStoreController.get_branch_in_workspace_by_id(
             user.email, uuid.UUID(space_id),
             uuid.UUID(branch_id)
         )
 
+        requests = []
+        for merge_request in merge_requests:
+            requests.append(
+                {
+                    "title": merge_request.title,
+                    "id": merge_request.id,
+                }
+            )
+
         return jsonify(
             {
+                "id": item.get_id(),
                 "name": item.name,
                 "author": item.author,
+                "requests": requests,
+                "authorName": userName,
                 "parent": item.get_parent_id(),
-                "document": item.document.name,
-                "document_id": item.document.get_id(),
-                "task_id": item.document.task_id,
-                "file": item.document.file,
+                "parentName": parentName,
+                "document": item.document.name if item.document is not None else "",
+                "document_id": item.document.get_id() if item.document is not None else "",
+                "task_id": item.document.task_id if item.document is not None else "",
+                "file": item.document.file if item.document is not None else "",
             }
         ), 200
     except SpaceNotFoundError:

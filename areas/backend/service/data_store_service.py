@@ -64,7 +64,7 @@ class DataStoreService:
 
     def get_branch_in_workspace_by_id(
             self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID
-    ) -> Optional[Branch]:
+    ) -> tuple[Optional[Branch], str, str, list[Request]]:
         return self.data_store_storage_repo.get_branch_in_workspace_by_id(user_mail, space_id, branch_id)
 
     # Create new branch from current

@@ -139,7 +139,7 @@
     cursor: pointer;
 }
 
-.workspace-archive {
+.branch-delete {
     width: 150px;
     padding: 5px;
     border-radius: 30px;
@@ -147,13 +147,14 @@
     align-self: end;
     text-align: center;
     cursor: pointer;
+    margin-top: 20px;
 }
 
-.workspace-archive:hover {
+.branch-delete:hover {
     background-color: #343434;
 }
 
-.workspace-archive p {
+.branch-delete p {
     margin: 5px;
     color: white;
     cursor: pointer;
@@ -191,7 +192,6 @@
 }
 
 .all-requests-container {
-    padding: 0;
     margin-top: 5px;
     width: max-content;
     border-radius: 10px;
@@ -248,6 +248,21 @@
     background-color: #f6f6f6;
 }
 
+.original-branch-item {
+    background-color: #ffffff;
+    padding: 15px 25px;
+    width: fit-content;
+    border-radius: 10px;
+    marker: none;
+    display: block;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.original-branch-item:hover {
+    background-color: #f6f6f6;
+}
+
 .branch-item {
     background-color: #ffffff;
     margin-top: 10px;
@@ -265,7 +280,6 @@
 
 .request-item {
     background-color: #ffffff;
-    margin-top: 10px;
     padding: 10px;
     min-width: 200px;
     border-radius: 10px;

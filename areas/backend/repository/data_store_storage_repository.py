@@ -96,6 +96,7 @@ class DataStoreStorageRepository:
 
             all_branches = []
             all_requests = []
+            indexes = []
 
             for br in branches:
                 documentModel: DocumentModel = DocumentModel.query.filter_by(id=br.document_id).first()
@@ -124,8 +125,7 @@ class DataStoreStorageRepository:
                 requests2: list[RequestModel] = RequestModel.query.filter_by(target_branch_id=br.id).all()
 
                 for req in requests:
-                    all_requests.append(
-                        Request(
+                    req_ = Request(
                             title=req.title,
                             description=req.description,
                             status=req.status,
@@ -133,10 +133,11 @@ class DataStoreStorageRepository:
                             target_branch_id=req.target_branch_id,
                             _id=req.id,
                         )
-                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
                 for req in requests2:
-                    all_requests.append(
-                        Request(
+                    req_ = Request(
                             title=req.title,
                             description=req.description,
                             status=req.status,
@@ -144,7 +145,9 @@ class DataStoreStorageRepository:
                             target_branch_id=req.target_branch_id,
                             _id=req.id,
                         )
-                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
 
             workspaces_final.append(
                 WorkSpace(
@@ -227,14 +230,33 @@ class DataStoreStorageRepository:
 
     def get_branch_in_workspace_by_id(
             self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID
-    ) -> Optional[Branch]:
+    ) -> tuple[Optional[Branch], str, str, list[Request]]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         workspace: WorkSpace = self.get_workspace_by_id(user_mail, space_id)
 
         if self.has_access_to_workspace(workspace, user):
             for branch in workspace.branches:
                 if str(branch.get_id()) == str(branch_id):
-                    return branch
+                    user: UserModel = UserModel.query.filter_by(id=branch.author).first()
+
+                    original_branch_name: str = "" if str(branch.get_parent_id()) == "-1" else BranchModel.query.filter_by(id=branch.get_parent_id()).first().name
+
+                    all_requests = []
+                    requests: list[RequestModel] = RequestModel.query.filter_by(source_branch_id=branch.get_id()).all()
+
+                    for req in requests:
+                        all_requests.append(
+                            Request(
+                                title=req.title,
+                                description=req.description,
+                                status=req.status,
+                                source_branch_id=req.source_branch_id,
+                                target_branch_id=req.target_branch_id,
+                                _id=req.id,
+                            )
+                        )
+
+                    return branch, user.username, original_branch_name, requests
 
         raise SpaceNotFoundError()
 
@@ -312,7 +334,7 @@ class DataStoreStorageRepository:
                 id=str(uuid.uuid4()),
                 title=request.title,
                 description=request.description,
-                status=request.status.value,
+                status=request.status,
                 source_branch_id=request.get_source_branch_id(),
                 target_branch_id=request.get_target_branch_id(),
             )

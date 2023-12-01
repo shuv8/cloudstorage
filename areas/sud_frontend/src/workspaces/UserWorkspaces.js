@@ -92,6 +92,9 @@ function UserWorkspaces() {
 
     return (
         <div className="page">
+
+            {/*/ ДИАЛОГ СОЗДАНИЯ  ВОРКСПЕЙСА /*/}
+
             {isDialogOpen && (
                 <div className="dialog-container">
                     <h3>
@@ -117,15 +120,24 @@ function UserWorkspaces() {
                             required
                         />
                     </div>
-                    <button className="add-workspace-button" onClick={() => handleWorkspaceAdding(title, description)}>Сохранить</button>
+                    <button className="add-workspace-button"
+                            onClick={() => handleWorkspaceAdding(title, description)}>Сохранить
+                    </button>
                     <button className="add-workspace-button-close" onClick={toggleDialog}>Закрыть</button>
                 </div>
             )}
 
+            {/*/ ГЛАВНЫЙ ЭКРАН /*/}
+
             <div className="workspaces-container">
 
+                {/*/ ЗАГОЛОВОК /*/}
+
                 <div className="workspace-title-container">
-                    <h2 className="workspace-title">Рабочие пространства</h2>
+                    <h2 className="workspace-title"><span
+                            onClick={() => goHome()}
+                            style={{cursor:"pointer"}}
+                        >🏠</span>Рабочие пространства</h2>
                     <div className="username-info-right">
                         <div className="username" onClick={() => goToProfile()}>
                             <p className="request-content">{username}</p>
@@ -134,17 +146,22 @@ function UserWorkspaces() {
                 </div>
 
                 <div className="workspace-block">
+
+                    {/*/ ВСЕ ПРОСТРАНСТВА /*/}
+
                     <div className="all-workspaces">
                         <div>
                             {workspaces.length > 0 ? (<ul className="all-workspaces-container">
                                 {workspaces.map(workspace => (
                                     <li onClick={() => handleWorkspaceClick(workspace.id)} className="workspace-item"
                                         key={workspace.id}>{workspace.title}</li>))}
-                            </ul>) : (<p>No workspaces found.</p>)}
+                            </ul>) : (<p className="workspace-item">Не найдено рабочих пространств</p>)}
 
                             <button className="add-workspace" onClick={toggleDialog}><p>+</p></button>
                         </div>
                     </div>
+
+                    {/*/ ТЕКУЩЕЕ ПРОСТРАНСТВО /*/}
 
                     <div className="all-files-branches">
                         {workspace !== "" ? (<div>
@@ -168,10 +185,15 @@ function UserWorkspaces() {
                             <h3>Все ветки</h3>
                             <div className="all-branches">
                                 {workspace.branches.length > 0 ? (<ul className="all-branches-container">
-                                    {workspace.branches.map(branch => (<li className="branch-item" key={branch.id}>
-                                        {branch.id === workspace.main_branch &&
-                                            <span><b>🏠</b> </span>}{branch.name}
-                                    </li>))}
+                                    {workspace.branches.map(branch => (
+                                        <li
+                                            className="branch-item"
+                                            key={branch.id}
+                                            onClick={() => goToBranch(workspace.id, branch.id)}
+                                        >
+                                            {branch.id === workspace.main_branch && <span><b>🏠</b> </span>}{branch.name}
+                                        </li>
+                                    ))}
                                 </ul>) : (<p>Нет веток</p>)}
                             </div>
 
@@ -186,6 +208,11 @@ function UserWorkspaces() {
                                         </li>))}
                                 </ul>) : (<p>Нет реквестов.</p>)}
                             </div>
+
+                            <div className="workspace-archive">
+                                <p>Архивировать (TODO)</p>
+                            </div>
+
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
                 </div>
@@ -195,7 +222,7 @@ function UserWorkspaces() {
 }
 
 export async function handleWorkspaceAdding(title, description) {
-  try {
+    try {
         const response = await add_workspace({title, description});
 
         if (response === 200) {
@@ -221,8 +248,16 @@ function getStatusColor(status) {
     return statusColors[status] || 'white'; // Set your default color here.
 }
 
+function goHome() {
+    window.location.href = '/workspaces';
+}
+
 function goToProfile() {
     window.location.href = '/me';
+}
+
+function goToBranch(spaceId, branchId) {
+    window.location.href = `/branch/${spaceId}/${branchId}`;
 }
 
 export default UserWorkspaces;

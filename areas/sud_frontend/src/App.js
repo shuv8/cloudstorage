@@ -7,6 +7,7 @@ import {handleLogin} from './login/LoginForm';
 import {handleRegistration} from './registration/RegistrationForm';
 import UserWorkspaces from "./workspaces/UserWorkspaces";
 import WhoIAm from "./whoiam/WhoIAm";
+import Branch from "./branch/Branch";
 
 function App() {
     return (
@@ -17,7 +18,10 @@ function App() {
                         <Route exact path="/login" element={<LoginForm onLogin={handleLogin}/>}/>
                         <Route exact path="/workspaces" element={<UserWorkspaces/>}/>
                         <Route exact path="/me" element={<WhoIAm/>}/>
-                        <Route exact path="/registration" element={<RegistrationForm onRegistration={handleRegistration}/>}/>
+                        <Route exact path="/branch/:space_id/:branch_id" element={<Branch/>}/>
+                        <Route exact path="/registration"
+                               element={<RegistrationForm onRegistration={handleRegistration}/>}
+                        />
                     </Routes>
                 </Fragment>
             </Router>
