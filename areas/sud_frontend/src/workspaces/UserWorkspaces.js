@@ -6,6 +6,7 @@ const API_BASE_URL = 'http://localhost:5000';
 function UserWorkspaces() {
     const [workspace, setWorkspace] = useState("");
     const [workspaces, setWorkspaces] = useState([]);
+    const [username, setUsername] = useState("Anonim");
     const [error, setError] = useState(null);
     const STATUS_MAP = {
         1: 'Активно', 2: 'В архиве', 3: 'Удалено'
@@ -55,6 +56,26 @@ function UserWorkspaces() {
             });
     }, []);
 
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/whoiam`, {
+            method: 'GET', headers: {
+                'Content-Type': 'application/json',
+            }, credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setUsername(data["username"]);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
+    }, []);
+
     if (error) {
         return <div>Error: {error}</div>;
     }
@@ -62,9 +83,9 @@ function UserWorkspaces() {
     return (<div className="workspaces-container">
         <div className="workspace-title-container">
             <h2 className="workspace-title">Рабочие пространства</h2>
-            <div className="info-right">
-                <div className="branches-number">
-                    <p className="request-content">{workspace.description}</p>
+            <div className="username-info-right">
+                <div className="username" onClick={() => goToProfile()}>
+                    <p className="request-content">{username}</p>
                 </div>
             </div>
         </div>
@@ -134,6 +155,10 @@ function getStatusColor(status) {
     };
 
     return statusColors[status] || 'white'; // Set your default color here.
+}
+
+function goToProfile() {
+    window.location.href = '/me';
 }
 
 export default UserWorkspaces;

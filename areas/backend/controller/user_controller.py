@@ -28,7 +28,7 @@ class UserController:
     def get_all_users(self, page: int, limit: int) -> List[User]:
         return self.user_service.get_all_users(page, limit)
 
-    def get_user_info(self, user: User) -> tuple[list[str], UUID, UUID]:
+    def get_user_info(self, user: User) -> list[str]:
         return self.user_service.get_user_info(user)
 
     def add_new_department(self, new_department: Department) -> None:

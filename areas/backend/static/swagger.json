@@ -1931,13 +1931,10 @@
           "email": {
             "type": "string"
           },
+          "username": {
+            "type": "string"
+          },
           "departments": {
-            "type": "string"
-          },
-          "root_space_id": {
-            "type": "string"
-          },
-          "root_dir_id": {
             "type": "string"
           }
         }

@@ -72,10 +72,9 @@ class UserService:
             output_list.append(users[index])
         return output_list
 
-    def get_user_info(self, user: User) -> tuple[list[str], UUID, UUID]:
-        departments = self.user_repo.get_user_departments_by_id(user.get_id())
-        parent_space = self.user_repo.get_root_user_space_content(user.email)
-        return departments, parent_space.get_id(), parent_space.get_directory_manager().items[0].id
+    def get_user_info(self, user: User) -> list[str]:
+        departments = user.department_manager.get_departments()
+        return departments
 
     def add_new_department(self, new_department: Department) -> None:
         try:

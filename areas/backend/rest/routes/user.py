@@ -29,7 +29,6 @@ def get_blueprint():
     return USER_REQUEST_API
 
 
-# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/registration', methods=['POST'])
 def registration():
     request_data = request.get_json()
@@ -47,7 +46,6 @@ def registration():
     return jsonify({}), 200
 
 
-# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/login', methods=['PUT'])
 def login():
     request_data = request.get_json()
@@ -63,6 +61,13 @@ def login():
         return response
     except InvalidCredentialsError:
         return jsonify({'error': 'Invalid email or password'}), 403
+
+
+@USER_REQUEST_API.route('/logout', methods=['GET'])
+def logout():
+    response = make_response()
+    response.delete_cookie('token')
+    return response
 
 
 """
@@ -789,9 +794,6 @@ def download_by_item_id(item_id):
         return jsonify({'error': 'Item not found'}), 404
 
 
-# ????????
-
-# TODO REFACTOR OLD
 @USER_REQUEST_API.route('/whoiam', methods=['GET'])
 @token_required
 def get_user_list():
@@ -807,14 +809,13 @@ def get_user_list():
     """
 
     user = get_user_by_token()
-    user_info: tuple[list[str], uuid.UUID, uuid.UUID] = userController.get_user_info(user)
+    user_info: list[str] = userController.get_user_info(user)
 
     return jsonify(
         {
             "id": user.get_id(),
             "email": user.email,
-            "departments": ' '.join(user_info[0]),
-            "root_space_id": str(user_info[1]),
-            "root_dir_id": str(user_info[2]),
+            "username": user.username,
+            "departments": ' '.join(user_info),
         }
     ), 200

@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 from areas.backend.core.accesses import AccessType
+from areas.backend.core.department_manager import DepartmentManager
 from areas.backend.core.user import User
 from areas.backend.core.department import Department
 from flask import current_app
@@ -33,12 +34,36 @@ class UserRepository:
             role=user.role
         )
 
-    def get_user_departments_by_id(self, _id: UUID) -> list[str]:
-        from areas.backend.database.database import DepartmentModel
-        departments: DepartmentModel = DepartmentModel.query.filter_by(id=str(_id)).first()
+    def get_user_from_db_by_id(self, _id: UUID):
+        from areas.backend.database.database import UserModel, DepartmentModel
+        user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
+        if user is None:
+            raise UserNotFoundError
+        current_user = User(
+            _id=UUID(hex=user.id),
+            email=user.email,
+            username=user.username,
+            password=user.passwordHash,
+            role=user.role,
+            _department_manager=DepartmentManager([])
+        )
 
+        department: DepartmentModel = DepartmentModel.query.filter_by(id=user.department_id).first()
+        if department is not None:
+            current_user.department_manager.add_department(
+                Department(
+                    department_name=department.name,
+                    users=[]
+                )
+            )
+
+        return current_user
+
+    def get_user_departments_by_id(self, _id: UUID) -> list[str]:
+        from areas.backend.database.database import UserModel
         user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
         return [department.name for department in user.departments]
+
 
     def get_user_from_db_by_email(self, email: str) -> User:
         from areas.backend.database.database import UserModel

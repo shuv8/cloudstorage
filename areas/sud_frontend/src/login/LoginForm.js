@@ -39,6 +39,7 @@ function LoginForm({onLogin}) {
                     />
                 </div>
                 <button type="submit">Вход</button>
+                <button onClick={() => goToRegistration()} className="hint">Регистрация</button>
             </form>
         </div>);
 }
@@ -62,6 +63,10 @@ export async function handleLogin(email, password) {
         // Handle error, e.g., log it to the console or show an error message to the user
         console.error('An error occurred during login:', error);
     }
+}
+
+function goToRegistration() {
+    window.location.href = '/registration';
 }
 
 

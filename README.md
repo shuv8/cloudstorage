@@ -40,6 +40,8 @@ Web application of "Documents storing system" <MEPhI course>
 
 🌐🟢 2) `/login` - Login
 
+🌐🟢 2) `/logout` - LogOut
+
 [NEED REFACTOR] 3) `/search_for` - Search [ACCESS: Show all, open only workspaces with access]
 
 #### Workspaces
@@ -82,7 +84,7 @@ Web application of "Documents storing system" <MEPhI course>
 
 [NEED REFACTOR] 19) `/download/<item_id>` - Download file
 
-[NEED REFACTOR] 20) `/whoiam` - Who am I
+🟢 20) `/whoiam` - Who am I
 
 #### Accesses
 

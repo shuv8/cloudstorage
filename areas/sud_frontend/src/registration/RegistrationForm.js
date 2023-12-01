@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import '../registration/RegistrationForm.css';
-import {RegisterUser} from "./api";
+import {registerUser} from "../api";
 
 
 function RegistrationForm({onRegistration}) {
@@ -51,13 +51,14 @@ function RegistrationForm({onRegistration}) {
                     />
                 </div>
                 <button type="submit">Зарегистрироваться</button>
+                <button onClick={() => goToLogin()} className="hint">Вход</button>
             </form>
         </div>);
 }
 
 export async function handleRegistration(email, password, username, role) {
   try {
-        const response = await RegisterUser({email, password, username, role});
+        const response = await registerUser({email, password, username, role});
 
         // Handle the response as needed... For example, save the token to localStorage
         if (response === 200) {
@@ -76,5 +77,8 @@ export async function handleRegistration(email, password, username, role) {
     }
 }
 
+function goToLogin() {
+    window.location.href = '/login';
+}
 
 export default RegistrationForm;
