@@ -48,9 +48,9 @@ Web application of "Documents storing system" <MEPhI course>
 
 🌐🟢 4) `/get_workspaces` - Get workspaces
 
-🟢 5) `/get_workspace/<space_id>` - Get workspace [ACCESS: All access only]
+🌐🟢 5) `/get_workspace/<space_id>` - Get workspace [ACCESS: All access only]
 
-🟢 6) `/workspace/add` - Add new workspace
+🌐🟢 6) `/workspace/add` - Add new workspace
 
 🟢 7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
 
@@ -84,7 +84,7 @@ Web application of "Documents storing system" <MEPhI course>
 
 [NEED REFACTOR] 19) `/download/<item_id>` - Download file
 
-🌐🟢 20) `/whoiam` - Who am I
+🌐🟢 20) `/whoiam` - Who I am
 
 #### Accesses
 
