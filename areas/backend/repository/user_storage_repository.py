@@ -34,7 +34,9 @@ class UserRepository:
         )
 
     def get_user_departments_by_id(self, _id: UUID) -> list[str]:
-        from areas.backend.database.database import UserModel
+        from areas.backend.database.database import DepartmentModel
+        departments: DepartmentModel = DepartmentModel.query.filter_by(id=str(_id)).first()
+
         user: UserModel = UserModel.query.filter_by(id=str(_id)).first()
         return [department.name for department in user.departments]
 
