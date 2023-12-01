@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import './UserWorkspaces.css';
+import {add_workspace} from "../api";
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -8,12 +9,21 @@ function UserWorkspaces() {
     const [workspaces, setWorkspaces] = useState([]);
     const [username, setUsername] = useState("Anonim");
     const [error, setError] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+
     const STATUS_MAP = {
         1: 'Активно', 2: 'В архиве', 3: 'Удалено'
     };
 
     const R_STATUS_MAP = {
         1: 'Открыт', 2: 'В ревью', 3: 'Принят', 4: 'Отклонён', 5: 'Закрыт',
+    };
+
+    const toggleDialog = () => {
+        setIsDialogOpen(!isDialogOpen);
     };
 
     const handleWorkspaceClick = (workspaceId) => {
@@ -80,71 +90,125 @@ function UserWorkspaces() {
         return <div>Error: {error}</div>;
     }
 
-    return (<div className="workspaces-container">
-        <div className="workspace-title-container">
-            <h2 className="workspace-title">Рабочие пространства</h2>
-            <div className="username-info-right">
-                <div className="username" onClick={() => goToProfile()}>
-                    <p className="request-content">{username}</p>
+    return (
+        <div className="page">
+            {isDialogOpen && (
+                <div className="dialog-container">
+                    <h3>
+                        Создать рабочее пространство
+                    </h3>
+                    <div className="form-group">
+                        <label htmlFor="title">Заголовок</label>
+                        <input
+                            type="text"
+                            id="title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="description">Описание</label>
+                        <input
+                            type="description"
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button className="add-workspace-button" onClick={() => handleWorkspaceAdding(title, description)}>Сохранить</button>
+                    <button className="add-workspace-button-close" onClick={toggleDialog}>Закрыть</button>
                 </div>
-            </div>
-        </div>
+            )}
 
-        <div className="workspace-block">
-            <div className="all-workspaces">
-                {workspaces.length > 0 ? (<ul className="all-workspaces-container">
-                    {workspaces.map(workspace => (
-                        <li onClick={() => handleWorkspaceClick(workspace.id)} className="workspace-item"
-                            key={workspace.id}>{workspace.title}</li>))}
-                </ul>) : (<p>No workspaces found.</p>)}
-            </div>
+            <div className="workspaces-container">
 
+                <div className="workspace-title-container">
+                    <h2 className="workspace-title">Рабочие пространства</h2>
+                    <div className="username-info-right">
+                        <div className="username" onClick={() => goToProfile()}>
+                            <p className="request-content">{username}</p>
+                        </div>
+                    </div>
+                </div>
 
-            <div className="all-files-branches">
-                {workspace !== "" ? (<div>
-                    <div className="request-content-title-container">
+                <div className="workspace-block">
+                    <div className="all-workspaces">
                         <div>
-                            <h3 className="request-content-title">{workspace.title}</h3>
-                            <p className="request-content">{workspace.description}</p>
-                        </div>
-                        <div className="info-right">
-                            <div className="branches-number">
-                                <p><b>Ветки:</b> {workspace.branches_num}</p>
-                            </div>
+                            {workspaces.length > 0 ? (<ul className="all-workspaces-container">
+                                {workspaces.map(workspace => (
+                                    <li onClick={() => handleWorkspaceClick(workspace.id)} className="workspace-item"
+                                        key={workspace.id}>{workspace.title}</li>))}
+                            </ul>) : (<p>No workspaces found.</p>)}
 
-                            <div className="workspace-status"
-                                 style={{backgroundColor: getStatusColor(workspace.status)}}>
-                                <p>{STATUS_MAP[workspace.status] || 'Неизвестно'}</p>
-                            </div>
+                            <button className="add-workspace" onClick={toggleDialog}><p>+</p></button>
                         </div>
                     </div>
 
-                    <h3>Все ветки</h3>
-                    <div className="all-branches">
-                        {workspace.branches.length > 0 ? (<ul className="all-branches-container">
-                            {workspace.branches.map(branch => (<li className="branch-item" key={branch.id}>
-                                {branch.id === workspace.main_branch &&
-                                    <span><b>🏠</b> </span>}{branch.name}
-                            </li>))}
-                        </ul>) : (<p>Нет веток</p>)}
-                    </div>
+                    <div className="all-files-branches">
+                        {workspace !== "" ? (<div>
+                            <div className="request-content-title-container">
+                                <div>
+                                    <h3 className="request-content-title">{workspace.title}</h3>
+                                    <p className="request-content">{workspace.description}</p>
+                                </div>
+                                <div className="info-right">
+                                    <div className="branches-number">
+                                        <p><b>Ветки:</b> {workspace.branches_num}</p>
+                                    </div>
 
-                    <h3>Все реквесты</h3>
-                    <div className="all-request">
-                        {workspace.requests.length > 0 ? (<ul className="all-requests-container">
-                            {workspace.requests.map(request => (
-                                <li className="request-item" key={request.id}>
-                                    <div>{request.title}</div>
-                                    <div>{request.description}</div>
-                                    <div>Статус: {R_STATUS_MAP[workspace.status] || 'Неизвестный статус'}</div>
-                                </li>))}
-                        </ul>) : (<p>Нет реквестов.</p>)}
+                                    <div className="workspace-status"
+                                         style={{backgroundColor: getStatusColor(workspace.status)}}>
+                                        <p>{STATUS_MAP[workspace.status] || 'Неизвестно'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3>Все ветки</h3>
+                            <div className="all-branches">
+                                {workspace.branches.length > 0 ? (<ul className="all-branches-container">
+                                    {workspace.branches.map(branch => (<li className="branch-item" key={branch.id}>
+                                        {branch.id === workspace.main_branch &&
+                                            <span><b>🏠</b> </span>}{branch.name}
+                                    </li>))}
+                                </ul>) : (<p>Нет веток</p>)}
+                            </div>
+
+                            <h3>Все реквесты</h3>
+                            <div className="all-request">
+                                {workspace.requests.length > 0 ? (<ul className="all-requests-container">
+                                    {workspace.requests.map(request => (
+                                        <li className="request-item" key={request.id}>
+                                            <div>{request.title}</div>
+                                            <div>{request.description}</div>
+                                            <div>Статус: {R_STATUS_MAP[workspace.status] || 'Неизвестный статус'}</div>
+                                        </li>))}
+                                </ul>) : (<p>Нет реквестов.</p>)}
+                            </div>
+                        </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
-                </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
+                </div>
+
             </div>
-        </div>
+        </div>);
+}
 
-    </div>);
+export async function handleWorkspaceAdding(title, description) {
+  try {
+        const response = await add_workspace({title, description});
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+
+            window.location.href = '/workspaces';
+            console.error('Registration was successful, token provided in the response.');
+        } else {
+            console.error('Registration was unsuccessful, no token provided in the response.');
+        }
+    } catch (error) {
+        console.error('An error occurred during login:', error);
+    }
 }
 
 function getStatusColor(status) {

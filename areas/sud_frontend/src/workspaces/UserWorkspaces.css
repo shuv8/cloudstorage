@@ -12,6 +12,86 @@
     margin-bottom: 20px;
 }
 
+.page {
+    position: absolute;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    align-content: space-around;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.dialog-container {
+    z-index: 1;
+    display: flex;
+    position: absolute;
+    background: white;
+    width: 300px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 6px #00000024;
+    align-items: start;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 20px;
+}
+
+.add-workspace-button {
+    padding: 10px 20px;
+    width: 100%;
+    align-self: end;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #a44ee0;
+    color: white;
+    cursor: pointer;
+    margin: 0 0 10px 10px;
+}
+
+.add-workspace-button:hover {
+    background-color: #9741d3;
+}
+
+.add-workspace-button-close {
+    padding: 10px 20px;
+    width: 100%;
+    align-self: end;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #676767;
+    color: white;
+    cursor: pointer;
+    margin: 0 0 20px 10px;
+}
+
+.add-workspace-button-close:hover {
+    background-color: #575757;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: large;
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    height: 50%;
+    font-size: medium;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    padding: 5px 5px 5px 5px;
+}
+
 .info-right {
     display: flex;
     align-items: center;
@@ -106,7 +186,29 @@
 
 .all-workspaces {
     background-color: #e1e1e1;
+    position: relative;
     border-radius: 10px 0 0 10px;
+}
+
+.add-workspace {
+    position: absolute;
+    bottom: 10px;
+    border-radius: 40px;
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+    right: 10px;
+    margin: 15px;
+    background-color: #a44ee0;
+}
+
+.add-workspace:hover {
+    background-color: #9741d3;
+}
+
+.add-workspace p {
+    font-size: xx-large;
+    margin: 4px 0 0 0;
 }
 
 .workspace-item {

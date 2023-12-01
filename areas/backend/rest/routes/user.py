@@ -198,7 +198,7 @@ def get_workspace_content(space_id):
         for branch in item.branches:
             branches.append(
                 {
-                    "name": len(branch.name),
+                    "name": branch.name,
                     "id": branch.get_id(),
                 }
             )
