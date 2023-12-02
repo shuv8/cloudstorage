@@ -1,13 +1,14 @@
 """The Endpoints to manage the ADMIN_REQUESTS"""
+import uuid
+
 from flask import jsonify, Blueprint, request
 
 from areas.backend.controller.data_store_controller import *
 from areas.backend.controller.user_controller import UserController
 from areas.backend.core.department import Department
 from areas.backend.decorators.token_required import admin_access
-from areas.backend.exceptions.exceptions import AlreadyExistsError
+from areas.backend.exceptions.exceptions import AlreadyExistsError, ItemNotFoundError, UserNotFoundError
 from areas.backend.core.department_manager import DepartmentNotFoundError
-from areas.backend.core.user_manager import UserNotFoundError
 
 ADMIN_REQUEST_API = Blueprint('request_admin_api', __name__)
 
@@ -22,15 +23,87 @@ def get_blueprint():
 
 """
     ===================
+    Block with Workspace
+    ===================
+"""
+# TODO Получиить список всех worspace (Имя, описание, статус) с именами авторов
+# TODO Изменить статус worspace (Для - разархивировать, архивировать, удалить)
+
+
+@ADMIN_REQUEST_API.route('/all_workspaces', methods=['GET'])
+@admin_access
+def get_workspaces_list():
+    """
+    Query:
+        - query: page
+        - query: limit
+    Result:
+        {
+            workspaces: [{
+              owner: string,
+              title: string,
+              description: string,
+              status: string
+            }]
+        }
+    """
+    page = request.args.get('page', default=1, type=int)
+    limit = request.args.get('limit', default=10, type=int)
+    workspaces = dataStoreController.get_all_workspaces(page, limit)
+    items = [{"owner": workspace[0],
+              "title": workspace[1].title,
+              "description": workspace[1].description,
+              "status": workspace[1].status,
+              } for workspace in workspaces]
+    return jsonify(
+        {
+            "workspaces": items
+        }
+    ), 200
+
+
+@ADMIN_REQUEST_API.route('/workspace/<space_id>', methods=['PUT'])
+@admin_access
+def update_workspace(space_id):
+    """
+    Query:
+        - path: space_id
+        - body: new_status
+        - body: new_owner
+    Result:
+        {
+            'status': "ok"
+        }
+    """
+    request_data = request.get_json()
+    new_status = request_data['new_status'] if 'new_status' in request_data.keys() else None
+    try:
+        new_owner = uuid.UUID(request_data['new_owner']) if 'new_owner' in request_data.keys() else None
+    except Exception:
+        return jsonify({'error': 'Invalid format of new workspace owner ID'}), 400
+    if new_status is None and new_owner is None:
+        return jsonify({'error': 'Invalid request body!'}), 400
+    try:
+        new_workspace = dataStoreController.update_workspace(uuid.UUID(space_id), new_status, new_owner)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect workspace'}), 404
+    except UserNotFoundError:
+        return jsonify({'error': 'Incorrect new owner'}), 404
+    except NotImplementedError:
+        return jsonify({'error': 'Incorrect new workspace status'}), 404
+    return jsonify({"status": "ok",
+                    "workspace": {"owner": new_workspace[0],
+                                  "title": new_workspace[1].title,
+                                  "description": new_workspace[1].description,
+                                  "status": new_workspace[1].status,
+                                  }}), 200
+
+
+"""
+    ===================
     Block with Department
     ===================
 """
-
-# ДОПОЛНИТЕЛЬНО
-
-# TODO Получиить список всех worspace (Имя, описание, статус) с именами авторов
-# TODO Изменить статус worspace (Для - разархивировать, архивировать, удалить)
-# TODO Получиить список всех worspace с именами авторов
 
 
 # TODO REFACTOR OLD

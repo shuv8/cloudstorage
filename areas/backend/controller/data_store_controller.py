@@ -58,8 +58,15 @@ class DataStoreController:
     def archive_workspace(self, user_mail: str,  space_id: UUID):
         self.data_store_service.change_workspace_status(user_mail, space_id, WorkSpaceStatus.Archived.value)
 
+    def update_workspace(self, space_id: UUID, new_status: str | None, new_owner: UUID | None):
+        new_status = WorkSpaceStatus.get_enum_from_value(new_status) if new_status is not None else None
+        return self.data_store_service.update_workspace(space_id, new_status, new_owner)
+
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_service.create_workspace(user_mail, workspace)
+
+    def get_all_workspaces(self, page: int, limit: int) -> list[(str, WorkSpace)]:
+        return self.data_store_service.get_all_workspaces(page, limit)
 
     #############
     # BRANCHES

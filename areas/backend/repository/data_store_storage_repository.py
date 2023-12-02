@@ -164,6 +164,35 @@ class DataStoreStorageRepository:
 
         return workspaces_final
 
+    @staticmethod
+    def get_all_workspaces() -> list[(str, WorkSpace)]:
+        workspaces: list[WorkspaceModel] = WorkspaceModel.query.all()
+        workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
+                            title=workspace.title,
+                            description=workspace.description,
+                            branches=[],
+                            requests=[],
+                            accesses=[],
+                            main_branch=None,
+                            status=workspace.status,
+                            _id=workspace.id,
+                            )) for workspace in workspaces]
+        return workspaces_list
+
+    @staticmethod
+    def get_workspace_by_id_admin(space_id: uuid.UUID) -> (str, WorkSpace):
+        workspace: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(space_id)).first()
+        return (UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
+                            title=workspace.title,
+                            description=workspace.description,
+                            branches=[],
+                            requests=[],
+                            accesses=[],
+                            main_branch=None,
+                            status=workspace.status,
+                            _id=workspace.id,
+                ))
+
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
 
@@ -214,8 +243,8 @@ class DataStoreStorageRepository:
 
         raise SpaceNotFoundError()
 
-    def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
-        if self.is_author_of_workspace(user_mail, space_id):
+    def change_workspace_status(self, space_id: uuid.UUID, status: str, user_mail: str | None = None, admin=False):
+        if admin or self.is_author_of_workspace(user_mail, space_id):
             self.db.session.execute(update(WorkspaceModel).where(WorkspaceModel.id == str(space_id)).values(
                 status=status
             ))
@@ -223,6 +252,17 @@ class DataStoreStorageRepository:
             return None
         else:
             raise NotAllowedError()
+
+    def change_workspace_owner(self, space_id: uuid.UUID, owner: uuid.UUID):
+        from areas.backend.database.database import UserModel
+        user: UserModel = UserModel.query.filter_by(id=str(owner)).first()
+        if user is None:
+            raise UserNotFoundError
+        self.db.session.execute(update(WorkspaceModel).where(WorkspaceModel.id == str(space_id)).values(
+            user_id=str(owner)
+        ))
+        self.db.session.commit()
+        return None
 
     #############
     # BRANCHES

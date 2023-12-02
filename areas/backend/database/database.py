@@ -90,7 +90,7 @@ class WorkspaceModel(db.Model):
 
     id = db.Column('workspace_id', db.String, primary_key=True)
     title = db.Column(db.String)
-    description = db.Column(db.Integer)
+    description = db.Column(db.String)
     status = db.Column(db.String)
     main_branch = db.Column(db.String)
 
