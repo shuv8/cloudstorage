@@ -69,6 +69,18 @@ class BranchModel(db.Model):
     workspace_id = db.Column(db.String, db.ForeignKey("workspace.workspace_id"))
 
 
+class BaseAccessModel(db.Model):
+    __tablename__ = 'access'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column('access_id', db.Integer, primary_key=True, autoincrement=True)
+    access_level = db.Column(db.Enum(Access))
+    access_type = db.Column(db.Enum(AccessType))
+    value = db.Column(db.String)
+
+    workspace_id = db.Column(db.String, db.ForeignKey("workspace.workspace_id"))
+
+
 class WorkspaceModel(db.Model):
     __tablename__ = "workspace"
     __table_args__ = {'extend_existing': True}
@@ -81,14 +93,10 @@ class WorkspaceModel(db.Model):
 
     user_id = db.Column(db.String, db.ForeignKey("user.user_id"))
 
+    accesses: list[BaseAccessModel] = db.relationship(
+        'BaseAccessModel',
+        uselist=True,
+        backref="workspace",
+        cascade="all,delete"
+    )
 
-class BaseAccessModel(db.Model):
-    __tablename__ = 'access'
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column('access_id', db.Integer, primary_key=True, autoincrement=True)
-    access_level = db.Column(db.Enum(Access))
-    access_type = db.Column(db.Enum(AccessType))
-    value = db.Column(db.String)
-
-    workspace_id = db.Column(db.String, db.ForeignKey("workspace.workspace_id"))

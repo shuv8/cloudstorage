@@ -34,6 +34,12 @@ class WorkSpace:
     def get_id(self) -> UUID:
         return self.__id
 
+    def add_access(self, new_access: BaseAccess):
+        self.__accesses.append(new_access)
+
+    def remove_access(self, access: BaseAccess):
+        self.__accesses.remove(access)
+
     def get_accesses(self) -> list[BaseAccess]:
         return self.__accesses
 

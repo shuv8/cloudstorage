@@ -161,28 +161,28 @@ class DataStoreController:
     def get_accesses(self, workspace_id: UUID) -> list[BaseAccess]:
         return self.access_service.get_accesses_for_workspace(workspace_id)
 
-    # def edit_access(
-    #         self,
-    #         item_id: UUID,
-    #         edit_type: AccessEditTypeEnum,
-    #         access_class: AccessClassEnum,
-    #         view_only: Optional[bool] = True,
-    #         name: Optional[str] = None,
-    # ) -> str:
-    #     try:
-    #         if edit_type == AccessEditTypeEnum.Add:
-    #             if access_class == AccessClassEnum.Url:
-    #                 return self.access_service.add_access_for_item_by_url(item_id, view_only)
-    #             if access_class == AccessClassEnum.UserEmail:
-    #                 return self.access_service.add_access_for_item_by_email(item_id, name, view_only)
-    #             if access_class == AccessClassEnum.Department:
-    #                 return self.access_service.add_access_for_item_by_department(item_id, name, view_only)
-    #         elif edit_type == AccessEditTypeEnum.Remove:
-    #             if access_class == AccessClassEnum.Url:
-    #                 return self.access_service.remove_access_for_item_by_url(item_id)
-    #             if access_class == AccessClassEnum.UserEmail:
-    #                 return self.access_service.remove_access_for_item_by_email(item_id, name)
-    #             if access_class == AccessClassEnum.Department:
-    #                 return self.access_service.remove_access_for_item_by_department(item_id, name)
-    #     except NotAllowedError:
-    #         raise NotAllowedError
+    def edit_access(
+            self,
+            space_id: UUID,
+            edit_type: AccessEditTypeEnum,
+            access_class: AccessClassEnum,
+            view_only: Optional[bool] = True,
+            value: Optional[str] = None,
+    ) -> str:
+        try:
+            if edit_type == AccessEditTypeEnum.Add:
+                if access_class == AccessClassEnum.Url:
+                    return self.access_service.add_access_for_workspace_by_url(space_id, view_only)
+                if access_class == AccessClassEnum.UserEmail:
+                    return self.access_service.add_access_for_workspace_by_email(space_id, value, view_only)
+                if access_class == AccessClassEnum.Department:
+                    return self.access_service.add_access_for_workspace_by_department(space_id, value, view_only)
+            elif edit_type == AccessEditTypeEnum.Remove:
+                if access_class == AccessClassEnum.Url:
+                    return self.access_service.remove_access_for_workspace_by_url(space_id)
+                if access_class == AccessClassEnum.UserEmail:
+                    return self.access_service.remove_access_for_workspace_by_email(space_id, value)
+                if access_class == AccessClassEnum.Department:
+                    return self.access_service.remove_access_for_workspace_by_department(space_id, value)
+        except NotAllowedError:
+            raise NotAllowedError
