@@ -1,4 +1,7 @@
+from typing import List
+
 from flask import current_app
+from sqlalchemy.orm import Mapped
 
 from areas.backend.app_db import get_current_db
 from areas.backend.core.accesses import Access, AccessType
@@ -93,7 +96,7 @@ class WorkspaceModel(db.Model):
 
     user_id = db.Column(db.String, db.ForeignKey("user.user_id"))
 
-    accesses: list[BaseAccessModel] = db.relationship(
+    accesses: Mapped[List[BaseAccessModel]] = db.relationship(
         'BaseAccessModel',
         uselist=True,
         backref="workspace",
