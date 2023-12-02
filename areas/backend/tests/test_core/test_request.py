@@ -43,8 +43,8 @@ class TestRequest:
             request_fixture.description = 435
 
     def test_status_property(self, request_fixture):
-        request_fixture.status = RequestStatus.Approved
-        assert request_fixture.status == RequestStatus.Approved
+        request_fixture.status = RequestStatus.Merged
+        assert request_fixture.status == RequestStatus.Merged
 
         with pytest.raises(TypeError):
             request_fixture.status = "435"
