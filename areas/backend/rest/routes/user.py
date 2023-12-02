@@ -602,15 +602,14 @@ def get_accesses_for_space(workspace_id):
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/set_access/<item_id>', methods=['PUT'])
+@USER_REQUEST_API.route('/accesses/<space_id>/url', methods=['PUT'])
 @token_required
-def set_access_by_url(item_id):
+def set_access_by_url(space_id):
     """
     Path:
-        - item_id: id of item to change access
+        - space_id: id of space to change access
     Result:
-        url
+        status of the change
     """
 
     view_only = request.args.get('view_only', default="true")
@@ -621,42 +620,47 @@ def set_access_by_url(item_id):
 
     try:
         result = dataStoreController.edit_access(
-            item_id, AccessEditTypeEnum.Add, AccessClassEnum.Url, view_only_bool)
+            space_id=space_id,
+            edit_type=AccessEditTypeEnum.Add,
+            access_class=AccessClassEnum.Url,
+            view_only=view_only_bool,
+        )
         return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/reset_access/<item_id>', methods=['DELETE'])
+@USER_REQUEST_API.route('/accesses/<space_id>/url', methods=['DELETE'])
 @token_required
-def reset_access_by_url(item_id):
+def reset_access_by_url(space_id):
     """
     Path:
-        - item_id: id of item to change access
+        - space_id: id of space to change access
     Result:
-        url
+        status of the change
     """
 
     try:
         result = dataStoreController.edit_access(
-            item_id, AccessEditTypeEnum.Remove, AccessClassEnum.Url)
+            space_id=space_id,
+            edit_type=AccessEditTypeEnum.Remove,
+            access_class=AccessClassEnum.Url,
+        )
         return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/add_access/<item_id>/email/<email>', methods=['PUT'])
+@USER_REQUEST_API.route('/accesses/<space_id>/email/<email>', methods=['PUT'])
 @token_required
-def add_access_by_user(item_id, email):
+def add_access_by_user(space_id, email):
     """
     Path:
-        - item_id: id of item to change access
+        - space_id: id of space to change access
     Result:
-        url
+        status of the change
     """
 
     view_only = request.args.get('view_only', default="true")
@@ -667,11 +671,11 @@ def add_access_by_user(item_id, email):
 
     try:
         result = dataStoreController.edit_access(
-            item_id,
-            AccessEditTypeEnum.Add,
-            AccessClassEnum.UserEmail,
-            view_only_bool,
-            email
+            space_id=space_id,
+            edit_type=AccessEditTypeEnum.Add,
+            access_class=AccessClassEnum.UserEmail,
+            view_only=view_only_bool,
+            value=email,
         )
         return jsonify({"status": result}), 200
 
@@ -681,35 +685,37 @@ def add_access_by_user(item_id, email):
         return jsonify({'error': 'User not found'}), 404
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/remove_access/<item_id>/email/<email>', methods=['DELETE'])
+@USER_REQUEST_API.route('/accesses/<space_id>/email/<email>', methods=['DELETE'])
 @token_required
-def remove_access_by_user(item_id, email):
+def remove_access_by_user(space_id, email):
     """
     Path:
-        - item_id: id of item to change access
+        - space_id: id of space to change access
     Result:
-        url
+        status of the change
     """
 
     try:
-        result = dataStoreController.edit_access(item_id, AccessEditTypeEnum.Remove, AccessClassEnum.UserEmail,
-                                                 name=email)
+        result = dataStoreController.edit_access(
+            space_id=space_id,
+            edit_type=AccessEditTypeEnum.Remove,
+            access_class=AccessClassEnum.UserEmail,
+            value=email,
+        )
         return jsonify({"status": result}), 200
 
     except NotAllowedError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/add_access/<item_id>/department/<department>', methods=['PUT'])
+@USER_REQUEST_API.route('/accesses/<space_id>/department/<department>', methods=['PUT'])
 @token_required
-def add_access_by_department(item_id, department):
+def add_access_by_department(space_id, department):
     """
     Path:
-        - item_id: id of item to change access
+        - space_id: id of space to change access
     Result:
-        url
+        status of the change
     """
 
     view_only = request.args.get('view_only', default="true")
@@ -720,11 +726,11 @@ def add_access_by_department(item_id, department):
 
     try:
         result = dataStoreController.edit_access(
-            item_id,
-            AccessEditTypeEnum.Add,
-            AccessClassEnum.Department,
-            view_only_bool,
-            department
+            space_id=space_id,
+            edit_type=AccessEditTypeEnum.Add,
+            access_class=AccessClassEnum.Department,
+            view_only=view_only_bool,
+            value=department,
         )
         return jsonify({"status": result}), 200
 
@@ -734,23 +740,22 @@ def add_access_by_department(item_id, department):
         return jsonify({'error': 'Department not found'}), 404
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/remove_access/<item_id>/department/<department>', methods=['DELETE'])
+@USER_REQUEST_API.route('/accesses/<space_id>/department/<department>', methods=['DELETE'])
 @token_required
-def remove_access_by_department(item_id, department):
+def remove_access_by_department(space_id, department):
     """
     Path:
-        - item_id: id of item to change access
+        - space_id: id of space to change access
     Result:
-        url
+        status of the change
     """
 
     try:
         result = dataStoreController.edit_access(
-            item_id,
-            AccessEditTypeEnum.Remove,
-            AccessClassEnum.Department,
-            name=department
+            space_id=space_id,
+            edit_type=AccessEditTypeEnum.Remove,
+            access_class=AccessClassEnum.Department,
+            value=department,
         )
         return jsonify({"status": result}), 200
 
