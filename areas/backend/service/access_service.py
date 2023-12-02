@@ -1,10 +1,10 @@
 import uuid
 from uuid import UUID
 
-from core.accesses import UrlAccess, Access, UserAccess, DepartmentAccess, BaseAccess
-from decorators.token_required import get_user_by_token
-from exceptions.exceptions import NotAllowedError
-from service.data_store_service import DataStoreService
+from areas.backend.core.accesses import UrlAccess, Access, UserAccess, DepartmentAccess, BaseAccess
+from areas.backend.decorators.token_required import get_user_by_token
+from areas.backend.exceptions.exceptions import NotAllowedError, SpaceNotFoundError
+from areas.backend.service.data_store_service import DataStoreService
 
 
 class AccessService:
@@ -12,14 +12,13 @@ class AccessService:
     def __init__(self):
         self.data_store_service = DataStoreService()
 
-    def get_accesses_for_item(self, item_id: UUID) -> list[BaseAccess]:
+    def get_accesses_for_workspace(self, workspace_id: UUID) -> list[BaseAccess]:
         user = get_user_by_token()
-        if not self.data_store_service.is_user_item(user.email, item_id):
+        try:
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+        except SpaceNotFoundError:
             raise NotAllowedError()
-        else:
-            item = self.data_store_service.get_user_item_by_id(user.email, item_id)
-
-        return self.data_store_service.get_accesses_for_item(item)
+        return workspace.get_accesses()
 
     def add_access_for_item_by_url(self, item_id: UUID, view_only: bool) -> str:
         user = get_user_by_token()

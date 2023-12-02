@@ -152,15 +152,15 @@ class DataStoreController:
     #     return self.data_store_service.copy_item(item_id=item_id, user_mail=user_mail, space_id=space_id,
     #                                              target_space=target_space, target_directory_id=target_directory_id)
     #
-    # """
-    #     ==============
-    #     Access Service
-    #     ==============
-    # """
-    #
-    # def get_accesses(self, item_id: UUID) -> list[BaseAccess]:
-    #     return self.access_service.get_accesses_for_item(item_id)
-    #
+    """
+        ==============
+        Access Service
+        ==============
+    """
+
+    def get_accesses(self, workspace_id: UUID) -> list[BaseAccess]:
+        return self.access_service.get_accesses_for_workspace(workspace_id)
+
     # def edit_access(
     #         self,
     #         item_id: UUID,

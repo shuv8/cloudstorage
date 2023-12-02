@@ -340,21 +340,6 @@ class DataStoreService:
     #
     #     return None
     #
-    # def get_user_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
-    #     space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
-    #
-    #     for space in space_manager.get_spaces():
-    #         for directory in space.get_directory_manager().items:
-    #
-    #             item = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
-    #             if item is not None:
-    #                 return item
-    #
-    #     return None  # pragma: no cover # Reason: We always call this function after checking isUserItem condition
-    #
-    # def is_user_item(self, user_mail: str, item_id: UUID) -> bool:
-    #     return self.get_user_item_by_id(user_mail, item_id) is not None
-    #
     # def set_url_access_for_item(self, item: BaseStorageItem, new_access: BaseAccess) -> str:
     #     add_new_access = True
     #     another_access_id = None

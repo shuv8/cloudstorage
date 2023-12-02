@@ -560,29 +560,28 @@ def view_file_by_id(file_id):
 # TODO ! На самый низкий слой запилить проверку доступа к чужому воркспейсу и прокидывать наверх эксепшн
 
 
-# TODO REFACTOR OLD
-@USER_REQUEST_API.route('/accesses/<item_id>', methods=['GET'])
+@USER_REQUEST_API.route('/accesses/<space_id>', methods=['GET'])
 @token_required
-def get_accesses(item_id):
+def get_accesses_for_space(workspace_id):
     """
     Path:
-        - item_id: id of item to change access
+        - space_id: id of workspace to get information
     Result:
-        url
+        information about all accesses
     """
     try:
-        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(item_id) or list()
+        accesses: Optional[list[BaseAccess]] = dataStoreController.get_accesses(workspace_id) or list()
 
         accesses_content = []
         for access in accesses:
 
             content = "undefined"
 
-            if type(access) == UrlAccess:
+            if isinstance(access, UrlAccess):
                 content = access.get_url()
-            elif type(access) == UserAccess:
+            elif isinstance(access, UserAccess):
                 content = access.get_email()
-            elif type(access) == DepartmentAccess:
+            elif isinstance(access, DepartmentAccess):
                 content = access.get_department_name()
 
             accesses_content.append(
