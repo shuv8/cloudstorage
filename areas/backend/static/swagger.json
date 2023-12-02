@@ -786,13 +786,13 @@
         }
       }
     },
-    "/accesses/{item_id}": {
+    "/accesses/{space_id}": {
       "get": {
         "parameters": [
           {
-            "name": "item_id",
+            "name": "space_id",
             "in": "path",
-            "description": "File or directory to search for",
+            "description": "User workspace to get accesses for",
             "schema": {
               "type": "string"
             }
@@ -801,7 +801,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "Returns files and directories for user query",
+        "summary": "Returns all accesses for user workspace",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -860,13 +860,13 @@
         }
       }
     },
-    "/set_access/{item_id}": {
+    "/accesses/{space_id}/url": {
       "put": {
         "parameters": [
           {
-            "name": "item_id",
+            "name": "space_id",
             "in": "path",
-            "description": "File or directory to search for",
+            "description": "User workspace to get accesses for",
             "schema": {
               "type": "string"
             }
@@ -874,7 +874,7 @@
           {
             "name": "view_only",
             "in": "query",
-            "description": "to do",
+            "description": "If user can view or edit data",
             "schema": {
               "type": "boolean"
             }
@@ -883,7 +883,47 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Add access to user workspace by url",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/access_status"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Delete workspace access by url",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -910,13 +950,13 @@
         }
       }
     },
-    "/add_access/{item_id}/email/{email}": {
+    "/accesses/{space_id}/email/{email}": {
       "put": {
         "parameters": [
           {
-            "name": "item_id",
+            "name": "space_id",
             "in": "path",
-            "description": "File or directory to search for",
+            "description": "User workspace to get accesses for",
             "schema": {
               "type": "string"
             }
@@ -932,7 +972,7 @@
           {
             "name": "view_only",
             "in": "query",
-            "description": "to do",
+            "description": "If user can view or edit data",
             "schema": {
               "type": "boolean"
             }
@@ -941,7 +981,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Add workspace access by email",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -966,115 +1006,13 @@
             }
           }
         }
-      }
-    },
-    "/add_access/{item_id}/department/{department}": {
-      "put": {
-        "parameters": [
-          {
-            "name": "item_id",
-            "in": "path",
-            "description": "File or directory to search for",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "department",
-            "in": "path",
-            "description": "File or directory to search for",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "view_only",
-            "in": "query",
-            "description": "to do",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "tags": [
-          "UserRequest"
-        ],
-        "summary": "to do",
-        "responses": {
-          "400": {
-            "description": "Failed. Bad post data."
-          },
-          "404": {
-            "description": "Failed. Item not found"
-          },
-          "401": {
-            "description": "Failed. No permissions for this action"
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/access_status"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/reset_access/{item_id}": {
+      },
       "delete": {
         "parameters": [
           {
-            "name": "item_id",
+            "name": "space_id",
             "in": "path",
-            "description": "File or directory to search for",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "tags": [
-          "UserRequest"
-        ],
-        "summary": "to do",
-        "responses": {
-          "400": {
-            "description": "Failed. Bad post data."
-          },
-          "404": {
-            "description": "Failed. Item not found"
-          },
-          "401": {
-            "description": "Failed. No permissions for this action"
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/access_status"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/remove_access/{item_id}/email/{email}": {
-      "delete": {
-        "parameters": [
-          {
-            "name": "item_id",
-            "in": "path",
-            "description": "File or directory to search for",
+            "description": "User workspace to get accesses for",
             "schema": {
               "type": "string"
             }
@@ -1091,7 +1029,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Delete workspace access by email",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."
@@ -1118,13 +1056,69 @@
         }
       }
     },
-    "/remove_access/{item_id}/department/{department}": {
+    "/accesses/{space_id}/department/{department}": {
+      "put": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "User workspace to get accesses for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "department",
+            "in": "path",
+            "description": "File or directory to search for",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "view_only",
+            "in": "query",
+            "description": "If user can view or edit data",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "tags": [
+          "UserRequest"
+        ],
+        "summary": "Add workspace access by department",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad post data."
+          },
+          "404": {
+            "description": "Failed. Item not found"
+          },
+          "401": {
+            "description": "Failed. No permissions for this action"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/access_status"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "parameters": [
           {
-            "name": "item_id",
+            "name": "space_id",
             "in": "path",
-            "description": "File or directory to search for",
+            "description": "User workspace to get accesses for",
             "schema": {
               "type": "string"
             }
@@ -1141,7 +1135,7 @@
         "tags": [
           "UserRequest"
         ],
-        "summary": "to do",
+        "summary": "Delete workspace access by department",
         "responses": {
           "400": {
             "description": "Failed. Bad post data."

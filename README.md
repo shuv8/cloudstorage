@@ -92,17 +92,17 @@ Web application of "Documents storing system" <MEPhI course>
 
 #### Accesses
 
-🔴 21) `/accesses/<space_id>` - Get all accesses
+🟡 21) `[GET] /accesses/<space_id>` - Get all accesses
 
-🔴 22) `/set_access/<space_id>` - Set access
+🟡 22) `[PUT] /accesses/<space_id>/url` - Set access by url
 
-🔴 23) `/reset_access/<space_id>` - Remove access
+🟡 23) `[DELETE] /accesses/<space_id>/url` - Remove access by url
 
-🔴 24) `/add_access/<space_id>/email/<email>` - Add access
+🟡 24) `[PUT] /accesses/<space_id>/email/<email>` - Add access for email
 
-🔴 25) `/remove_access/<space_id>/email/<email>` - Remove access
+🟡 25) `[DELETE] /accesses/<space_id>/email/<email>` - Remove access for email
 
-🔴 26) `/add_access/<space_id>/department/<department>` - Add access
+🟡 26) `[PUT] /accesses/<space_id>/department/<department>` - Add access for department
 
-🔴 27) `/remove_access/<space_id>/department/<department>` - Remove access
+🟡 27) `[DELETE] /accesses/<space_id>/department/<department>` - Remove access for department
 

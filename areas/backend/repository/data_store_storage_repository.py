@@ -796,53 +796,42 @@ class DataStoreStorageRepository:
     #
     #     self.db.session.commit()
     #
-    # def update_item_access(self, item: BaseStorageItem):
-    #     accesses: list[AccessModel] = []
-    #
-    #     for access in item.accesses:
-    #         if type(access) is UrlAccess:
-    #             accesses.append(
-    #                 AccessModel(
-    #                     access_level=access.access_type,
-    #                     access_type=AccessType.Url,
-    #                     owner=access.owner,
-    #                     value=access.get_url()
-    #                 )
-    #             )
-    #         elif type(access) is UserAccess:
-    #             accesses.append(
-    #                 AccessModel(
-    #                     access_level=access.access_type,
-    #                     access_type=AccessType.User,
-    #                     owner=access.owner,
-    #                     value=access.get_email()
-    #                 )
-    #             )
-    #         elif type(access) is DepartmentAccess:
-    #             accesses.append(
-    #                 AccessModel(
-    #                     access_level=access.access_type,
-    #                     access_type=AccessType.Department,
-    #                     owner=access.owner,
-    #                     value=access.get_department_name()
-    #                 )
-    #             )
-    #
-    #     if isinstance(item, File):
-    #         file: FileModel = FileModel.query.filter_by(id=str(item.id)).first()
-    #         for access in file.accesses:
-    #             file.accesses.remove(access)
-    #             self.db.session.execute(delete(AccessModel).where(AccessModel.id == access.id))
-    #         file.accesses = accesses
-    #         self.db.session.commit()
-    #     elif isinstance(item, Directory):
-    #         directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(item.id)).first()
-    #         for access in directory.accesses:
-    #             directory.accesses.remove(access)
-    #             self.db.session.execute(delete(AccessModel).where(AccessModel.id == access.id))
-    #         directory.accesses = accesses
-    #         self.db.session.commit()
-    #
+    def update_workspace_access(self, workspace: WorkSpace):
+        accesses: list[BaseAccessModel] = []
+
+        for access in workspace.accesses:
+            if isinstance(access, UrlAccess):
+                accesses.append(
+                    BaseAccessModel(
+                        access_level=access.access_type,
+                        access_type=AccessType.Url,
+                        value=access.get_url()
+                    )
+                )
+            elif isinstance(access, UserAccess):
+                accesses.append(
+                    BaseAccessModel(
+                        access_level=access.access_type,
+                        access_type=AccessType.User,
+                        value=access.get_email()
+                    )
+                )
+            elif isinstance(access, DepartmentAccess):
+                accesses.append(
+                    BaseAccessModel(
+                        access_level=access.access_type,
+                        access_type=AccessType.Department,
+                        value=access.get_department_name()
+                    )
+                )
+
+        workspace_model: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(workspace.get_id())).first()
+        for access in workspace_model.accesses:
+            workspace_model.accesses.remove(access)
+            self.db.session.execute(delete(BaseAccessModel).where(BaseAccessModel.id == access.id))
+        workspace_model.accesses = accesses
+        self.db.session.commit()
+
     # def delete_item_from_db(self, item):
     #     if isinstance(item, File):
     #         self.db.session.execute(delete(FileModel).where(FileModel.id == str(item.id)))

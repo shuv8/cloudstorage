@@ -339,115 +339,94 @@ class DataStoreService:
     #             return file
     #
     #     return None
-    #
-    # def get_user_item_by_id(self, user_mail: str, item_id: UUID) -> Optional[BaseStorageItem]:
-    #     space_manager: SpaceManager = self.data_store_storage_repo.get_root_dir_by_user_mail(user_mail)
-    #
-    #     for space in space_manager.get_spaces():
-    #         for directory in space.get_directory_manager().items:
-    #
-    #             item = self.get_item_in_directory_by_id(directory=directory, id_=item_id)
-    #             if item is not None:
-    #                 return item
-    #
-    #     return None  # pragma: no cover # Reason: We always call this function after checking isUserItem condition
-    #
-    # def is_user_item(self, user_mail: str, item_id: UUID) -> bool:
-    #     return self.get_user_item_by_id(user_mail, item_id) is not None
-    #
-    # def set_url_access_for_item(self, item: BaseStorageItem, new_access: BaseAccess) -> str:
-    #     add_new_access = True
-    #     another_access_id = None
-    #
-    #     for access in item.accesses:
-    #         if type(access) == UrlAccess:
-    #             another_access_id = access.get_url()
-    #             if access.access_type != new_access.access_type:
-    #                 access.access_type = new_access.access_type
-    #                 add_new_access = False
-    #             else:
-    #                 return f"nothing changed: {another_access_id}"
-    #
-    #     if add_new_access:
-    #         item.add_access(new_access)
-    #         self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
-    #         self.data_store_storage_repo.update_item_access(item)
-    #         return f"new access added: {item.id}"
-    #     else:
-    #         self.data_store_storage_repo.update_item_access(item)
-    #         return f"accesses updated: {another_access_id}"
-    #
-    # def remove_url_access_for_item(self, item: BaseStorageItem) -> str:
-    #     for access in item.accesses:
-    #         if type(access) == UrlAccess:
-    #             item.accesses.remove(access)
-    #             self.data_store_storage_repo.update_item_access(item)
-    #             self.data_store_storage_repo.remove_shared_space_by_url(item)
-    #             return "access removed"
-    #     return "nothing to remove"
-    #
-    # def add_email_access_for_item(self, item: BaseStorageItem, new_access: UserAccess) -> str:
-    #     add_new_access = True
-    #
-    #     for access in item.accesses:
-    #         if type(access) == UserAccess:
-    #             if access.get_email() == new_access.get_email():
-    #                 if access.access_type != new_access.access_type:
-    #                     access.access_type = new_access.access_type
-    #                     add_new_access = False
-    #                 else:
-    #                     return "nothing changed"
-    #
-    #     if add_new_access:
-    #         item.add_access(new_access)
-    #         self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
-    #         self.data_store_storage_repo.update_item_access(item)
-    #         return "new access added"
-    #     else:
-    #         self.data_store_storage_repo.update_item_access(item)
-    #         return "accesses updated"
-    #
-    # def remove_email_access_for_item(self, item: BaseStorageItem, email: str) -> str:
-    #     for access in item.accesses:
-    #         if type(access) == UserAccess:
-    #             if access.get_email() == email:
-    #                 item.accesses.remove(access)
-    #                 self.data_store_storage_repo.remove_shared_space_by_email(item, email)
-    #                 self.data_store_storage_repo.update_item_access(item)
-    #                 return "access removed"
-    #     return "nothing to remove"
-    #
-    # def add_department_access_for_item(self, item: BaseStorageItem, new_access: DepartmentAccess):
-    #     add_new_access = True
-    #
-    #     for access in item.accesses:
-    #         if type(access) == DepartmentAccess:
-    #             if access.get_department_name() == new_access.get_department_name():
-    #                 if access.access_type != new_access.access_type:
-    #                     access.access_type = new_access.access_type
-    #                     add_new_access = False
-    #                 else:
-    #                     return "nothing changed"
-    #
-    #     if add_new_access:
-    #         item.add_access(new_access)
-    #         self.data_store_storage_repo.add_shared_space_by_type(item, new_access)
-    #         self.data_store_storage_repo.update_item_access(item)
-    #         return "new access added"
-    #     else:
-    #         self.data_store_storage_repo.update_item_access(item)
-    #         return "accesses updated"
-    #
-    # def remove_department_access_for_item(self, item: BaseStorageItem, department_name: str):
-    #     for access in item.accesses:
-    #         if type(access) == DepartmentAccess:
-    #             if access.get_department_name() == department_name:
-    #                 item.accesses.remove(access)
-    #                 self.data_store_storage_repo.remove_shared_space_by_department(item, department_name)
-    #                 self.data_store_storage_repo.update_item_access(item)
-    #                 return "access removed"
-    #     return "nothing to remove"
-    #
+
+    def set_url_access_for_workspace(self, workspace: WorkSpace, new_access: BaseAccess) -> str:
+        add_new_access = True
+        another_access_id = None
+
+        for access in workspace.accesses:
+            if isinstance(access, UrlAccess):
+                another_access_id = access.get_url()
+                if access.access_type != new_access.access_type:
+                    access.access_type = new_access.access_type
+                    add_new_access = False
+                else:
+                    return f"nothing changed: {another_access_id}"
+
+        if add_new_access:
+            workspace.add_access(new_access)
+            return_text = f"new access added for workspace {workspace.get_id()}"
+        else:
+            return_text = f"accesses updated for workspace {workspace.get_id()}"
+        self.data_store_storage_repo.update_workspace_access(workspace)
+        return return_text
+
+    def remove_url_access_for_workspace(self, workspace: WorkSpace) -> str:
+        for access in workspace.accesses:
+            if isinstance(access, UrlAccess):
+                workspace.remove_access(access)
+                self.data_store_storage_repo.update_workspace_access(workspace)
+                return "access removed"
+        return "nothing to remove"
+
+    def add_email_access_for_workspace(self, workspace: WorkSpace, new_access: UserAccess) -> str:
+        add_new_access = True
+
+        for access in workspace.accesses:
+            if isinstance(access, UserAccess):
+                if access.get_email() == new_access.get_email():
+                    if access.access_type != new_access.access_type:
+                        access.access_type = new_access.access_type
+                        add_new_access = False
+                    else:
+                        return "nothing changed"
+
+        if add_new_access:
+            workspace.add_access(new_access)
+            return_text = f"new access added for workspace {workspace.get_id()}"
+        else:
+            return_text = f"accesses updated for workspace {workspace.get_id()}"
+        self.data_store_storage_repo.update_workspace_access(workspace)
+        return return_text
+
+    def remove_email_access_for_workspace(self, workspace: WorkSpace, email: str) -> str:
+        for access in workspace.accesses:
+            if isinstance(access, UserAccess):
+                if access.get_email() == email:
+                    workspace.remove_access(access)
+                    self.data_store_storage_repo.update_workspace_access(workspace)
+                    return "access removed"
+        return "nothing to remove"
+
+    def add_department_access_for_workspace(self, workspace: WorkSpace, new_access: DepartmentAccess):
+        add_new_access = True
+
+        for access in workspace.accesses:
+            if isinstance(access, DepartmentAccess):
+                if access.get_department_name() == new_access.get_department_name():
+                    if access.access_type != new_access.access_type:
+                        access.access_type = new_access.access_type
+                        add_new_access = False
+                    else:
+                        return "nothing changed"
+
+        if add_new_access:
+            workspace.add_access(new_access)
+            return_text = f"new access added for workspace {workspace.get_id()}"
+        else:
+            return_text = f"accesses updated for workspace {workspace.get_id()}"
+        self.data_store_storage_repo.update_workspace_access(workspace)
+        return return_text
+
+    def remove_department_access_for_workspace(self, workspace: WorkSpace, department_name: str):
+        for access in workspace.accesses:
+            if isinstance(access, DepartmentAccess):
+                if access.get_department_name() == department_name:
+                    workspace.remove_access(access)
+                    self.data_store_storage_repo.update_workspace_access(workspace)
+                    return "access removed"
+        return "nothing to remove"
+
     # def get_accesses_for_item(self, item: BaseStorageItem) -> list[BaseAccess]:
     #     return item.accesses
     #
