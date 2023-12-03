@@ -1,20 +1,17 @@
 import datetime
 from typing import Optional, BinaryIO
 import uuid
-from copy import deepcopy
 from uuid import UUID
 
-from areas.backend.core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess, Access
+from areas.backend.core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess, AccessType
 from areas.backend.core.branch import Branch
 from areas.backend.core.document import Document
 from areas.backend.core.request import Request
 from areas.backend.core.workspace import WorkSpace
-from areas.backend.exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError, AccessError
+from areas.backend.exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError
 from areas.backend.repository.data_store_storage_repository import DataStoreStorageRepository
-from accessify import private
-import logging
 
-from core.workspace_status import WorkSpaceStatus
+from areas.backend.core.workspace_status import WorkSpaceStatus
 
 
 class DataStoreService:
@@ -40,6 +37,12 @@ class DataStoreService:
 
     def get_workspaces(self, user_mail: str, archived: bool) -> list[WorkSpace]:
         return self.data_store_storage_repo.get_workspaces(user_mail, archived)
+
+    def get_workspaces_access(self, user_mail: str) -> list[tuple[WorkSpace, AccessType]]:
+        return self.data_store_storage_repo.get_workspaces_access(user_mail)
+
+    def get_workspaces_open(self) -> list[WorkSpace]:
+        return self.data_store_storage_repo.get_workspaces_open()
 
     def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
         self.data_store_storage_repo.change_workspace_status(user_mail=user_mail, space_id=space_id, status=status)
@@ -134,7 +137,7 @@ class DataStoreService:
     # Create Document
 
     def add_new_document(self, user_email: str, workspace_id: uuid.UUID, new_document_name: str, new_document_type: str,
-                     new_file_data: str) -> UUID:
+                         new_file_data: str) -> UUID:
         try:
             workspace = self.get_workspace_by_id(user_email, workspace_id)
         except SpaceNotFoundError:

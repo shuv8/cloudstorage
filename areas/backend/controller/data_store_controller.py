@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional, BinaryIO
 from uuid import UUID
 
-from areas.backend.core.accesses import BaseAccess
+from areas.backend.core.accesses import BaseAccess, AccessType
 from areas.backend.core.branch import Branch
 from areas.backend.core.document import Document
 from areas.backend.core.request import Request
@@ -51,6 +51,12 @@ class DataStoreController:
 
     def get_workspaces(self, user_mail: str, archived: bool) -> list[WorkSpace]:
         return self.data_store_service.get_workspaces(user_mail, archived)
+
+    def get_workspaces_access(self, user_mail: str) -> list[tuple[WorkSpace, AccessType]]:
+        return self.data_store_service.get_workspaces_access(user_mail)
+
+    def get_workspaces_open(self) -> list[WorkSpace]:
+        return self.data_store_service.get_workspaces_open()
 
     def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> WorkSpace:
         return self.data_store_service.get_workspace_by_id(user_mail, space_id, archived)

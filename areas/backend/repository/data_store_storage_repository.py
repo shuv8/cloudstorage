@@ -10,20 +10,17 @@ from sqlalchemy import delete, or_
 from sqlalchemy import update
 
 from areas.backend.app_db import get_current_db
-from areas.backend.core.accesses import BaseAccess, UrlAccess, AccessType, DepartmentAccess, UserAccess, Access
+from areas.backend.config import endpoint, secret_key, access_key
+from areas.backend.core.accesses import UrlAccess, AccessType, DepartmentAccess, UserAccess
 from areas.backend.core.branch import Branch
 from areas.backend.core.document import Document
 from areas.backend.core.request import Request
 from areas.backend.core.request_status import RequestStatus
+from areas.backend.core.workspace import WorkSpace
 from areas.backend.core.workspace_status import WorkSpaceStatus
 from areas.backend.database.database import UserModel, WorkspaceModel, RequestModel, BranchModel, DepartmentModel, \
     BaseAccessModel, DocumentModel
-from areas.backend.exceptions.exceptions import UserNotFoundError, DepartmentNotFoundError, ItemNotFoundError, \
-    SpaceNotFoundError, NotAllowedError
-import shutil
-
-from areas.backend.config import endpoint, secret_key, access_key
-from areas.backend.core.workspace import WorkSpace
+from areas.backend.exceptions.exceptions import UserNotFoundError, SpaceNotFoundError, NotAllowedError
 
 
 class DataStoreStorageRepository:
@@ -134,25 +131,215 @@ class DataStoreStorageRepository:
 
                 for req in requests:
                     req_ = Request(
-                            title=req.title,
-                            description=req.description,
-                            status=req.status,
-                            source_branch_id=req.source_branch_id,
-                            target_branch_id=req.target_branch_id,
-                            _id=req.id,
-                        )
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
                     if req.id not in indexes:
                         all_requests.append(req_)
                         indexes.append(req.id)
                 for req in requests2:
                     req_ = Request(
-                            title=req.title,
-                            description=req.description,
-                            status=req.status,
-                            source_branch_id=req.source_branch_id,
-                            target_branch_id=req.target_branch_id,
-                            _id=req.id,
-                        )
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
+
+            workspaces_final.append(
+                WorkSpace(
+                    title=workspace.title,
+                    description=workspace.description,
+                    branches=all_branches,
+                    requests=all_requests,
+                    accesses=[],  # TODO ACCESSES
+                    main_branch=workspace.main_branch,
+                    status=workspace.status,
+                    _id=workspace.id,
+                )
+            )
+
+        return workspaces_final
+
+    @staticmethod
+    def get_workspaces_access(user_mail: str) -> list[tuple[WorkSpace, AccessType]]:
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
+
+        workspaces_final: list[tuple[WorkSpace, AccessType]] = []
+
+        workspaces: list[tuple[WorkspaceModel, AccessType]] = []
+        if user.department_id is not None:
+            department: DepartmentModel = DepartmentModel.query.filter_by(id=user.department_id).first()
+
+            accesses: list[BaseAccessModel] = BaseAccessModel.query.filter(
+                BaseAccessModel.access_type == AccessType.Department,
+                BaseAccessModel.value == department.name).all()
+
+            for access in accesses:
+                workspace: WorkspaceModel = WorkspaceModel.query.filter(WorkspaceModel.id == access.workspace_id,
+                                                                        WorkspaceModel.status == WorkSpaceStatus.Active.value).first()
+                if workspace is not None:
+                    workspaces.append((workspace, access.access_type))
+
+        accesses: list[BaseAccessModel] = BaseAccessModel.query.filter(BaseAccessModel.access_type == AccessType.User,
+                                                                       BaseAccessModel.value == user.email).all()
+
+        for access in accesses:
+            workspace: WorkspaceModel = WorkspaceModel.query.filter(WorkspaceModel.id == access.workspace_id,
+                                                                    WorkspaceModel.status == WorkSpaceStatus.Active.value).first()
+
+            if workspace is not None:
+                workspaces.append((workspace, access.access_type))
+
+        for (workspace, access_type) in workspaces:
+            branches: list[BranchModel] = BranchModel.query.filter_by(workspace_id=workspace.id).all()
+
+            all_branches = []
+            all_requests = []
+            indexes = []
+
+            for br in branches:
+                documentModel: DocumentModel = DocumentModel.query.filter_by(id=br.document_id).first()
+                document = None
+
+                if documentModel is not None:
+                    document = Document(
+                        name=documentModel.name,
+                        task_id=documentModel.task_id,
+                        file=documentModel.file_id,
+                        time=documentModel.modification_time,
+                        _id=documentModel.id,
+                    )
+
+                all_branches.append(
+                    Branch(
+                        name=br.name,
+                        author=br.author,
+                        parent=br.parent_branch_id,
+                        document=document,
+                        _id=br.id,
+                    )
+                )
+
+                requests: list[RequestModel] = RequestModel.query.filter_by(source_branch_id=br.id).all()
+                requests2: list[RequestModel] = RequestModel.query.filter_by(target_branch_id=br.id).all()
+
+                for req in requests:
+                    req_ = Request(
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
+                for req in requests2:
+                    req_ = Request(
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
+
+            workspaces_final.append(
+                (WorkSpace(
+                    title=workspace.title,
+                    description=workspace.description,
+                    branches=all_branches,
+                    requests=all_requests,
+                    accesses=[],  # TODO ACCESSES
+                    main_branch=workspace.main_branch,
+                    status=workspace.status,
+                    _id=workspace.id,
+                ), access_type)
+            )
+
+        return workspaces_final
+
+    @staticmethod
+    def get_workspaces_open() -> list[WorkSpace]:
+        accesses: list[BaseAccessModel] = BaseAccessModel.query.filter(
+            BaseAccessModel.access_type == AccessType.Url).all()
+
+        workspaces_final: list[WorkSpace] = []
+        workspaces: list[WorkspaceModel] = []
+
+        for access in accesses:
+            workspace: WorkspaceModel = WorkspaceModel.query.filter(WorkspaceModel.id == access.workspace_id,
+                                                                    WorkspaceModel.status == WorkSpaceStatus.Active.value).first()
+            if workspace is not None:
+                workspaces.append(workspace)
+
+        for workspace in workspaces:
+            branches: list[BranchModel] = BranchModel.query.filter_by(workspace_id=workspace.id).all()
+
+            all_branches = []
+            all_requests = []
+            indexes = []
+
+            for br in branches:
+                documentModel: DocumentModel = DocumentModel.query.filter_by(id=br.document_id).first()
+                document = None
+
+                if documentModel is not None:
+                    document = Document(
+                        name=documentModel.name,
+                        task_id=documentModel.task_id,
+                        file=documentModel.file_id,
+                        time=documentModel.modification_time,
+                        _id=documentModel.id,
+                    )
+
+                all_branches.append(
+                    Branch(
+                        name=br.name,
+                        author=br.author,
+                        parent=br.parent_branch_id,
+                        document=document,
+                        _id=br.id,
+                    )
+                )
+
+                requests: list[RequestModel] = RequestModel.query.filter_by(source_branch_id=br.id).all()
+                requests2: list[RequestModel] = RequestModel.query.filter_by(target_branch_id=br.id).all()
+
+                for req in requests:
+                    req_ = Request(
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
+                for req in requests2:
+                    req_ = Request(
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
                     if req.id not in indexes:
                         all_requests.append(req_)
                         indexes.append(req.id)
@@ -178,15 +365,15 @@ class DataStoreStorageRepository:
             WorkspaceModel.status != WorkSpaceStatus.Deleted.value
         ).all() if not deleted else WorkspaceModel.query.all()
         workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
-                            title=workspace.title,
-                            description=workspace.description,
-                            branches=[],
-                            requests=[],
-                            accesses=[],
-                            main_branch=None,
-                            status=workspace.status,
-                            _id=workspace.id,
-                            )) for workspace in workspaces]
+            title=workspace.title,
+            description=workspace.description,
+            branches=[],
+            requests=[],
+            accesses=[],
+            main_branch=None,
+            status=workspace.status,
+            _id=workspace.id,
+        )) for workspace in workspaces]
         return workspaces_list
 
     @staticmethod
@@ -195,15 +382,15 @@ class DataStoreStorageRepository:
         if workspace is None:
             raise SpaceNotFoundError
         return (UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
-                            title=workspace.title,
-                            description=workspace.description,
-                            branches=[],
-                            requests=[],
-                            accesses=[],
-                            main_branch=None,
-                            status=workspace.status,
-                            _id=workspace.id,
-                ))
+            title=workspace.title,
+            description=workspace.description,
+            branches=[],
+            requests=[],
+            accesses=[],
+            main_branch=None,
+            status=workspace.status,
+            _id=workspace.id,
+        ))
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
@@ -246,16 +433,73 @@ class DataStoreStorageRepository:
                 return space
 
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        space: WorkspaceModel = WorkspaceModel.query.filter_by(id=space_id).first()
-        if space is not None and space.status == WorkSpaceStatus.Active.value:
+        space: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(space_id)).first()
+        if space is not None and str(space.status) == str(WorkSpaceStatus.Active.value):
+            branches: list[BranchModel] = BranchModel.query.filter_by(workspace_id=space.id).all()
+
+            all_branches = []
+            all_requests = []
+            indexes = []
+
+            for br in branches:
+                documentModel: DocumentModel = DocumentModel.query.filter_by(id=br.document_id).first()
+                document = None
+
+                if documentModel is not None:
+                    document = Document(
+                        name=documentModel.name,
+                        task_id=documentModel.task_id,
+                        file=documentModel.file_id,
+                        time=documentModel.modification_time,
+                        _id=documentModel.id,
+                    )
+
+                all_branches.append(
+                    Branch(
+                        name=br.name,
+                        author=br.author,
+                        parent=br.parent_branch_id,
+                        document=document,
+                        _id=br.id,
+                    )
+                )
+
+                requests: list[RequestModel] = RequestModel.query.filter_by(source_branch_id=br.id).all()
+                requests2: list[RequestModel] = RequestModel.query.filter_by(target_branch_id=br.id).all()
+
+                for req in requests:
+                    req_ = Request(
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
+                for req in requests2:
+                    req_ = Request(
+                        title=req.title,
+                        description=req.description,
+                        status=req.status,
+                        source_branch_id=req.source_branch_id,
+                        target_branch_id=req.target_branch_id,
+                        _id=req.id,
+                    )
+                    if req.id not in indexes:
+                        all_requests.append(req_)
+                        indexes.append(req.id)
+
             space: WorkSpace = WorkSpace(
                 title=space.title,
                 description=space.description,
                 main_branch=space.main_branch,
                 status=space.status,
                 _id=space.id,
-                branches=[],
-                requests=[],
+                branches=all_branches,
+                requests=all_requests,
                 accesses=[]
             )
             if self.has_access_to_workspace(space, user):
@@ -301,7 +545,9 @@ class DataStoreStorageRepository:
                 if str(branch.get_id()) == str(branch_id):
                     user: UserModel = UserModel.query.filter_by(id=branch.author).first()
 
-                    original_branch_name: str = "" if str(branch.get_parent_id()) == "-1" else BranchModel.query.filter_by(id=branch.get_parent_id()).first().name
+                    original_branch_name: str = "" if str(
+                        branch.get_parent_id()) == "-1" else BranchModel.query.filter_by(
+                        id=branch.get_parent_id()).first().name
 
                     all_requests = []
                     requests: list[RequestModel] = RequestModel.query.filter_by(source_branch_id=branch.get_id()).all()
@@ -466,7 +712,6 @@ class DataStoreStorageRepository:
 
     def add_new_document(self, workspace: WorkSpace, new_document: Document, new_file_data: str) -> uuid.UUID:
         branch: BranchModel = BranchModel.query.filter_by(name="master", workspace_id=workspace.get_id()).first()
-
 
         doc = DocumentModel(
             id=str(new_document.get_id()),
