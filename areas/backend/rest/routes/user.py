@@ -263,7 +263,7 @@ def get_workspace_content(space_id):
     archived = request.args.get('archived', default=False, type=bool)
 
     try:
-        item: WorkSpace = dataStoreController.get_workspace_by_id(user.email, uuid.UUID(space_id), archived)
+        username, item = dataStoreController.get_workspace_by_id(user.email, uuid.UUID(space_id), archived)
 
         requests = []
         for merge_request in item.requests:
@@ -294,6 +294,7 @@ def get_workspace_content(space_id):
                 "main_branch": item.main_branch,
                 "branches": branches,
                 "requests": requests,
+                "username": username,
                 "id": str(item.get_id()),
             }
         ), 200

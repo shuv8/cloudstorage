@@ -47,13 +47,13 @@ class DataStoreService:
     def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
         self.data_store_storage_repo.change_workspace_status(user_mail=user_mail, space_id=space_id, status=status)
 
-    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> Optional[WorkSpace]:
-        space: Optional[WorkSpace] = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id, archived)
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> Optional[tuple[str, WorkSpace]]:
+        name, space = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id, archived)
 
         if space is None:
             raise SpaceNotFoundError
 
-        return space
+        return name, space
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_storage_repo.create_workspace(user_mail, workspace)
