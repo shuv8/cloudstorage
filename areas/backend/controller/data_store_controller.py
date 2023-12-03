@@ -49,11 +49,11 @@ class DataStoreController:
     # WORKSPACES
     #############
 
-    def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
-        return self.data_store_service.get_workspaces(user_mail)
+    def get_workspaces(self, user_mail: str, archived: bool) -> list[WorkSpace]:
+        return self.data_store_service.get_workspaces(user_mail, archived)
 
-    def get_workspace_by_id(self, user_mail: str, space_id: UUID) -> WorkSpace:
-        return self.data_store_service.get_workspace_by_id(user_mail, space_id)
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> WorkSpace:
+        return self.data_store_service.get_workspace_by_id(user_mail, space_id, archived)
 
     def archive_workspace(self, user_mail: str,  space_id: UUID):
         self.data_store_service.change_workspace_status(user_mail, space_id, WorkSpaceStatus.Archived.value)

@@ -128,6 +128,16 @@
     },
     "/get_workspaces": {
       "get": {
+        "parameters": [
+          {
+            "name": "archived",
+            "in": "query",
+            "description": "Show archived workspaces",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "tags": [
           "UserRequest"
         ],
@@ -165,6 +175,15 @@
             "name": "space_id",
             "in": "path",
             "description": "Id of the user workspace",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "description": "Show archived workspaces",
             "schema": {
               "type": "string"
             }

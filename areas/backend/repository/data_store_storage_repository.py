@@ -6,7 +6,7 @@ from typing import BinaryIO, Optional
 
 from flask import current_app
 from minio import Minio
-from sqlalchemy import delete
+from sqlalchemy import delete, or_
 from sqlalchemy import update
 
 from areas.backend.app_db import get_current_db
@@ -84,9 +84,17 @@ class DataStoreStorageRepository:
     #############
 
     @staticmethod
-    def get_workspaces(user_mail: str) -> list[WorkSpace]:
+    def get_workspaces(user_mail: str, archived: bool = False) -> list[WorkSpace]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter_by(user_id=user.id).all()
+        workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter(
+            WorkspaceModel.user_id == user.id,
+            or_(WorkspaceModel.status == WorkSpaceStatus.Active.value,
+                WorkspaceModel.status == WorkSpaceStatus.Archived.value
+                )
+        ).all() if archived else WorkspaceModel.query.filter(
+            WorkspaceModel.user_id == user.id,
+            WorkspaceModel.status == WorkSpaceStatus.Active.value
+        ).all()
 
         workspaces_final = []
 
@@ -225,8 +233,8 @@ class DataStoreStorageRepository:
 
         return _workspace.id
 
-    def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID) -> Optional[WorkSpace]:
-        spaces: list[WorkSpace] = self.get_workspaces(user_mail)
+    def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID, archived: bool = False) -> Optional[WorkSpace]:
+        spaces: list[WorkSpace] = self.get_workspaces(user_mail, archived)
         print(len(spaces))
         for space in spaces:
             print(space.get_id())
@@ -235,7 +243,17 @@ class DataStoreStorageRepository:
 
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         space: WorkspaceModel = WorkspaceModel.query.filter_by(id=space_id).first()
-        if space is not None:
+        if space is not None and space.status == WorkSpaceStatus.Active.value:
+            space: WorkSpace = WorkSpace(
+                title=space.title,
+                description=space.description,
+                main_branch=space.main_branch,
+                status=space.status,
+                _id=space.id,
+                branches=[],
+                requests=[],
+                accesses=[]
+            )
             if self.has_access_to_workspace(space, user):
                 return space
             else:

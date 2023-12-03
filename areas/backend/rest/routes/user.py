@@ -131,6 +131,7 @@ def get_workspaces():
     """
     Query:
         - query: get all workspaces
+        - archive: flag to show archived workspaces
     Result:
         {
             workspaces: [{
@@ -141,8 +142,9 @@ def get_workspaces():
 
     # query date
     user = get_user_by_token()
+    archived = request.args.get('archived', default=False, type=bool)
 
-    items: list[WorkSpace] = dataStoreController.get_workspaces(user.email)
+    items: list[WorkSpace] = dataStoreController.get_workspaces(user.email, archived)
 
     workspaces_content = []
     for item in items:
@@ -169,6 +171,7 @@ def get_workspace_content(space_id):
     """
     Query:
         - space_id: id of space to view
+        - archived: flag to show archived workspaces
     Result:
         {
             workspace: [{
@@ -179,9 +182,10 @@ def get_workspace_content(space_id):
 
     # query date
     user = get_user_by_token()
+    archived = request.args.get('archived', default=False, type=bool)
 
     try:
-        item: WorkSpace = dataStoreController.get_workspace_by_id(user.email, uuid.UUID(space_id))
+        item: WorkSpace = dataStoreController.get_workspace_by_id(user.email, uuid.UUID(space_id), archived)
 
         requests = []
         for merge_request in item.requests:
@@ -350,6 +354,8 @@ def add_branch(space_id):
         return jsonify({'error': 'Incorrect directory'}), 404
     except NotAllowedError:
         return jsonify("No access to this space"), 401
+    except SpaceNotFoundError:
+        return jsonify({'error': 'Incorrect workspace'}), 404
     return jsonify({'id': new_file_id}), 200
 
 
