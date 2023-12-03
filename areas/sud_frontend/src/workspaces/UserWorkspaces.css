@@ -149,6 +149,40 @@
     cursor: pointer;
 }
 
+.workspace-archive-button {
+    padding: 10px 20px;
+    width: 100%;
+    align-self: end;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #a44ee0;
+    color: white;
+    cursor: pointer;
+    margin: 0 0 10px 10px;
+}
+
+.workspace-archive-button:hover {
+    background-color: #9741d3;
+}
+
+.workspace-archive-button-close {
+    padding: 10px 20px;
+    width: 100%;
+    align-self: end;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #676767;
+    color: white;
+    cursor: pointer;
+    margin: 0 0 20px 10px;
+}
+
+.workspace-archive-button-close:hover {
+    background-color: #575757;
+}
+
 .workspace-archive:hover {
     background-color: #343434;
 }

@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import './UserWorkspaces.css';
-import {add_workspace} from "../api";
+import {add_workspace, archive_workspace} from "../api";
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -12,6 +12,7 @@ function UserWorkspaces() {
     const [username, setUsername] = useState("Anonim");
     const [error, setError] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -26,6 +27,10 @@ function UserWorkspaces() {
 
     const toggleDialog = () => {
         setIsDialogOpen(!isDialogOpen);
+    };
+
+    const toggleConfirm = () => {
+        setIsConfirmOpen(!isConfirmOpen);
     };
 
     const handleWorkspaceClick = (workspaceId) => {
@@ -169,6 +174,20 @@ function UserWorkspaces() {
                 </div>
             )}
 
+            {/*/ ДИАЛОГ ПОДТВЕРЖЕНИЯ  АРХИВИРОВАНИЯ /*/}
+
+            {isConfirmOpen && (
+                <div className="dialog-container">
+                    <h3>
+                        Архивировать рабочее пространство?
+                    </h3>
+                    <button className="workspace-archive-button"
+                            onClick={() => handleWorkspaceArchiving(workspace.id)}>Да
+                    </button>
+                    <button className="workspace-archive-button-close" onClick={toggleConfirm}>Нет</button>
+                </div>
+            )}
+
             {/*/ ГЛАВНЫЙ ЭКРАН /*/}
 
             <div className="workspaces-container">
@@ -277,9 +296,9 @@ function UserWorkspaces() {
                                 </ul>) : (<p>Нет реквестов.</p>)}
                             </div>
 
-                            <div className="workspace-archive">
-                                <p>Архивировать (TODO)</p>
-                            </div>
+                            
+                            <button className="workspace-archive" onClick={toggleConfirm}><p>Архивировать</p></button>
+                            
 
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
@@ -291,6 +310,23 @@ function UserWorkspaces() {
 export async function handleWorkspaceAdding(title, description) {
     try {
         const response = await add_workspace({title, description});
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+
+            window.location.href = '/workspaces';
+            console.error('Registration was successful, token provided in the response.');
+        } else {
+            console.error('Registration was unsuccessful, no token provided in the response.');
+        }
+    } catch (error) {
+        console.error('An error occurred during login:', error);
+    }
+}
+
+export async function handleWorkspaceArchiving(id) {
+    try {
+        const response = await archive_workspace(id);
 
         if (response === 200) {
             localStorage.setItem('authToken', response.token);
