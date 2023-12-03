@@ -14,6 +14,8 @@ from areas.backend.repository.data_store_storage_repository import DataStoreStor
 from accessify import private
 import logging
 
+from core.workspace_status import WorkSpaceStatus
+
 
 class DataStoreService:
     def __init__(self):
@@ -36,14 +38,14 @@ class DataStoreService:
     # WORKSPACES
     #############
 
-    def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
-        return self.data_store_storage_repo.get_workspaces(user_mail)
+    def get_workspaces(self, user_mail: str, archived: bool) -> list[WorkSpace]:
+        return self.data_store_storage_repo.get_workspaces(user_mail, archived)
 
     def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
-        self.data_store_storage_repo.change_workspace_status(user_mail, space_id, status)
+        self.data_store_storage_repo.change_workspace_status(user_mail=user_mail, space_id=space_id, status=status)
 
-    def get_workspace_by_id(self, user_mail: str, space_id: UUID) -> Optional[WorkSpace]:
-        space: Optional[WorkSpace] = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id)
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> Optional[WorkSpace]:
+        space: Optional[WorkSpace] = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id, archived)
 
         if space is None:
             raise SpaceNotFoundError
@@ -52,6 +54,23 @@ class DataStoreService:
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_storage_repo.create_workspace(user_mail, workspace)
+
+    def get_all_workspaces(self, page: int, limit: int, deleted: bool) -> list[(str, WorkSpace)]:
+        workspaces = self.data_store_storage_repo.get_all_workspaces(deleted)
+        output_list = []
+        start_index = (page - 1) * limit
+        end_index = min(len(workspaces), start_index + limit)
+        for index in range(start_index, end_index):
+            output_list.append(workspaces[index])
+        return output_list
+
+    def update_workspace(self, space_id: uuid.UUID | None, new_status: WorkSpaceStatus | None, new_owner: UUID | None):
+        self.data_store_storage_repo.get_workspace_by_id_admin(space_id=space_id)
+        if new_status is not None:
+            self.data_store_storage_repo.change_workspace_status(space_id=space_id, status=new_status.value, admin=True)
+        if new_owner is not None:
+            self.data_store_storage_repo.change_workspace_owner(space_id=space_id, owner=new_owner)
+        return self.data_store_storage_repo.get_workspace_by_id_admin(space_id=space_id)
 
     #############
     # BRANCHES

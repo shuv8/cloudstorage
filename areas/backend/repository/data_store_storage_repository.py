@@ -6,7 +6,7 @@ from typing import BinaryIO, Optional
 
 from flask import current_app
 from minio import Minio
-from sqlalchemy import delete
+from sqlalchemy import delete, or_
 from sqlalchemy import update
 
 from areas.backend.app_db import get_current_db
@@ -84,9 +84,17 @@ class DataStoreStorageRepository:
     #############
 
     @staticmethod
-    def get_workspaces(user_mail: str) -> list[WorkSpace]:
+    def get_workspaces(user_mail: str, archived: bool = False) -> list[WorkSpace]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter_by(user_id=user.id).all()
+        workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter(
+            WorkspaceModel.user_id == user.id,
+            or_(WorkspaceModel.status == WorkSpaceStatus.Active.value,
+                WorkspaceModel.status == WorkSpaceStatus.Archived.value
+                )
+        ).all() if archived else WorkspaceModel.query.filter(
+            WorkspaceModel.user_id == user.id,
+            WorkspaceModel.status == WorkSpaceStatus.Active.value
+        ).all()
 
         workspaces_final = []
 
@@ -164,6 +172,39 @@ class DataStoreStorageRepository:
 
         return workspaces_final
 
+    @staticmethod
+    def get_all_workspaces(deleted: bool = False) -> list[(str, WorkSpace)]:
+        workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter(
+            WorkspaceModel.status != WorkSpaceStatus.Deleted.value
+        ).all() if not deleted else WorkspaceModel.query.all()
+        workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
+                            title=workspace.title,
+                            description=workspace.description,
+                            branches=[],
+                            requests=[],
+                            accesses=[],
+                            main_branch=None,
+                            status=workspace.status,
+                            _id=workspace.id,
+                            )) for workspace in workspaces]
+        return workspaces_list
+
+    @staticmethod
+    def get_workspace_by_id_admin(space_id: uuid.UUID) -> (str, WorkSpace):
+        workspace: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(space_id)).first()
+        if workspace is None:
+            raise SpaceNotFoundError
+        return (UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
+                            title=workspace.title,
+                            description=workspace.description,
+                            branches=[],
+                            requests=[],
+                            accesses=[],
+                            main_branch=None,
+                            status=workspace.status,
+                            _id=workspace.id,
+                ))
+
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
 
@@ -196,8 +237,8 @@ class DataStoreStorageRepository:
 
         return _workspace.id
 
-    def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID) -> Optional[WorkSpace]:
-        spaces: list[WorkSpace] = self.get_workspaces(user_mail)
+    def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID, archived: bool = False) -> Optional[WorkSpace]:
+        spaces: list[WorkSpace] = self.get_workspaces(user_mail, archived)
         print(len(spaces))
         for space in spaces:
             print(space.get_id())
@@ -206,7 +247,17 @@ class DataStoreStorageRepository:
 
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
         space: WorkspaceModel = WorkspaceModel.query.filter_by(id=space_id).first()
-        if space is not None:
+        if space is not None and space.status == WorkSpaceStatus.Active.value:
+            space: WorkSpace = WorkSpace(
+                title=space.title,
+                description=space.description,
+                main_branch=space.main_branch,
+                status=space.status,
+                _id=space.id,
+                branches=[],
+                requests=[],
+                accesses=[]
+            )
             if self.has_access_to_workspace(space, user):
                 return space
             else:
@@ -214,8 +265,8 @@ class DataStoreStorageRepository:
 
         raise SpaceNotFoundError()
 
-    def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
-        if self.is_author_of_workspace(user_mail, space_id):
+    def change_workspace_status(self, space_id: uuid.UUID, status: str, user_mail: str | None = None, admin=False):
+        if admin or self.is_author_of_workspace(user_mail, space_id):
             self.db.session.execute(update(WorkspaceModel).where(WorkspaceModel.id == str(space_id)).values(
                 status=status
             ))
@@ -223,6 +274,17 @@ class DataStoreStorageRepository:
             return None
         else:
             raise NotAllowedError()
+
+    def change_workspace_owner(self, space_id: uuid.UUID, owner: uuid.UUID):
+        from areas.backend.database.database import UserModel
+        user: UserModel = UserModel.query.filter_by(id=str(owner)).first()
+        if user is None:
+            raise UserNotFoundError
+        self.db.session.execute(update(WorkspaceModel).where(WorkspaceModel.id == str(space_id)).values(
+            user_id=str(owner)
+        ))
+        self.db.session.commit()
+        return None
 
     #############
     # BRANCHES

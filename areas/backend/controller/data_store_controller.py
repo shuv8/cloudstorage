@@ -49,17 +49,24 @@ class DataStoreController:
     # WORKSPACES
     #############
 
-    def get_workspaces(self, user_mail: str) -> list[WorkSpace]:
-        return self.data_store_service.get_workspaces(user_mail)
+    def get_workspaces(self, user_mail: str, archived: bool) -> list[WorkSpace]:
+        return self.data_store_service.get_workspaces(user_mail, archived)
 
-    def get_workspace_by_id(self, user_mail: str, space_id: UUID) -> WorkSpace:
-        return self.data_store_service.get_workspace_by_id(user_mail, space_id)
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> WorkSpace:
+        return self.data_store_service.get_workspace_by_id(user_mail, space_id, archived)
 
     def archive_workspace(self, user_mail: str,  space_id: UUID):
         self.data_store_service.change_workspace_status(user_mail, space_id, WorkSpaceStatus.Archived.value)
 
+    def update_workspace(self, space_id: UUID, new_status: str | None = None, new_owner: UUID | None = None):
+        new_status = WorkSpaceStatus.get_enum_from_value(new_status) if new_status is not None else None
+        return self.data_store_service.update_workspace(space_id, new_status, new_owner)
+
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_service.create_workspace(user_mail, workspace)
+
+    def get_all_workspaces(self, page: int, limit: int, deleted: bool) -> list[(str, WorkSpace)]:
+        return self.data_store_service.get_all_workspaces(page, limit, deleted)
 
     #############
     # BRANCHES

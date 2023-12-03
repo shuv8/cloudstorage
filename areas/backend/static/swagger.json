@@ -128,6 +128,16 @@
     },
     "/get_workspaces": {
       "get": {
+        "parameters": [
+          {
+            "name": "archived",
+            "in": "query",
+            "description": "Show archived workspaces",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "tags": [
           "UserRequest"
         ],
@@ -165,6 +175,15 @@
             "name": "space_id",
             "in": "path",
             "description": "Id of the user workspace",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "description": "Show archived workspaces",
             "schema": {
               "type": "string"
             }
@@ -1424,6 +1443,140 @@
         }
       }
     },
+    "/all_workspaces": {
+      "get": {
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page for department",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Page for department",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "Show deleted workspaces",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "Get all workspaces and its owners",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/workspace"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{space_id}": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/workspace_update"
+              },
+              "example": {
+                "new_status": "1",
+                "new_owner": "8e6808f7-d29c-422f-bab1-2a8b9b11d018"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "ID of workspace to update",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "Update workspace status or owner",
+        "responses": {
+          "400": {
+            "description": "Failed. Bad put data"
+          },
+          "404": {
+            "description": "Failed. Not found error"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/workspace"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "description": "ID of workspace to delete",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "AdminRequest"
+        ],
+        "summary": "Delete workspace",
+        "responses": {
+          "400": {
+            "description": "Failed. Invalid workspace ID"
+          },
+          "404": {
+            "description": "Failed. Not found error"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/workspace"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/user": {
       "get": {
         "parameters": [
@@ -1818,6 +1971,25 @@
           }
         }
       },
+      "workspace": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      },
       "new_branch": {
         "properties": {
           "name": {
@@ -1955,6 +2127,16 @@
       "user_id": {
         "properties": {
           "id": {
+            "type": "string"
+          }
+        }
+      },
+      "workspace_update": {
+        "properties": {
+          "new_status": {
+            "type": "string"
+          },
+          "new_owner": {
             "type": "string"
           }
         }
