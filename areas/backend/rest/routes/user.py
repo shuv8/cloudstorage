@@ -6,7 +6,7 @@ from flask import jsonify, Blueprint, make_response, request, send_file
 
 from areas.backend.controller.data_store_controller import DataStoreController, AccessEditTypeEnum, AccessClassEnum
 from areas.backend.controller.user_controller import UserController
-from areas.backend.core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess
+from areas.backend.core.accesses import BaseAccess, UrlAccess, UserAccess, DepartmentAccess, AccessType
 from areas.backend.core.branch import Branch
 from areas.backend.core.document import Document
 from areas.backend.core.request import Request
@@ -154,6 +154,84 @@ def get_workspaces():
                 "title": item.title,
                 "description": item.description,
                 "status": item.status,
+                "id": str(item.get_id()),
+            }
+        )
+
+    return jsonify(
+        {
+            "workspaces": workspaces_content
+        }
+    ), 200
+
+
+@USER_REQUEST_API.route('/get_workspaces_access', methods=['GET'])
+@token_required
+def get_workspaces_access():
+    """
+    Query:
+        - query: get all workspaces
+    Result:
+        {
+            workspaces: [{
+              workspace
+            }]
+        }
+    """
+
+    # query date
+    user = get_user_by_token()
+
+    items: list[tuple[WorkSpace, AccessType]] = dataStoreController.get_workspaces_access(user.email)
+
+    workspaces_content = []
+    for (item, access_type) in items:
+        workspaces_content.append(
+            {
+                "branches_num": len(item.branches),
+                "title": item.title,
+                "description": item.description,
+                "status": item.status,
+                "access_type": access_type.value,
+                "id": str(item.get_id()),
+            }
+        )
+
+    return jsonify(
+        {
+            "workspaces": workspaces_content
+        }
+    ), 200
+
+
+@USER_REQUEST_API.route('/get_workspaces_open', methods=['GET'])
+@token_required
+def get_workspaces_open():
+    """
+    Query:
+        - query: get all workspaces
+    Result:
+        {
+            workspaces: [{
+              workspace
+            }]
+        }
+    """
+
+    # query date
+    user = get_user_by_token()
+
+    items: list[WorkSpace] = dataStoreController.get_workspaces_open()
+
+    workspaces_content = []
+    for (item, access_type) in items:
+        workspaces_content.append(
+            {
+                "branches_num": len(item.branches),
+                "title": item.title,
+                "description": item.description,
+                "status": item.status,
+                "access_type": 1,
                 "id": str(item.get_id()),
             }
         )

@@ -7,6 +7,8 @@ const API_BASE_URL = 'http://localhost:5000';
 function UserWorkspaces() {
     const [workspace, setWorkspace] = useState("");
     const [workspaces, setWorkspaces] = useState([]);
+    const [workspaces_access, setWorkspaces_access] = useState([]);
+    const [workspaces_open, setWorkspaces_open] = useState([]);
     const [username, setUsername] = useState("Anonim");
     const [error, setError] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -65,6 +67,46 @@ function UserWorkspaces() {
             })
             .then(data => {
                 setWorkspaces(data["workspaces"]);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
+    }, []);
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/get_workspaces_access`, {
+            method: 'GET', headers: {
+                'Content-Type': 'application/json',
+            }, credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setWorkspaces_access(data["workspaces"]);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
+    }, []);
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/get_workspaces_open`, {
+            method: 'GET', headers: {
+                'Content-Type': 'application/json',
+            }, credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setWorkspaces_open(data["workspaces"]);
             })
             .catch(error => {
                 setError(error.message);
@@ -154,9 +196,9 @@ function UserWorkspaces() {
 
                 <div className="workspace-title-container">
                     <h2 className="workspace-title"><span
-                            onClick={() => goHome()}
-                            style={{cursor:"pointer"}}
-                        >🏠</span>Рабочие пространства</h2>
+                        onClick={() => goHome()}
+                        style={{cursor: "pointer"}}
+                    >🏠</span>Рабочие пространства</h2>
                     <div className="username-info-right">
                         <div className="username" onClick={() => goToProfile()}>
                             <p className="request-content">{username}</p>
@@ -175,6 +217,34 @@ function UserWorkspaces() {
                                     <li onClick={() => handleWorkspaceClick(workspace.id)} className="workspace-item"
                                         key={workspace.id}>{workspace.title}</li>))}
                             </ul>) : (<p className="workspace-item">Не найдено рабочих пространств</p>)}
+
+                            {workspaces_access.length > 0 ? (
+                                <ul className="all-workspaces-container">
+                                    <p className="workspace-item-title">Пространства, к которым предоставлен доступ</p>
+                                    {workspaces_access.map(workspace => (
+                                        <li onClick={() => handleWorkspaceClick(workspace.id)}
+                                            className="workspace-item"
+                                            key={workspace.id}>
+                                            {1 === workspace.access_type && <span><b>🔗</b> </span>}
+                                            {2 === workspace.access_type && <span><b>👤</b> </span>}
+                                            {3 === workspace.access_type && <span><b>👥</b> </span>}
+                                            {workspace.title}
+                                        </li>))}
+                                </ul>) : (<p></p>)}
+
+                            {workspaces_open.length > 0 ? (
+                                <ul className="all-workspaces-container">
+                                    <p className="workspace-item-title">Общедоступные пространства</p>
+                                    {workspaces_open.map(workspace => (
+                                        <li onClick={() => handleWorkspaceClick(workspace.id)}
+                                            className="workspace-item"
+                                            key={workspace.id}>
+                                            {1 === workspace.access_type && <span><b>🔗</b> </span>}
+                                            {2 === workspace.access_type && <span><b>👤</b> </span>}
+                                            {3 === workspace.access_type && <span><b>👥</b> </span>}
+                                            {workspace.title}
+                                        </li>))}
+                                </ul>) : (<p></p>)}
 
                             <button className="add-workspace" onClick={toggleDialog}><p>+</p></button>
                         </div>

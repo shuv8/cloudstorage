@@ -15,7 +15,7 @@ class AccessService:
     def get_accesses_for_workspace(self, workspace_id: UUID) -> list[BaseAccess]:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
         return workspace.get_accesses()
@@ -23,7 +23,7 @@ class AccessService:
     def add_access_for_workspace_by_url(self, workspace_id: UUID, view_only: bool) -> str:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
 
@@ -43,7 +43,7 @@ class AccessService:
     def remove_access_for_workspace_by_url(self, workspace_id: UUID) -> str:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
 
@@ -52,7 +52,7 @@ class AccessService:
     def add_access_for_workspace_by_email(self, workspace_id: UUID, email: str, view_only: bool) -> str:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
 
@@ -72,7 +72,7 @@ class AccessService:
     def remove_access_for_workspace_by_email(self, workspace_id: UUID, email: str) -> str:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
 
@@ -81,7 +81,7 @@ class AccessService:
     def add_access_for_workspace_by_department(self, workspace_id: UUID, department: str, view_only: bool) -> str:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
 
@@ -101,7 +101,7 @@ class AccessService:
     def remove_access_for_workspace_by_department(self, workspace_id: UUID, department: str) -> str:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id)
+            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
 
