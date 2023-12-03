@@ -208,7 +208,6 @@ function Branch() {
                                         </p>
                                     }
                                     <p className="request-content">{branch.task_id}</p>
-                                    <p className="request-content"><b>TODO Функционал загрузки файла</b></p>
                                     <p className="request-content">{branch.file}</p>
                                     <p className="request-content">{branch.document_id}</p>
                                 </div>
