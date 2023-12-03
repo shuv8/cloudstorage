@@ -26,8 +26,6 @@ def get_blueprint():
     Block with Workspace
     ===================
 """
-# TODO Получиить список всех worspace (Имя, описание, статус) с именами авторов
-# TODO Изменить статус worspace (Для - разархивировать, архивировать, удалить)
 
 
 @ADMIN_REQUEST_API.route('/all_workspaces', methods=['GET'])
@@ -43,7 +41,8 @@ def get_workspaces_list():
               owner: string,
               title: string,
               description: string,
-              status: string
+              status: string,
+              id: string
             }]
         }
     """
@@ -73,7 +72,14 @@ def update_workspace(space_id):
         - body: new_owner
     Result:
         {
-            'status': "ok"
+            'status': "ok",
+            workspace: {
+              owner: string,
+              title: string,
+              description: string,
+              status: string,
+              id: string
+            }
         }
     """
     request_data = request.get_json()
@@ -111,7 +117,14 @@ def delete_workspace(space_id):
         - path: space_id
     Result:
         {
-            'status': "ok"
+            'status': "ok",
+            workspace: {
+              owner: string,
+              title: string,
+              description: string,
+              status: string,
+              id: string
+            }
         }
     """
     try:
