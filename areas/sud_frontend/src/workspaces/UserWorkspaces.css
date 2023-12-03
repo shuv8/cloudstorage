@@ -12,6 +12,13 @@
     margin-bottom: 20px;
 }
 
+.workspace-action {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
 .page {
     position: absolute;
     display: flex;
@@ -28,7 +35,8 @@
     display: flex;
     position: absolute;
     background: white;
-    width: 300px;
+    min-width: 300px;
+    width: fit-content;
     border-radius: 20px;
     box-shadow: 1px 1px 6px #00000024;
     align-items: start;
@@ -144,8 +152,38 @@
     padding: 5px;
     border-radius: 30px;
     background-color: #4f4f4f;
-    align-self: end;
+    align-self: center;
     text-align: center;
+    cursor: pointer;
+}
+
+.workspace-archive:hover {
+    background-color: #343434;
+}
+
+.workspace-archive p {
+    margin: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.workspace-access {
+    width: 150px;
+    padding: 5px;
+    border-radius: 30px;
+    background-color: #4f4f4f;
+    align-self: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.workspace-access:hover {
+    background-color: #343434;
+}
+
+.workspace-access p {
+    margin: 5px;
+    color: white;
     cursor: pointer;
 }
 
@@ -183,14 +221,38 @@
     background-color: #575757;
 }
 
-.workspace-archive:hover {
-    background-color: #343434;
-}
-
-.workspace-archive p {
-    margin: 5px;
+.access-action-button {
+    padding: 10px 20px;
+    width: fit-content;
+    align-self: center;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #a44ee0;
     color: white;
     cursor: pointer;
+    margin: 0 0 20px 10px;
+}
+
+.access-action-button:hover {
+    background-color: #9d48d9;
+}
+
+.remove-action-button {
+    padding: 10px 20px;
+    width: fit-content;
+    align-self: center;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #f65858;
+    color: white;
+    cursor: pointer;
+    margin: 0 0 20px 10px;
+}
+
+.remove-action-button:hover {
+    background-color: #e54c4c;
 }
 
 .workspace-status {

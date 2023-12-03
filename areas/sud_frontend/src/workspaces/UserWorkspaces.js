@@ -1,6 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import './UserWorkspaces.css';
-import {add_workspace, archive_workspace} from "../api";
+import {
+    add_department_access,
+    add_email_access, add_url_access,
+    add_workspace,
+    archive_workspace,
+    delete_department_access,
+    delete_email_access, delete_url_access
+} from "../api";
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -13,6 +20,13 @@ function UserWorkspaces() {
     const [error, setError] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isAccessOpen, setIsAccessOpen] = useState(false);
+    const [accesses, setAccesses] = useState([]);
+    const [email, setEmail] = useState("Anonim");
+    const [department, setDepartment] = useState("Anonim");
+
+    const [addUserAccessOpen, setAddUserAccessOpen] = useState(false);
+    const [addDepartmentAccessOpen, setDepartmentAccessOpen] = useState(false);
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -29,8 +43,22 @@ function UserWorkspaces() {
         setIsDialogOpen(!isDialogOpen);
     };
 
+    const toggleAddDepartmentAccessDialog = () => {
+        toggleAccess()
+        setDepartmentAccessOpen(!addDepartmentAccessOpen);
+    };
+
+    const toggleAddUserAccessDialog = () => {
+        toggleAccess()
+        setAddUserAccessOpen(!addUserAccessOpen);
+    };
+
     const toggleConfirm = () => {
         setIsConfirmOpen(!isConfirmOpen);
+    };
+
+    const toggleAccess = () => {
+        setIsAccessOpen(!isAccessOpen);
     };
 
     const handleWorkspaceClick = (workspaceId) => {
@@ -47,6 +75,27 @@ function UserWorkspaces() {
             })
             .then(data => {
                 setWorkspace(data);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
+    };
+
+    const handleAccessesClick = (workspaceId) => {
+        fetch(`${API_BASE_URL}/accesses/${workspaceId}`, {
+            method: 'GET', headers: {
+                'Content-Type': 'application/json',
+            }, credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setAccesses(data["accesses"]);
+                toggleAccess()
             })
             .catch(error => {
                 setError(error.message);
@@ -174,7 +223,53 @@ function UserWorkspaces() {
                 </div>
             )}
 
-            {/*/ ДИАЛОГ ПОДТВЕРЖЕНИЯ  АРХИВИРОВАНИЯ /*/}
+            {/*/ ДИАЛОГ ДОБАВЛЕНИЯ ДОСТУПА ПО ПОЧТЕ/*/}
+            {addUserAccessOpen && (
+                <div className="dialog-container">
+                    <h3>
+                        Добавить доступ для пользователя
+                    </h3>
+                    <div className="form-group">
+                        <label htmlFor="email">Почта пользователя</label>
+                        <input
+                            type="text"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button className="add-workspace-button"
+                            onClick={() => handleAddUserAccessWorkspace(workspace.id, email)}>Сохранить
+                    </button>
+                    <button className="add-workspace-button-close" onClick={toggleAddUserAccessDialog}>Закрыть</button>
+                </div>
+            )}
+
+            {/*/ ДИАЛОГ ДОБАВЛЕНИЯ ДОСТУПА ПО ОТДЕЛУ/*/}
+            {addDepartmentAccessOpen && (
+                <div className="dialog-container">
+                    <h3>
+                        Добавить доступ для отделу
+                    </h3>
+                    <div className="form-group">
+                        <label htmlFor="email">Имя отдела</label>
+                        <input
+                            type="text"
+                            id="department"
+                            value={department}
+                            onChange={(e) => setDepartment(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button className="add-workspace-button"
+                            onClick={() => handleAddUserAccessWorkspace(workspace.id, department)}>Сохранить
+                    </button>
+                    <button className="add-workspace-button-close" onClick={toggleAddDepartmentAccessDialog}>Закрыть</button>
+                </div>
+            )}
+
+            {/*/ ДИАЛОГ ПОДТВЕРЖЕНИЯ АРХИВИРОВАНИЯ /*/}
 
             {isConfirmOpen && (
                 <div className="dialog-container">
@@ -185,6 +280,48 @@ function UserWorkspaces() {
                             onClick={() => handleWorkspaceArchiving(workspace.id)}>Да
                     </button>
                     <button className="workspace-archive-button-close" onClick={toggleConfirm}>Нет</button>
+                </div>
+            )}
+
+
+            {/*/ ДИАЛОГ УПРАВЛЕНИЯ ДОСТУПАМИ /*/}
+
+            {isAccessOpen && (
+                <div className="dialog-container">
+                    <h3>
+                        Настроить доступы
+                    </h3>
+
+                    {accesses.length > 0 ? (<ul className="all-workspaces-container">
+                        {accesses.map(access => (
+                            <div>
+                                 {access.class === "DepartmentAccess" ? (<li
+                                     className="remove-action-button"
+                                     onClick={() => handleDeleteDepartmentAccessWorkspace(workspace.id, access.content)}
+                                 >Удалить доступ для отдела {access.content}
+                                 </li>) : (<p></p>) }
+                                 {access.class === "UserAccess" ? (<li
+                                     className="remove-action-button"
+                                     onClick={() => handleDeleteUserAccessWorkspace(workspace.id, access.content)}
+                                 >Удалить доступ для {access.content}</li>) : (<p></p>) }
+                            </div>
+                        ))}
+
+                    </ul>) : (<p></p>)}
+
+                      {!accesses.some(access => access.class === "UrlAccess") && (
+                        <button className="access-action-button" onClick={() => handleAddUrlAccessWorkspace(workspace.id)}>Добавить общий доступ</button>
+                      )}
+                      {accesses.some(access => access.class === "UrlAccess") && (
+                        <button className="remove-action-button" onClick={() => handleDeleteUrlAccessWorkspace(workspace.id)}>Удалить общий доступ</button>
+                      )}
+
+                        <button className="access-action-button" onClick={toggleAddUserAccessDialog}>Добавить доступ пользователю</button>
+                        <button className="access-action-button" onClick={toggleAddDepartmentAccessDialog}>Добавить доступ отделу</button>
+
+                    <button className="workspace-archive-button-close" onClick={() => toggleAccess()}>
+                        Закрыть
+                    </button>
                 </div>
             )}
 
@@ -296,9 +433,13 @@ function UserWorkspaces() {
                                 </ul>) : (<p>Нет реквестов.</p>)}
                             </div>
 
-                            
-                            <button className="workspace-archive" onClick={toggleConfirm}><p>Архивировать</p></button>
-                            
+                            {workspace.username === username ? (
+                                <div className="workspace-action">
+                                    <button className="workspace-access" onClick={() => handleAccessesClick(workspace.id)}><p>Доступы</p></button>
+                                    <button className="workspace-archive" onClick={toggleConfirm}><p>Архивировать</p>
+                                    </button>
+                                </div>
+                            ) : (<p></p>)}
 
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
@@ -338,6 +479,106 @@ export async function handleWorkspaceArchiving(id) {
         }
     } catch (error) {
         console.error('An error occurred during login:', error);
+    }
+}
+
+export async function handleAddUserAccessWorkspace(space_id, email) {
+    try {
+        const response = await add_email_access(space_id, email);
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+            goHome()
+
+            console.error('Successfully');
+        } else {
+            console.error('Unsuccessfully');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+export async function handleDeleteUserAccessWorkspace(space_id, email) {
+    try {
+        const response = await delete_email_access(space_id, email);
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+            goHome()
+
+            console.error('Successfully');
+        } else {
+            console.error('Unsuccessfully');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+export async function handleAddDepartmentAccessWorkspace(space_id, department) {
+    try {
+        const response = await add_department_access(space_id, department);
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+            goHome()
+
+            console.error('Successfully');
+        } else {
+            console.error('Unsuccessfully');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+export async function handleDeleteDepartmentAccessWorkspace(space_id, department) {
+    try {
+        const response = await delete_department_access(space_id, department);
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+            goHome()
+
+            console.error('Successfully');
+        } else {
+            console.error('Unsuccessfully');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+
+export async function handleAddUrlAccessWorkspace(space_id, department) {
+    try {
+        const response = await add_url_access(space_id);
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+            goHome()
+
+            console.error('Successfully');
+        } else {
+            console.error('Unsuccessfully');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+export async function handleDeleteUrlAccessWorkspace(space_id, department) {
+    try {
+        const response = await delete_url_access(space_id);
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+            goHome()
+
+            console.error('Successfully');
+        } else {
+            console.error('Unsuccessfully');
+        }
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 

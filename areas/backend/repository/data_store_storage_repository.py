@@ -101,7 +101,36 @@ class DataStoreStorageRepository:
 
             all_branches = []
             all_requests = []
+            all_accesses = []
             indexes = []
+
+            accesses: list[BaseAccessModel] = BaseAccessModel.query.filter_by(workspace_id=workspace.id).all()
+
+            for access in accesses:
+
+                if access.access_type == AccessType.User:
+                    all_accesses.append(
+                        UserAccess(
+                            email=access.value,
+                            access_type=access.access_level,
+                        )
+                    )
+
+                if access.access_type == AccessType.Url:
+                    all_accesses.append(
+                        UrlAccess(
+                            url=access.value,
+                            access_type=access.access_level,
+                        )
+                    )
+
+                if access.access_type == AccessType.Department:
+                    all_accesses.append(
+                        DepartmentAccess(
+                            department_name=access.value,
+                            access_type=access.access_level,
+                        )
+                    )
 
             for br in branches:
                 documentModel: DocumentModel = DocumentModel.query.filter_by(id=br.document_id).first()
@@ -160,7 +189,7 @@ class DataStoreStorageRepository:
                     description=workspace.description,
                     branches=all_branches,
                     requests=all_requests,
-                    accesses=[],  # TODO ACCESSES
+                    accesses=all_accesses,
                     main_branch=workspace.main_branch,
                     status=workspace.status,
                     _id=workspace.id,
@@ -263,7 +292,7 @@ class DataStoreStorageRepository:
                     description=workspace.description,
                     branches=all_branches,
                     requests=all_requests,
-                    accesses=[],  # TODO ACCESSES
+                    accesses=[],
                     main_branch=workspace.main_branch,
                     status=workspace.status,
                     _id=workspace.id,
@@ -350,7 +379,7 @@ class DataStoreStorageRepository:
                     description=workspace.description,
                     branches=all_branches,
                     requests=all_requests,
-                    accesses=[],  # TODO ACCESSES
+                    accesses=[],
                     main_branch=workspace.main_branch,
                     status=workspace.status,
                     _id=workspace.id,
@@ -424,7 +453,8 @@ class DataStoreStorageRepository:
 
         return _workspace.id
 
-    def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID, archived: bool = False) -> Optional[tuple[str, WorkSpace]]:
+    def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID, archived: bool = False) -> Optional[
+        tuple[str, WorkSpace]]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
 
         spaces: list[WorkSpace] = self.get_workspaces(user_mail, archived)
@@ -440,7 +470,36 @@ class DataStoreStorageRepository:
 
             all_branches = []
             all_requests = []
+            all_accesses = []
             indexes = []
+
+            accesses: list[BaseAccessModel] = BaseAccessModel.query.filter_by(workspace_id=space.id).all()
+
+            for access in accesses:
+
+                if access.access_type == AccessType.User:
+                    all_accesses.append(
+                        UserAccess(
+                            email=access.value,
+                            access_type=access.access_level,
+                        )
+                    )
+
+                if access.access_type == AccessType.Url:
+                    all_accesses.append(
+                        UrlAccess(
+                            url=access.value,
+                            access_type=access.access_level,
+                        )
+                    )
+
+                if access.access_type == AccessType.Department:
+                    all_accesses.append(
+                        DepartmentAccess(
+                            department_name=access.value,
+                            access_type=access.access_level,
+                        )
+                    )
 
             for br in branches:
                 documentModel: DocumentModel = DocumentModel.query.filter_by(id=br.document_id).first()
@@ -501,7 +560,7 @@ class DataStoreStorageRepository:
                 _id=space.id,
                 branches=all_branches,
                 requests=all_requests,
-                accesses=[]
+                accesses=all_accesses,
             )
             if self.has_access_to_workspace(workspace, user):
                 return UserModel.query.filter_by(id=space.user_id).first().username, workspace

@@ -28,7 +28,8 @@
     display: flex;
     position: absolute;
     background: white;
-    width: 300px;
+    min-width: 300px;
+    width: fit-content;
     border-radius: 20px;
     box-shadow: 1px 1px 6px #00000024;
     align-items: start;

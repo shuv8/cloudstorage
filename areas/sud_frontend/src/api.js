@@ -93,6 +93,94 @@ export async function delete_branch(space_id, branch_id) {
     return response.status;
 }
 
+export async function add_url_access(space_id) {
+    const response = await fetch(`${API_BASE_URL}/accesses/${space_id}/url?view_only=true`, {
+        method: 'PUT', headers: {
+            'Content-Type': 'application/json',
+        }, credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Url adding error');
+    }
+
+
+    return response.status;
+}
+
+
+export async function delete_url_access(space_id) {
+    const response = await fetch(`${API_BASE_URL}/accesses/${space_id}/url?view_only=true`, {
+        method: 'DELETE', headers: {
+            'Content-Type': 'application/json',
+        }, credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Url deleting error');
+    }
+
+
+    return response.status;
+}
+
+export async function add_department_access(space_id, department) {
+    const response = await fetch(`${API_BASE_URL}/accesses/${space_id}/department/${department}?view_only=true`, {
+        method: 'PUT', headers: {
+            'Content-Type': 'application/json',
+        }, credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Department adding error');
+    }
+
+    return response.status;
+}
+
+export async function delete_department_access(space_id, department) {
+    const response = await fetch(`${API_BASE_URL}/accesses/${space_id}/department/${department}?view_only=true`, {
+        method: 'DELETE', headers: {
+            'Content-Type': 'application/json',
+        }, credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Department deleting error');
+    }
+
+    return response.status;
+}
+
+
+export async function add_email_access(space_id, email) {
+    const response = await fetch(`${API_BASE_URL}/accesses/${space_id}/email/${email}?view_only=true`, {
+        method: 'PUT', headers: {
+            'Content-Type': 'application/json',
+        }, credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Email adding error');
+    }
+
+    return response.status;
+}
+
+export async function delete_email_access(space_id, email) {
+    const response = await fetch(`${API_BASE_URL}/accesses/${space_id}/email/${email}?view_only=true`, {
+        method: 'DELETE', headers: {
+            'Content-Type': 'application/json',
+        }, credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Email deleting error');
+    }
+
+    return response.status;
+}
+
 export async function add_request(content, id) {
     const response = await fetch(`${API_BASE_URL}/workspace/${id}/request`, {
         method: 'POST', headers: {

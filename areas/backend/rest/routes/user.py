@@ -224,7 +224,7 @@ def get_workspaces_open():
     items: list[WorkSpace] = dataStoreController.get_workspaces_open()
 
     workspaces_content = []
-    for (item, access_type) in items:
+    for item in items:
         workspaces_content.append(
             {
                 "branches_num": len(item.branches),
@@ -645,11 +645,7 @@ def view_file_by_id(file_id):
 """
 
 
-# TODO !!!!!!!!!!!!!!!!!!! Вот тут всё переписать на доступы к Wortkspace !!!!!!!!!!!!!!!!!!!
-# TODO ! На самый низкий слой запилить проверку доступа к чужому воркспейсу и прокидывать наверх эксепшн
-
-
-@USER_REQUEST_API.route('/accesses/<space_id>', methods=['GET'])
+@USER_REQUEST_API.route('/accesses/<workspace_id>', methods=['GET'])
 @token_required
 def get_accesses_for_space(workspace_id):
     """
