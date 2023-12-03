@@ -28,11 +28,11 @@ Web application of "Documents storing system" <MEPhI course>
 
 🟡  7) `/users` - Get user list
 
-🔴 8) `/all_workspaces` - All workspace for users
+🟡 8) `/all_workspaces` - All workspace for users
 
-🔴 8) `/unarchive` - Unarchive workspace
+🟡 8) `/unarchive` - Unarchive workspace
 
-🔴 9) `/delete` - Delete workspace forever
+🟡 9) `/delete` - Delete workspace forever
 
 ### User
 
@@ -58,15 +58,15 @@ Web application of "Documents storing system" <MEPhI course>
 
 🌐🟢 6) `/workspace/add` - Add new workspace
 
-🟢 7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
+🌐🟢 7) `/workspace/<space_id>/archive` - Archive workspace [ACCESS: Author]
 
 #### Branches 
 
 🌐🟢 8) `/workspace/<space_id>/view/branch_id` - View branch [ACCESS: Access to workspace needed]
 
-🟢 9) `/branch/<space_id>` - Create branch [ACCESS: Access to workspace needed]
+🌐🟢 9) `/branch/<space_id>` - Create branch [ACCESS: Access to workspace needed]
 
-🟢 10) `/branch/branch_id` - Remove branch [ACCESS: Author]
+🌐🟢 10) `/branch/branch_id` - Remove branch [ACCESS: Author]
 
 🌐🟢 11) `/branch/branch_id/request` - Create pull request [ACCESS: Author]
 
@@ -82,27 +82,27 @@ Web application of "Documents storing system" <MEPhI course>
 
 #### Files
 
-🔴 16) `/file` - Add file
+🟡 16) `/file` - Add file
 
-🔴 17) `/file/<file_id>/view` - View file
+🟡 17) `/file/<file_id>/view` - View file
 
-🔴 18) `/rename/<space_id>/<item_id>` - Rename file
+🟡 18) `/rename/<space_id>/<item_id>` - Rename file
 
-🔴 19) `/download/<item_id>` - Download file
+🟡 19) `/download/<item_id>` - Download file
 
 #### Accesses
 
-🟡 21) `[GET] /accesses/<space_id>` - Get all accesses
+🌐🟢 21) `[GET] /accesses/<space_id>` - Get all accesses
 
-🟡 22) `[PUT] /accesses/<space_id>/url` - Set access by url
+🌐🟢 22) `[PUT] /accesses/<space_id>/url` - Set access by url
 
-🟡 23) `[DELETE] /accesses/<space_id>/url` - Remove access by url
+🌐🟢 23) `[DELETE] /accesses/<space_id>/url` - Remove access by url
 
-🟡 24) `[PUT] /accesses/<space_id>/email/<email>` - Add access for email
+🌐🟢 24) `[PUT] /accesses/<space_id>/email/<email>` - Add access for email
 
-🟡 25) `[DELETE] /accesses/<space_id>/email/<email>` - Remove access for email
+🌐🟢 25) `[DELETE] /accesses/<space_id>/email/<email>` - Remove access for email
 
-🟡 26) `[PUT] /accesses/<space_id>/department/<department>` - Add access for department
+🌐🟢 26) `[PUT] /accesses/<space_id>/department/<department>` - Add access for department
 
-🟡 27) `[DELETE] /accesses/<space_id>/department/<department>` - Remove access for department
+🌐🟢 27) `[DELETE] /accesses/<space_id>/department/<department>` - Remove access for department
 
