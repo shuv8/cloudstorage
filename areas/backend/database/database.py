@@ -97,9 +97,8 @@ class WorkspaceModel(db.Model):
     user_id = db.Column(db.String, db.ForeignKey("user.user_id"))
 
     accesses: Mapped[List[BaseAccessModel]] = db.relationship(
-        'BaseAccessModel',
+        'areas.backend.database.database.BaseAccessModel',
         uselist=True,
-        backref="workspace",
         cascade="all,delete"
     )
 

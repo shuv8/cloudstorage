@@ -26,6 +26,6 @@ jobs:
     - name: Core tests
       working-directory: areas/backend
       run: python3 -m pytest ./tests/test_core
-    - name: CC tests
+    - name: API tests
       working-directory: areas/backend
-      run: python3 -m pytest ./tests/test_cc
+      run: python3 -m pytest ./tests/test_new_api
