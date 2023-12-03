@@ -488,28 +488,26 @@ def force_merge(space_id, request_id):
 
 
 # TODO REFACTOR OLD
-@USER_REQUEST_API.route('/file', methods=['POST'])
+@USER_REQUEST_API.route('/document', methods=['POST'])
 def add_new_file():
     request_data = request.get_json()
     try:
-        space_id = request_data['space_id']
-        dir_id = request_data['dir_id']
-        new_file_name = request_data['new_file_name']
-        new_file_type = request_data['new_file_type']
-        new_file_data = request_data['new_file_data']
+        workspace_id = request_data['workspace_id']
+        new_document_name = request_data['new_document_name']
+        new_document_type = request_data['new_document_type']
+        new_document_data = request_data['new_document_data']
     except KeyError:
         return jsonify({'error': 'Invalid request body'}), 400
     try:
         user = get_user_by_token()
-        new_file_id = dataStoreController.add_new_file(user.email, uuid.UUID(space_id), uuid.UUID(hex=dir_id),
-                                                       new_file_name,
-                                                       new_file_type, new_file_data)
+        new_document_id = dataStoreController.add_new_document(user.email, uuid.UUID(workspace_id), new_document_name,
+                                                           new_document_type, new_document_data)
     except ItemNotFoundError:
-        return jsonify({'error': 'Incorrect directory'}), 404
+        return jsonify({'error': 'Incorrect workspace'}), 404
     except AlreadyExistsError:
         # TODO: ответ должен содержать предложение о замене существующего файла
         return jsonify({'error': 'File name already exists'}), 409
-    return jsonify({'id': new_file_id}), 200
+    return jsonify({'id': new_document_id}), 200
 
 
 # TODO REFACTOR OLD
@@ -528,8 +526,14 @@ def view_file_by_id(file_id):
     except FileNotFoundError:
         return jsonify({'error': 'File not found'}), 404
 
+    file_name = file.get_name()
+    file_type = file_name[-4:]
+    if file_type == "jpeg":
+        file_type = ".jpeg"
+
     allowed_file_type_to_view = ['.png', '.pdf',
                                  '.jpeg', 'jpg', '.svg', '.mp4', '.txt']
+
     mimetype_dict = {
         '.png': 'image/png',
         '.pdf': 'application/pdf',
@@ -539,12 +543,12 @@ def view_file_by_id(file_id):
         '.mp4': 'video/mp4',
         '.txt': 'text/plain'
     }
-    if file.type not in allowed_file_type_to_view:
+    if file_type not in allowed_file_type_to_view:
         return jsonify({'error': 'Cannot view such type of file'}), 403
 
     try:
-        binary_file = dataStoreController.get_binary_file_from_cloud_by_id(file.id, file.type)
-        return send_file(binary_file, mimetype_dict[file.type])
+        binary_file = dataStoreController.get_binary_file_from_cloud_by_id(file.get_name())
+        return send_file(binary_file, mimetype_dict[file_type])
     except FileNotFoundError:
         return jsonify({'error': 'File is damaged'}), 404
 
@@ -790,6 +794,8 @@ def rename_item(space_id, item_id):
             return jsonify({'error': 'No new name presented. Use query parameter \'new_name\''}), 400
     except AccessError:
         return jsonify({'error': 'Not allowed to do this action'}), 401
+    except FileNotFoundError:
+        return jsonify({'error': 'Can\'t find item'}), 404
 
 
 # TODO REFACTOR OLD
@@ -805,9 +811,9 @@ def download_by_item_id(item_id):
     """
     user = get_user_by_token()
     try:
-        result: Document = dataStoreController.download_item(user.email, item_id)
-        return send_file(result[0], download_name=result.name, as_attachment=True), 200
-    except ItemNotFoundError:
+        result = dataStoreController.download_item(user.email, item_id)
+        return send_file(result[0], download_name=result[1].get_name(), as_attachment=True), 200
+    except FileNotFoundError:
         return jsonify({'error': 'Item not found'}), 404
 
 
