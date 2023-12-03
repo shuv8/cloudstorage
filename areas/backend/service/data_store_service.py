@@ -53,8 +53,8 @@ class DataStoreService:
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_storage_repo.create_workspace(user_mail, workspace)
 
-    def get_all_workspaces(self, page: int, limit: int) -> list[(str, WorkSpace)]:
-        workspaces = self.data_store_storage_repo.get_all_workspaces()
+    def get_all_workspaces(self, page: int, limit: int, deleted: bool) -> list[(str, WorkSpace)]:
+        workspaces = self.data_store_storage_repo.get_all_workspaces(deleted)
         output_list = []
         start_index = (page - 1) * limit
         end_index = min(len(workspaces), start_index + limit)
@@ -63,6 +63,7 @@ class DataStoreService:
         return output_list
 
     def update_workspace(self, space_id: uuid.UUID | None, new_status: WorkSpaceStatus | None, new_owner: UUID | None):
+        self.data_store_storage_repo.get_workspace_by_id_admin(space_id=space_id)
         if new_status is not None:
             self.data_store_storage_repo.change_workspace_status(space_id=space_id, status=new_status.value, admin=True)
         if new_owner is not None:

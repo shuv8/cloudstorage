@@ -1462,6 +1462,14 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "Show deleted workspaces",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "tags": [

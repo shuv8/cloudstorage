@@ -7,7 +7,8 @@ from areas.backend.controller.data_store_controller import *
 from areas.backend.controller.user_controller import UserController
 from areas.backend.core.department import Department
 from areas.backend.decorators.token_required import admin_access
-from areas.backend.exceptions.exceptions import AlreadyExistsError, ItemNotFoundError, UserNotFoundError
+from areas.backend.exceptions.exceptions import AlreadyExistsError, ItemNotFoundError, UserNotFoundError, \
+    SpaceNotFoundError
 from areas.backend.core.department_manager import DepartmentNotFoundError
 
 ADMIN_REQUEST_API = Blueprint('request_admin_api', __name__)
@@ -35,6 +36,7 @@ def get_workspaces_list():
     Query:
         - query: page
         - query: limit
+        - query: deleted
     Result:
         {
             workspaces: [{
@@ -48,7 +50,8 @@ def get_workspaces_list():
     """
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
-    workspaces = dataStoreController.get_all_workspaces(page, limit)
+    deleted = request.args.get('deleted', default=False, type=bool)
+    workspaces = dataStoreController.get_all_workspaces(page, limit, deleted)
     items = [{"owner": workspace[0],
               "title": workspace[1].title,
               "description": workspace[1].description,
@@ -93,6 +96,8 @@ def update_workspace(space_id):
     try:
         new_workspace = dataStoreController.update_workspace(uuid.UUID(space_id), new_status, new_owner)
     except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect workspace'}), 404
+    except SpaceNotFoundError:
         return jsonify({'error': 'Incorrect workspace'}), 404
     except UserNotFoundError:
         return jsonify({'error': 'Incorrect new owner'}), 404

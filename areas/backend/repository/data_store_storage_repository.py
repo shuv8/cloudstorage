@@ -173,8 +173,10 @@ class DataStoreStorageRepository:
         return workspaces_final
 
     @staticmethod
-    def get_all_workspaces() -> list[(str, WorkSpace)]:
-        workspaces: list[WorkspaceModel] = WorkspaceModel.query.all()
+    def get_all_workspaces(deleted: bool = False) -> list[(str, WorkSpace)]:
+        workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter(
+            WorkspaceModel.status != WorkSpaceStatus.Deleted.value
+        ).all() if not deleted else WorkspaceModel.query.all()
         workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
                             title=workspace.title,
                             description=workspace.description,
@@ -190,6 +192,8 @@ class DataStoreStorageRepository:
     @staticmethod
     def get_workspace_by_id_admin(space_id: uuid.UUID) -> (str, WorkSpace):
         workspace: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(space_id)).first()
+        if workspace is None:
+            raise SpaceNotFoundError
         return (UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
                             title=workspace.title,
                             description=workspace.description,

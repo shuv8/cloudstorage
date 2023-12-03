@@ -65,8 +65,8 @@ class DataStoreController:
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_service.create_workspace(user_mail, workspace)
 
-    def get_all_workspaces(self, page: int, limit: int) -> list[(str, WorkSpace)]:
-        return self.data_store_service.get_all_workspaces(page, limit)
+    def get_all_workspaces(self, page: int, limit: int, deleted: bool) -> list[(str, WorkSpace)]:
+        return self.data_store_service.get_all_workspaces(page, limit, deleted)
 
     #############
     # BRANCHES
