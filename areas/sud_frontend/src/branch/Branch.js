@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import './Branch.css';
-import {add_request} from "../api";
+import {add_request, add_branch, delete_branch} from "../api";
 import {useParams} from "react-router-dom";
 import {handleWorkspaceAdding} from "../workspaces/UserWorkspaces";
 
@@ -14,12 +14,22 @@ function Branch() {
     const [error, setError] = useState(null);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
 
     const toggleDialog = () => {
         setIsDialogOpen(!isDialogOpen);
+    };
+
+    const toggleCreate = () => {
+        setIsCreateOpen(!isCreateOpen);
+    };
+
+    const toggleConfirm = () => {
+        setIsConfirmOpen(!isConfirmOpen);
     };
 
     useEffect(() => {
@@ -103,6 +113,44 @@ function Branch() {
                 </div>
             )}
 
+            {/*/ ДИАЛОГ СОЗДАНИЯ  ВЕТКИ /*/}
+
+            {isCreateOpen && (
+                <div className="dialog-container">
+                    <h3>
+                        Создать ветку
+                    </h3>
+                    <div className="form-group">
+                        <label htmlFor="title">Название</label>
+                        <input
+                            type="text"
+                            id="title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button className="add-workspace-button"
+                            onClick={() => handleBranchAdding(space_id, title, "-1", branch.id)}>Сохранить
+                    </button>
+                    <button className="add-workspace-button-close" onClick={toggleCreate}>Закрыть</button>
+                </div>
+            )}
+
+            {/*/ ДИАЛОГ ПОДТВЕРЖЕНИЯ  АРХИВИРОВАНИЯ /*/}
+
+            {isConfirmOpen && (
+                <div className="dialog-container">
+                    <h3>
+                        Удалить ветку?
+                    </h3>
+                    <button className="branch-delete-button"
+                            onClick={() => handleBranchDeletion(space_id, branch.id, branch.parent)}>Да
+                    </button>
+                    <button className="branch-delete-button-close" onClick={toggleConfirm}>Нет</button>
+                </div>
+            )}
+
             {/*/ ГЛАВНЫЙ ЭКРАН /*/}
 
             <div className="workspaces-container">
@@ -160,15 +208,13 @@ function Branch() {
                                         </p>
                                     }
                                     <p className="request-content">{branch.task_id}</p>
-                                    <p className="request-content"><b>TODO Функционал загрузки файла</b></p>
                                     <p className="request-content">{branch.file}</p>
                                     <p className="request-content">{branch.document_id}</p>
                                 </div>
                             </div>
-
-                            <div className="branch-delete">
-                                <p>Удалить (TODO)</p>
-                            </div>
+                            
+                            <button className="branch-add" onClick={toggleCreate}>Создать ветку</button>
+                            <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>
 
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
@@ -176,6 +222,23 @@ function Branch() {
 
             </div>
         </div>);
+}
+
+export async function handleBranchAdding(space_id, name, document_id, parent_branch_id) {
+    try {
+        const response = await add_branch({name, document_id, parent_branch_id}, space_id);
+
+        if (response[1] === 200) {
+            localStorage.setItem('authToken', response.token);
+
+            goToBranch(space_id, response[0].id);
+            console.error('Registration was successful, token provided in the response.');
+        } else {
+            console.error('Registration was unsuccessful, no token provided in the response.');
+        }
+    } catch (error) {
+        console.error('An error occurred during login:', error);
+    }
 }
 
 export async function handleRequestAdding(space_id, title, description, source_branch_id, target_branch_id) {
@@ -186,6 +249,23 @@ export async function handleRequestAdding(space_id, title, description, source_b
             localStorage.setItem('authToken', response.token);
 
             goToBranch(space_id, source_branch_id);
+            console.error('Registration was successful, token provided in the response.');
+        } else {
+            console.error('Registration was unsuccessful, no token provided in the response.');
+        }
+    } catch (error) {
+        console.error('An error occurred during login:', error);
+    }
+}
+
+export async function handleBranchDeletion(space_id, branch_id, branch_parent) {
+    try {
+        const response = await delete_branch(space_id, branch_id);
+
+        if (response === 200) {
+            localStorage.setItem('authToken', response.token);
+
+            goToBranch(space_id, branch_parent);
             console.error('Registration was successful, token provided in the response.');
         } else {
             console.error('Registration was unsuccessful, no token provided in the response.');
