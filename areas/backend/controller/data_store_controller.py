@@ -113,6 +113,26 @@ class DataStoreController:
     def change_request_status(self, user_mail: str, workspace_id: UUID, request_id: UUID, status: str):
         self.data_store_service.change_request_status(user_mail, workspace_id, request_id, status)
 
+    # Create Document
+
+    def add_new_document(self, user_email: str, workspace_id: UUID, new_document_name: str, new_document_type: str,
+                     new_document_data: str) -> UUID:
+        return self.data_store_service.add_new_document(user_email, workspace_id, new_document_name, new_document_type,
+                                                    new_document_data)
+
+    def download_item(self, user_mail: str, item_id: UUID) -> [BinaryIO, Document]:
+        return self.data_store_service.download_item(user_mail=user_mail, item_id=item_id)
+
+    def get_file_by_id(self, user_mail: str, item_id: UUID) -> Document:
+        return self.data_store_service.get_file_by_id(user_mail, item_id)
+
+    def get_binary_file_from_cloud_by_id(self, file_name: str):
+        return self.data_store_service.get_binary_file_from_cloud_by_id(file_name)
+
+    def rename_item(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
+        return self.data_store_service.rename_item_by_id(space_id=space_id, item_id=item_id, user_mail=user_mail,
+                                                         new_name=new_name)
+
     #############
     # LEGACY
     #############
@@ -123,27 +143,14 @@ class DataStoreController:
     # def get_dir_content(self, user_mail: str, dir_id: UUID) -> tuple[list[BaseStorageItem], list[tuple[str, str]], str]:
     #     return self.data_store_service.get_dir_content(user_mail, dir_id)
     #
-    # def add_new_file(self, user_email: str, space_id: UUID, dir_id: UUID, new_file_name: str, new_file_type: str,
-    #                  new_file_data: str) -> UUID:
-    #     return self.data_store_service.add_new_file(user_email, space_id, dir_id, new_file_name, new_file_type,
-    #                                                 new_file_data)
     #
-    # def rename_item(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
-    #     return self.data_store_service.rename_item_by_id(space_id=space_id, item_id=item_id, user_mail=user_mail,
-    #                                                      new_name=new_name)
     #
-    # def get_binary_file_from_cloud_by_id(self, file_id: UUID, file_type: str):
-    #     return self.data_store_service.get_binary_file_from_cloud_by_id(file_id, file_type)
     #
     # def move_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_space: UUID, target_directory_id: UUID):
     #     return self.data_store_service.move_item(item_id=item_id, space_id=space_id, user_mail=user_mail,
     #                                              target_space=target_space, target_directory_id=target_directory_id)
     #
-    # def get_file_by_id(self, user_mail: str, item_id: UUID) -> Document:
-    #     return self.data_store_service.get_file_by_id(user_mail, item_id)
     #
-    # def download_item(self, user_mail: str, item_id: UUID) -> [BinaryIO, Document]:
-    #     return self.data_store_service.download_item(user_mail=user_mail, item_id=item_id)
     #
     # def delete_item(self, user_mail: str, space_id, item_id: UUID) -> bool:
     #     return self.data_store_service.delete_item(user_mail=user_mail, space_id=space_id, item_id=item_id)

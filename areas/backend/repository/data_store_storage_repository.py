@@ -260,6 +260,33 @@ class DataStoreStorageRepository:
 
         raise SpaceNotFoundError()
 
+    def get_branches_in_workspace(
+            self, user_mail: str, space_id: uuid.UUID
+    ) -> list[Branch]:
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
+        workspace: WorkSpace = self.get_workspace_by_id(user_mail, space_id)
+        list_of_branches = []
+
+        if self.has_access_to_workspace(workspace, user):
+            for branch in workspace.branches:
+                list_of_branches.append(branch)
+
+                return list_of_branches
+
+        raise SpaceNotFoundError()
+
+    def get_master_branch_in_workspace(
+            self, user_mail: str, space_id: uuid.UUID
+    ) -> Branch:
+        user: UserModel = UserModel.query.filter_by(email=user_mail).first()
+        workspace: WorkSpace = self.get_workspace_by_id(user_mail, space_id)
+
+        if self.has_access_to_workspace(workspace, user):
+            master = workspace.get_main_branch()
+            return master
+
+        raise SpaceNotFoundError()
+
     def delete_branch_from_workspace_by_id(self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID):
         branch: BranchModel = BranchModel.query.filter_by(id=branch_id).first()
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
@@ -375,6 +402,54 @@ class DataStoreStorageRepository:
 
         raise NotAllowedError()
 
+    def add_new_document(self, workspace: WorkSpace, new_document: Document, new_file_data: str) -> uuid.UUID:
+        branch: BranchModel = BranchModel.query.filter_by(name="master", workspace_id=workspace.get_id()).first()
+
+
+        doc = DocumentModel(
+            id=str(new_document.get_id()),
+            name=new_document.name,
+            task_id=str(new_document.task_id),
+            modification_time=str(new_document.time),
+            file_id=str(new_document.file),
+        )
+
+        self.db.session.add(doc)
+
+        self.db.session.execute(update(BranchModel).where(BranchModel.id == str(branch.id)).values(
+            document_id=doc.id
+        ))
+
+        self.db.session.commit()
+
+        file_name = f'{new_document.name}'
+        with open(f'cache/{file_name}', "wb") as fh:
+            fh.write(base64.decodebytes(str.encode(new_file_data)))
+
+        self.save_file_to_cloud(file_name)
+        return new_document.get_id()
+
+    def save_file_to_cloud(self, file_name):
+        self.minio_client.fput_object("cloudstorage", file_name, f"cache/{file_name}")
+        print(f"'cache/{file_name}' is successfully uploaded as object 'test_file.py' to bucket 'cloud_storage'.")
+        os.remove(f"cache/{file_name}")
+
+    def get_binary_file_from_cloud_by_id(self, file_name: str) -> BinaryIO:
+        return BytesIO(self.get_file_from_cloud(f"{file_name}"))
+
+    def get_file_from_cloud(self, file_name):
+        try:
+            cloud_file_request = self.minio_client.get_object("cloudstorage", file_name)
+            return cloud_file_request.data
+        except:
+            raise FileNotFoundError
+
+    def edit_item_name(self, item):
+        if isinstance(item, Document):
+            self.db.session.execute(update(DocumentModel).where(DocumentModel.id ==
+                                                                str(item.get_id())).values(name=item.get_name()))
+        self.db.session.commit()
+
     #############
     # LEGACY
     #############
@@ -437,17 +512,7 @@ class DataStoreStorageRepository:
     #         if space.get_space_type() == SpaceType.Regular:
     #             return space
     #
-    # def save_file_to_cloud(self, file_name):
-    #     self.minio_client.fput_object("cloudstorage", file_name, f"cache/{file_name}")
-    #     print(f"'cache/{file_name}' is successfully uploaded as object 'test_file.py' to bucket 'cloud_storage'.")
-    #     os.remove(f"cache/{file_name}")
     #
-    # def get_file_from_cloud(self, file_name):
-    #     try:
-    #         cloud_file_request = self.minio_client.get_object("cloudstorage", file_name)
-    #         return cloud_file_request.data
-    #     except:
-    #         raise FileNotFoundError
     #
     # def get_dir_from_cloud(self, dir, zip_name=None, begin_dir_id=None):
     #     if zip_name is None:
@@ -472,31 +537,7 @@ class DataStoreStorageRepository:
     # def remove_files_from_cloud(self, file_name):
     #     self.minio_client.remove_object("cloudstorage", file_name)
     #
-    # def add_new_file(self, dir_id: uuid.UUID, new_file: File,
-    #                  new_file_data: str) -> uuid.UUID:
     #
-    #     directory: DirectoryModel = DirectoryModel.query.filter_by(id=str(dir_id)).first()
-    #
-    #     file = FileModel(
-    #         id=str(new_file.id),
-    #         name=new_file.name,
-    #         type=new_file.type,
-    #     )
-    #
-    #     self.db.session.add(file)
-    #     directory.files.append(file)
-    #
-    #     self.db.session.commit()
-    #
-    #     file_name = f'{new_file.id}{new_file.get_type()}'
-    #     with open(f'cache/{file_name}', "wb") as fh:
-    #         fh.write(base64.decodebytes(str.encode(new_file_data)))
-    #
-    #     self.save_file_to_cloud(file_name)
-    #     return new_file.id
-    #
-    # def get_binary_file_from_cloud_by_id(self, file_id: uuid.UUID, file_type: str) -> BinaryIO:
-    #     return BytesIO(self.get_file_from_cloud(f"{file_id}{file_type}"))
     #
     # def get_binary_dir_by_id(self, dir: Directory) -> BinaryIO:
     #     zip_file = self.get_dir_from_cloud(dir)

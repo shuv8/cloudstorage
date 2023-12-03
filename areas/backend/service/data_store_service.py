@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional, BinaryIO
 import uuid
 from copy import deepcopy
@@ -5,6 +6,7 @@ from uuid import UUID
 
 from areas.backend.core.accesses import BaseAccess, DepartmentAccess, UserAccess, UrlAccess, Access
 from areas.backend.core.branch import Branch
+from areas.backend.core.document import Document
 from areas.backend.core.request import Request
 from areas.backend.core.workspace import WorkSpace
 from areas.backend.exceptions.exceptions import ItemNotFoundError, AlreadyExistsError, SpaceNotFoundError, AccessError
@@ -67,6 +69,18 @@ class DataStoreService:
     ) -> tuple[Optional[Branch], str, str, list[Request]]:
         return self.data_store_storage_repo.get_branch_in_workspace_by_id(user_mail, space_id, branch_id)
 
+    # List of branches in workspace
+    def get_branches_in_workspace(
+            self, user_mail: str, space_id: uuid.UUID
+    ) -> list[Branch]:
+        return self.data_store_storage_repo.get_branches_in_workspace(user_mail, space_id)
+
+    # Master branch in workspace
+    def get_master_branch_in_workspace(
+            self, user_mail: str, space_id: uuid.UUID
+    ) -> Branch:
+        return self.data_store_storage_repo.get_master_branch_in_workspace(user_mail, space_id)
+
     # Create new branch from current
 
     def create_branch_for_workspace(self, user_mail: str, workspace_id: UUID, branch: Branch):
@@ -97,6 +111,90 @@ class DataStoreService:
 
     def force_merge(self, user_mail: str, workspace_id: UUID, request_id: UUID):
         self.data_store_storage_repo.force_merge(user_mail, workspace_id, request_id)
+
+    # Create Document
+
+    def add_new_document(self, user_email: str, workspace_id: uuid.UUID, new_document_name: str, new_document_type: str,
+                     new_file_data: str) -> UUID:
+        try:
+            workspace = self.get_workspace_by_id(user_email, workspace_id)
+        except SpaceNotFoundError:
+            raise ItemNotFoundError
+        # TODO тут нужно проверять, есть ли файл с таким названием в воркспейсе
+
+        full_file_name = f"{new_document_name}{new_document_type}"
+
+        try:
+            branches = self.get_branches_in_workspace(user_email, workspace.get_id())
+        except SpaceNotFoundError:
+            raise ItemNotFoundError
+
+        for branch in branches:
+            document_from_branch = branch.get_document()
+            if document_from_branch:
+                if branch.document.get_name() == full_file_name:
+                    raise AlreadyExistsError
+
+        new_document = Document(name=full_file_name, file=uuid.uuid4(), task_id=uuid.uuid4(),
+                                time=datetime.datetime.now(), _id=uuid.uuid4())
+        return self.data_store_storage_repo.add_new_document(workspace, new_document, new_file_data)
+
+    def download_item(self, user_mail: str, item_id: UUID) -> [BinaryIO, Document]:
+        try:
+            item = self.get_file_by_id(user_mail=user_mail, item_id=item_id)
+        except FileNotFoundError:
+            raise FileNotFoundError
+
+        if item is not None:
+            if isinstance(item, Document):
+                result = self.data_store_storage_repo.get_binary_file_from_cloud_by_id(item.get_name())
+                return [result, item]
+        else:
+            raise ItemNotFoundError  # pragma: no cover reason: We never get this error
+
+    def get_file_by_id(self, user_mail: str, item_id: UUID) -> Document:
+        workspaces = self.get_workspaces(user_mail)
+
+        for workspace in workspaces:
+            branches = self.get_branches_in_workspace(user_mail, workspace.get_id())
+            for branch in branches:
+                document_from_branch = branch.get_document()
+                document_id = branch.document.get_id()
+                if document_from_branch:
+                    if document_id == str(item_id):
+                        return document_from_branch
+
+        raise FileNotFoundError  # pragma: no cover reason: We never get this error
+
+    def get_item_in_workspace_by_id(self, user_mail: str, space_id: UUID, item_id: UUID) -> Document:
+        workspaces = self.get_workspaces(user_mail)
+
+        for workspace in workspaces:
+            if workspace.get_id() == space_id:
+                branches = self.get_branches_in_workspace(user_mail, workspace.get_id())
+                for branch in branches:
+                    document_from_branch = branch.get_document()
+                    document_id = branch.document.get_id()
+                    if document_from_branch:
+                        if document_id == str(item_id):
+                            return document_from_branch
+
+        raise FileNotFoundError  # pragma: no cover reason: We never get this error
+
+    def get_binary_file_from_cloud_by_id(self, file_name: str) -> Optional[BinaryIO]:
+        return self.data_store_storage_repo.get_binary_file_from_cloud_by_id(file_name)
+
+    def rename_item_by_id(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
+        try:
+            item = self.get_item_in_workspace_by_id(user_mail, space_id, item_id)
+        except FileNotFoundError:
+            raise FileNotFoundError
+        if item is not None:
+            item.set_name(new_name)
+            self.data_store_storage_repo.edit_item_name(item)
+            return item.name
+        else:
+            return None
 
     #############
     # LEGACY
@@ -451,16 +549,6 @@ class DataStoreService:
     # def get_accesses_for_item(self, item: BaseStorageItem) -> list[BaseAccess]:
     #     return item.accesses
     #
-    # def rename_item_by_id(self, user_mail: str, space_id: UUID, item_id: UUID, new_name: str):
-    #     item = self.get_item_in_space_by_id(user_mail, space_id, item_id)
-    #     if item is not None:
-    #         if not self.check_edit_access(user_mail, space_id, item):
-    #             raise AccessError
-    #         item.name = new_name
-    #         self.data_store_storage_repo.edit_item_name(item)
-    #         return item.name
-    #     else:
-    #         return None
     #
     # def move_item(self, user_mail: str, space_id: UUID, item_id: UUID, target_directory_id: UUID, target_space: UUID):
     #     item = self.get_item_in_space_by_id(user_mail, space_id, item_id)
@@ -492,8 +580,6 @@ class DataStoreService:
     #     else:
     #         raise ItemNotFoundError  # pragma: no cover reason: We never get this error
     #
-    # def get_binary_file_from_cloud_by_id(self, file_id: uuid.UUID, file_type: str) -> Optional[BinaryIO]:
-    #     return self.data_store_storage_repo.get_binary_file_from_cloud_by_id(file_id, file_type)
     #
     # def delete_item(self, user_mail: str, space_id: UUID, item_id: UUID) -> True:
     #     item = self.get_user_item_by_id(user_mail, item_id)
