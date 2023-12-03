@@ -46,7 +46,20 @@ export async function add_workspace(content) {
     return response.status;
 }
 
+export async function archive_workspace(id) {
+    const response = await fetch(`${API_BASE_URL}/workspace/${id}/archive`, {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify(id), credentials: 'include',
+    });
 
+    if (!response.ok) {
+        throw new Error('Archiving failed');
+    }
+
+
+    return response.status;
+}
 
 export async function add_request(content, id) {
     const response = await fetch(`${API_BASE_URL}/workspace/${id}/request`, {
