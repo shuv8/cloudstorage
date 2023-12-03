@@ -54,6 +54,7 @@ def get_workspaces_list():
               "title": workspace[1].title,
               "description": workspace[1].description,
               "status": workspace[1].status,
+              "id": workspace[1].get_id()
               } for workspace in workspaces]
     return jsonify(
         {
@@ -91,11 +92,40 @@ def update_workspace(space_id):
         return jsonify({'error': 'Incorrect new owner'}), 404
     except NotImplementedError:
         return jsonify({'error': 'Incorrect new workspace status'}), 404
+    except ValueError:
+        return jsonify({'error': 'Invalid workspace ID'}), 400
     return jsonify({"status": "ok",
                     "workspace": {"owner": new_workspace[0],
                                   "title": new_workspace[1].title,
                                   "description": new_workspace[1].description,
                                   "status": new_workspace[1].status,
+                                  "id": new_workspace[1].get_id()
+                                  }}), 200
+
+
+@ADMIN_REQUEST_API.route('/workspace/<space_id>', methods=['DELETE'])
+@admin_access
+def delete_workspace(space_id):
+    """
+    Query:
+        - path: space_id
+    Result:
+        {
+            'status': "ok"
+        }
+    """
+    try:
+        new_workspace = dataStoreController.update_workspace(uuid.UUID(space_id), WorkSpaceStatus.Deleted.value)
+    except ItemNotFoundError:
+        return jsonify({'error': 'Incorrect workspace'}), 404
+    except ValueError:
+        return jsonify({'error': 'Invalid workspace ID'}), 400
+    return jsonify({"status": "ok",
+                    "workspace": {"owner": new_workspace[0],
+                                  "title": new_workspace[1].title,
+                                  "description": new_workspace[1].description,
+                                  "status": new_workspace[1].status,
+                                  "id": new_workspace[1].get_id()
                                   }}), 200
 
 
