@@ -82,7 +82,7 @@ function UserWorkspaces() {
     };
 
     const handleAccessesClick = (workspaceId) => {
-        fetch(`${API_BASE_URL}/accesses/${workspaceId}`, {
+        fetch(`${API_BASE_URL}/department/users}`, {
             method: 'GET', headers: {
                 'Content-Type': 'application/json',
             }, credentials: 'include',
@@ -283,7 +283,6 @@ function UserWorkspaces() {
                 </div>
             )}
 
-
             {/*/ ДИАЛОГ УПРАВЛЕНИЯ ДОСТУПАМИ /*/}
 
             {isAccessOpen && (
@@ -353,7 +352,7 @@ function UserWorkspaces() {
                                 {workspaces.map(workspace => (
                                     <li onClick={() => handleWorkspaceClick(workspace.id)} className="workspace-item"
                                         key={workspace.id}>{workspace.title}</li>))}
-                            </ul>) : (<p className="workspace-item">Не найдено рабочих пространств</p>)}
+                            </ul>) : (<p className="workspace-item-p">Не найдено рабочих пространств</p>)}
 
                             {workspaces_access.length > 0 ? (
                                 <ul className="all-workspaces-container">

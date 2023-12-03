@@ -181,7 +181,7 @@ function Branch() {
                                 {branch.requests.map(current_branch => (
                                     <li className="workspace-item"
                                         key={current_branch.id}> {current_branch.title}</li>))}
-                            </ul>) : (<p className="workspace-item">Не найдено реквестов</p>)}
+                            </ul>) : (<p className="workspace-item-p">Не найдено реквестов</p>)}
 
                             {branch.parent !== "-1" && <button className="add-workspace" onClick={toggleDialog}><p>+</p></button>}
                         </div>

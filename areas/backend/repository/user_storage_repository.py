@@ -8,6 +8,7 @@ from areas.backend.core.department import Department
 from flask import current_app
 from areas.backend.core.user_manager import UserNotFoundError
 from areas.backend.app_db import get_current_db
+from areas.backend.database.database import UserModel
 from areas.backend.repository.data_store_storage_repository import DataStoreStorageRepository
 
 db = get_current_db(current_app)
@@ -100,7 +101,7 @@ class UserRepository:
     def get_departments(self) -> List[Department]:
         from areas.backend.database.database import DepartmentModel
         departments: List[DepartmentModel] = DepartmentModel.query.all()
-        departments_list = [Department(i.name, i.users) for i in departments]
+        departments_list = [Department(i.name, []) for i in departments]
         return departments_list
 
     def get_users(self) -> List[User]:
@@ -132,7 +133,7 @@ class UserRepository:
                 password=user.passwordHash,
                 role=user.role
             )
-            for user in department.users
+            for user in UserModel.query.filter_by(department_id=department.name).all()
         ]
         return Department(
             department_name=department.name,

@@ -180,7 +180,6 @@ def get_department_list():
     ), 200
 
 
-# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/department', methods=['POST'])
 @admin_access
 def add_new_department():

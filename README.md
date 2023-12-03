@@ -14,21 +14,21 @@ Web application of "Documents storing system" <MEPhI course>
 
 ### Admin
 
-🟡 1) `/department` - Get department list
+🌐🟢 1) `/department` - Get department list
 
-🟡 2) `/department` - Add new department
+🌐🟢 2) `/department` - Add new department
 
 🟡  3) `/department` - Delete department
 
-🟡  4) `/department/users` - Get users in department
+🌐🟢  4) `/department/users` - Get users in department
 
 🟡  5) `/department/users` - Add users to department
 
 🟡  6) `/department/users` - Remove users from department
 
-🟡  7) `/users` - Get user list
+🌐🟢  7) `/users` - Get user list
 
-🟡 8) `/all_workspaces` - All workspace for users
+🌐🟢 8) `/all_workspaces` - All workspace for users
 
 🟡 8) `/unarchive` - Unarchive workspace
 

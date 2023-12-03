@@ -30,9 +30,23 @@ export async function registerUser(credentials) {
     return response.status;
 }
 
-
 export async function add_workspace(content) {
     const response = await fetch(`${API_BASE_URL}/workspace/add`, {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify(content), credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Adding failed');
+    }
+
+
+    return response.status;
+}
+
+export async function add_department(content) {
+    const response = await fetch(`${API_BASE_URL}/department`, {
         method: 'POST', headers: {
             'Content-Type': 'application/json',
         }, body: JSON.stringify(content), credentials: 'include',
