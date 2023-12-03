@@ -225,7 +225,6 @@ function UserWorkspaces() {
                                         <li onClick={() => handleWorkspaceClick(workspace.id)}
                                             className="workspace-item"
                                             key={workspace.id}>
-                                            {1 === workspace.access_type && <span><b>🔗</b> </span>}
                                             {2 === workspace.access_type && <span><b>👤</b> </span>}
                                             {3 === workspace.access_type && <span><b>👥</b> </span>}
                                             {workspace.title}
@@ -240,8 +239,6 @@ function UserWorkspaces() {
                                             className="workspace-item"
                                             key={workspace.id}>
                                             {1 === workspace.access_type && <span><b>🔗</b> </span>}
-                                            {2 === workspace.access_type && <span><b>👤</b> </span>}
-                                            {3 === workspace.access_type && <span><b>👥</b> </span>}
                                             {workspace.title}
                                         </li>))}
                                 </ul>) : (<p></p>)}
@@ -258,6 +255,7 @@ function UserWorkspaces() {
                                 <div>
                                     <h3 className="request-content-title">{workspace.title}</h3>
                                     <p className="request-content">{workspace.description}</p>
+                                    <p className="request-content"><b>Автор:</b> {workspace.username}</p>
                                 </div>
                                 <div className="info-right">
                                     <div className="branches-number">
@@ -305,7 +303,6 @@ function UserWorkspaces() {
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
                 </div>
-
             </div>
         </div>);
 }

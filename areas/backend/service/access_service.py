@@ -15,7 +15,7 @@ class AccessService:
     def get_accesses_for_workspace(self, workspace_id: UUID) -> list[BaseAccess]:
         user = get_user_by_token()
         try:
-            workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
+            name, workspace = self.data_store_service.get_workspace_by_id(user.email, workspace_id, True)
         except SpaceNotFoundError:
             raise NotAllowedError()
         return workspace.get_accesses()

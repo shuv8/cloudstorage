@@ -58,7 +58,7 @@ class DataStoreController:
     def get_workspaces_open(self) -> list[WorkSpace]:
         return self.data_store_service.get_workspaces_open()
 
-    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> WorkSpace:
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> Optional[tuple[str, WorkSpace]]:
         return self.data_store_service.get_workspace_by_id(user_mail, space_id, archived)
 
     def archive_workspace(self, user_mail: str,  space_id: UUID):
