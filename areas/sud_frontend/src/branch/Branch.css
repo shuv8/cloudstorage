@@ -154,6 +154,55 @@
     background-color: #343434;
 }
 
+.branch-add {
+    width: 150px;
+    padding: 5px;
+    border-radius: 30px;
+    background-color: #a44ee0;
+    align-self: end;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.branch-add:hover {
+    background-color: #9741d3;
+}
+
+.branch-delete-button {
+    padding: 10px 20px;
+    width: 100%;
+    align-self: end;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #a44ee0;
+    color: white;
+    cursor: pointer;
+    margin: 0 0 10px 10px;
+}
+
+.branch-delete-button:hover {
+    background-color: #9741d3;
+}
+
+.branch-delete-button-close {
+    padding: 10px 20px;
+    width: 100%;
+    align-self: end;
+    border-radius: 30px;
+    border: none;
+    font-size: large;
+    background-color: #676767;
+    color: white;
+    cursor: pointer;
+    margin: 0 0 20px 10px;
+}
+
+.branch-delete-button-close:hover {
+    background-color: #575757;
+}
+
 .branch-delete p {
     margin: 5px;
     color: white;

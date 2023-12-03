@@ -61,6 +61,38 @@ export async function archive_workspace(id) {
     return response.status;
 }
 
+export async function add_branch(content, id) {
+    const response = await fetch(`${API_BASE_URL}/workspace/${id}/add_branch`, {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify(content), credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Adding failed');
+    }
+    else {
+        let json = await response.json();
+        return [json, response.status];
+    }
+
+}
+
+export async function delete_branch(space_id, branch_id) {
+    const response = await fetch(`${API_BASE_URL}/workspace/${space_id}/branch/${branch_id}`, {
+        method: 'DELETE', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify(branch_id), credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Deletion failed');
+    }
+
+
+    return response.status;
+}
+
 export async function add_request(content, id) {
     const response = await fetch(`${API_BASE_URL}/workspace/${id}/request`, {
         method: 'POST', headers: {

@@ -603,8 +603,8 @@ class DataStoreStorageRepository:
         if self.is_author_of_workspace(user_mail, space_id) or branch.author == user.id:
             self.db.session.execute(delete(BranchModel).where(BranchModel.id == branch_id))
             self.db.session.commit()
-
-        raise NotAllowedError()
+        else:
+            raise NotAllowedError()
 
     def create_branch_for_workspace(self, user_mail: str, workspace_id: uuid.UUID, branch: Branch):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
