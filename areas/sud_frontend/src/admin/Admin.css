@@ -1,4 +1,4 @@
-/* WhoIAm.css */
+/* Admin.css */
 
 .username-header {
     font-size: x-large;
@@ -39,6 +39,17 @@
     font-size: x-large;
 }
 
+.workspace-item-p {
+    background-color: #ffffff;
+    padding: 15px;
+    min-width: 400px;
+    border-radius: 10px;
+    marker: none;
+    display: block;
+    margin: 15px;
+    cursor: pointer;
+}
+
 .workspaces {
     padding: 10px 20px;
     width: 300px;
@@ -53,24 +64,6 @@
 }
 
 .workspaces:hover {
-   background-color: #0071ea;
-}
-
-
-.admin {
-    padding: 10px 20px;
-    width: 300px;
-    align-self: center;
-    border-radius: 30px;
-    border: none;
-    font-size: medium;
-    background-color: #007bff; /* Bootstrap primary color */
-    color: white;
-    cursor: pointer;
-    margin: 5px 10px 10px 10px;
-}
-
-.admin:hover {
    background-color: #0071ea;
 }
 

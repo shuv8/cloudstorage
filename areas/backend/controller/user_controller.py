@@ -1,11 +1,9 @@
 from typing import List
 
-from uuid import UUID
-
-from core.department import Department
-from core.role import Role
-from core.user import User
-from service.user_service import UserService
+from areas.backend.core.department import Department
+from areas.backend.core.role import Role
+from areas.backend.core.user import User
+from areas.backend.service.user_service import UserService
 
 
 class UserController:

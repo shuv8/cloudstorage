@@ -920,6 +920,7 @@ def get_user_list():
             "id": user.get_id(),
             "email": user.email,
             "username": user.username,
+            "role": user.role.value,
             "departments": ' '.join(user_info),
         }
     ), 200

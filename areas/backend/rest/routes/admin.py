@@ -344,7 +344,6 @@ def delete_user_from_department():
     ), 200
 
 
-# TODO REFACTOR OLD
 @ADMIN_REQUEST_API.route('/user', methods=['GET'])
 @admin_access
 def get_user_list():
@@ -362,7 +361,7 @@ def get_user_list():
     page = request.args.get('page', default=1, type=int)
     limit = request.args.get('limit', default=10, type=int)
     users = userController.get_all_users(page, limit)
-    items = [{"id": user.get_id(), "email": user.email} for user in users]
+    items = [{"id": user.get_id(), "email": user.email, "username": user.username} for user in users]
     return jsonify(
         {
             "users": items
