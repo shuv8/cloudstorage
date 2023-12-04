@@ -393,7 +393,7 @@ class DataStoreStorageRepository:
         workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter(
             WorkspaceModel.status != WorkSpaceStatus.Deleted.value
         ).all() if not deleted else WorkspaceModel.query.all()
-        workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, user_id, workspace(
+        workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, workspace.user_id, WorkSpace(
             title=workspace.title,
             description=workspace.description,
             branches=[],
@@ -410,7 +410,7 @@ class DataStoreStorageRepository:
         workspace: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(space_id)).first()
         if workspace is None:
             raise SpaceNotFoundError
-        return (UserModel.query.filter_by(id=workspace.user_id).first().username, user_id, workspace(
+        return (UserModel.query.filter_by(id=workspace.user_id).first().username, workspace.user_id, WorkSpace(
             title=workspace.title,
             description=workspace.description,
             branches=[],
