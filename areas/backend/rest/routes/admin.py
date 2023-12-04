@@ -41,6 +41,7 @@ def get_workspaces_list():
         {
             workspaces: [{
               owner: string,
+              owner_id: string,
               title: string,
               description: string,
               status: string,
@@ -53,10 +54,11 @@ def get_workspaces_list():
     deleted = request.args.get('deleted', default=False, type=bool)
     workspaces = dataStoreController.get_all_workspaces(page, limit, deleted)
     items = [{"owner": workspace[0],
-              "title": workspace[1].title,
-              "description": workspace[1].description,
-              "status": workspace[1].status,
-              "id": workspace[1].get_id()
+              "owner_id": workspace[1],
+              "title": workspace[2].title,
+              "description": workspace[2].description,
+              "status": workspace[2].status,
+              "id": workspace[2].get_id()
               } for workspace in workspaces]
     return jsonify(
         {
@@ -78,6 +80,7 @@ def update_workspace(space_id):
             'status': "ok",
             workspace: {
               owner: string,
+              owner_id: string,
               title: string,
               description: string,
               status: string,
@@ -107,10 +110,11 @@ def update_workspace(space_id):
         return jsonify({'error': 'Invalid workspace ID'}), 400
     return jsonify({"status": "ok",
                     "workspace": {"owner": new_workspace[0],
-                                  "title": new_workspace[1].title,
-                                  "description": new_workspace[1].description,
-                                  "status": new_workspace[1].status,
-                                  "id": new_workspace[1].get_id()
+                                  "owner_id": new_workspace[1],
+                                  "title": new_workspace[2].title,
+                                  "description": new_workspace[2].description,
+                                  "status": new_workspace[2].status,
+                                  "id": new_workspace[2].get_id()
                                   }}), 200
 
 
@@ -125,6 +129,7 @@ def delete_workspace(space_id):
             'status': "ok",
             workspace: {
               owner: string,
+              owner_id: string,
               title: string,
               description: string,
               status: string,
@@ -140,10 +145,11 @@ def delete_workspace(space_id):
         return jsonify({'error': 'Invalid workspace ID'}), 400
     return jsonify({"status": "ok",
                     "workspace": {"owner": new_workspace[0],
-                                  "title": new_workspace[1].title,
-                                  "description": new_workspace[1].description,
-                                  "status": new_workspace[1].status,
-                                  "id": new_workspace[1].get_id()
+                                  "owner_id": new_workspace[1],
+                                  "title": new_workspace[2].title,
+                                  "description": new_workspace[2].description,
+                                  "status": new_workspace[2].status,
+                                  "id": new_workspace[2].get_id()
                                   }}), 200
 
 
