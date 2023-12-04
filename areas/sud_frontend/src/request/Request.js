@@ -124,64 +124,6 @@ function Request() {
     return (
         <div className="page">
 
-            {/*/ ДИАЛОГ СОЗДАНИЯ  РЕКВКСТА /*/}
-
-            {isDialogOpen && (
-                <div className="dialog-container">
-                    <h3>
-                        Создать реквест
-                    </h3>
-                    <div className="form-group">
-                        <label htmlFor="title">Заголовок</label>
-                        <input
-                            type="text"
-                            id="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="description">Описание</label>
-                        <input
-                            type="description"
-                            id="description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button className="add-workspace-button"
-                            onClick={() => handleRequestAdding(space_id, title, description, branch.id, branch.parent)}>Сохранить
-                    </button>
-                    <button className="add-workspace-button-close" onClick={toggleDialog}>Закрыть</button>
-                </div>
-            )}
-
-            {/*/ ДИАЛОГ СОЗДАНИЯ  ВЕТКИ /*/}
-
-            {isCreateOpen && (
-                <div className="dialog-container">
-                    <h3>
-                        Создать ветку
-                    </h3>
-                    <div className="form-group">
-                        <label htmlFor="title">Название</label>
-                        <input
-                            type="text"
-                            id="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button className="add-workspace-button"
-                            onClick={() => handleBranchAdding(space_id, title, "-1", branch.id)}>Сохранить
-                    </button>
-                    <button className="add-workspace-button-close" onClick={toggleCreate}>Закрыть</button>
-                </div>
-            )}
-
             {/*/ ДИАЛОГ ПОДТВЕРЖЕНИЯ  УДАЛЕНИЯ /*/}
 
             {isConfirmOpen && (
@@ -255,7 +197,7 @@ function Request() {
                                 </p>
                             </div>
                             
-                            {(workspace.user_id === user.id && request.status < 3) && <button className="branch-add" onClick={toggleCreate}>Согласовать</button>}
+                            {(workspace.user_id === user.id && request.status < 3) && <button className="branch-add" onClick={toggleCreate}>Согласовать (TODO)</button>}
                             {((branch.author === user.id || workspace.user_id === user.id) && request.status < 3) && <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>}
 
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
@@ -264,41 +206,6 @@ function Request() {
 
             </div>
         </div>);
-}
-
-
-export async function handleBranchAdding(space_id, name, document_id, parent_branch_id) {
-    try {
-        const response = await add_branch({name, document_id, parent_branch_id}, space_id);
-
-        if (response[1] === 200) {
-            localStorage.setItem('authToken', response.token);
-
-            goToBranch(space_id, response[0].id);
-            console.error('Registration was successful, token provided in the response.');
-        } else {
-            console.error('Registration was unsuccessful, no token provided in the response.');
-        }
-    } catch (error) {
-        console.error('An error occurred during login:', error);
-    }
-}
-
-export async function handleRequestAdding(space_id, title, description, source_branch_id, target_branch_id) {
-    try {
-        const response = await add_request({ title, description, source_branch_id, target_branch_id}, space_id);
-
-        if (response === 200) {
-            localStorage.setItem('authToken', response.token);
-
-            goToBranch(space_id, source_branch_id);
-            console.error('Registration was successful, token provided in the response.');
-        } else {
-            console.error('Registration was unsuccessful, no token provided in the response.');
-        }
-    } catch (error) {
-        console.error('An error occurred during login:', error);
-    }
 }
 
 export async function handleRequestDeletion(space_id, request_id) {
