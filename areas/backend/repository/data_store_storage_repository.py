@@ -393,7 +393,7 @@ class DataStoreStorageRepository:
         workspaces: list[WorkspaceModel] = WorkspaceModel.query.filter(
             WorkspaceModel.status != WorkSpaceStatus.Deleted.value
         ).all() if not deleted else WorkspaceModel.query.all()
-        workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
+        workspaces_list = [(UserModel.query.filter_by(id=workspace.user_id).first().username, user_id, workspace(
             title=workspace.title,
             description=workspace.description,
             branches=[],
@@ -410,7 +410,7 @@ class DataStoreStorageRepository:
         workspace: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(space_id)).first()
         if workspace is None:
             raise SpaceNotFoundError
-        return (UserModel.query.filter_by(id=workspace.user_id).first().username, WorkSpace(
+        return (UserModel.query.filter_by(id=workspace.user_id).first().username, user_id, workspace(
             title=workspace.title,
             description=workspace.description,
             branches=[],
@@ -454,7 +454,7 @@ class DataStoreStorageRepository:
         return _workspace.id
 
     def get_workspace_by_id(self, user_mail: str, space_id: uuid.UUID, archived: bool = False) -> Optional[
-        tuple[str, WorkSpace]]:
+        tuple[str, str, WorkSpace]]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
 
         spaces: list[WorkSpace] = self.get_workspaces(user_mail, archived)
@@ -462,7 +462,7 @@ class DataStoreStorageRepository:
         for space in spaces:
             print(space.get_id())
             if str(space.get_id()) == str(space_id):
-                return UserModel.query.filter_by(id=user.id).first().username, space
+                return UserModel.query.filter_by(id=user.id).first().username, user.id, space
 
         space: WorkspaceModel = WorkspaceModel.query.filter_by(id=str(space_id)).first()
         if space is not None and str(space.status) == str(WorkSpaceStatus.Active.value):
@@ -563,7 +563,7 @@ class DataStoreStorageRepository:
                 accesses=all_accesses,
             )
             if self.has_access_to_workspace(workspace, user):
-                return UserModel.query.filter_by(id=space.user_id).first().username, workspace
+                return UserModel.query.filter_by(id=space.user_id).first().username, space.user_id, workspace
             else:
                 raise NotAllowedError()
 
@@ -598,7 +598,7 @@ class DataStoreStorageRepository:
             self, user_mail: str, space_id: uuid.UUID, branch_id: uuid.UUID
     ) -> tuple[Optional[Branch], str, str, list[Request]]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        username, workspace = self.get_workspace_by_id(user_mail, space_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, space_id)
 
         if self.has_access_to_workspace(workspace, user):
             for branch in workspace.branches:
@@ -632,7 +632,7 @@ class DataStoreStorageRepository:
             self, user_mail: str, space_id: uuid.UUID
     ) -> list[Branch]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        username, workspace = self.get_workspace_by_id(user_mail, space_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, space_id)
         list_of_branches = []
 
         if self.has_access_to_workspace(workspace, user):
@@ -647,7 +647,7 @@ class DataStoreStorageRepository:
             self, user_mail: str, space_id: uuid.UUID
     ) -> Branch:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        username, workspace = self.get_workspace_by_id(user_mail, space_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, space_id)
 
         if self.has_access_to_workspace(workspace, user):
             master = workspace.get_main_branch()
@@ -667,7 +667,7 @@ class DataStoreStorageRepository:
 
     def create_branch_for_workspace(self, user_mail: str, workspace_id: uuid.UUID, branch: Branch):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        username, workspace = self.get_workspace_by_id(user_mail, workspace_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
         if self.has_access_to_workspace(workspace, user):
             _branch = BranchModel(
@@ -696,7 +696,7 @@ class DataStoreStorageRepository:
             self, user_mail: str, space_id: uuid.UUID, request_id: uuid.UUID
     ) -> Optional[Request]:
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        username, workspace = self.get_workspace_by_id(user_mail, space_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, space_id)
 
         if self.has_access_to_workspace(workspace, user):
             for request in workspace.requests:
@@ -707,7 +707,7 @@ class DataStoreStorageRepository:
 
     def change_request_status(self, user_mail: str, workspace_id: uuid.UUID, request_id: uuid.UUID, status: str):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        username, workspace = self.get_workspace_by_id(user_mail, workspace_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, workspace_id)
         request: RequestModel = RequestModel.query.filter_by(id=request_id).first()
         branch: BranchModel = BranchModel.query.filter_by(id=request.source_branch_id).first()
 
@@ -722,7 +722,7 @@ class DataStoreStorageRepository:
 
     def create_request_for_branch(self, user_mail: str, workspace_id: uuid.UUID, request: Request):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
-        username, workspace = self.get_workspace_by_id(user_mail, workspace_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
         if self.has_access_to_workspace(workspace, user):
             _request = RequestModel(
@@ -744,7 +744,7 @@ class DataStoreStorageRepository:
         raise NotAllowedError()
 
     def force_merge(self, user_mail: str, workspace_id: uuid.UUID, request_id: uuid.UUID, ):
-        username, workspace = self.get_workspace_by_id(user_mail, workspace_id)
+        username, user_id, workspace = self.get_workspace_by_id(user_mail, workspace_id)
 
         if self.is_author_of_workspace(user_mail, workspace_id):
 

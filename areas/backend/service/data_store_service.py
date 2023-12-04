@@ -47,13 +47,13 @@ class DataStoreService:
     def change_workspace_status(self, user_mail: str, space_id: uuid.UUID, status: str):
         self.data_store_storage_repo.change_workspace_status(user_mail=user_mail, space_id=space_id, status=status)
 
-    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> Optional[tuple[str, WorkSpace]]:
-        name, space = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id, archived)
+    def get_workspace_by_id(self, user_mail: str, space_id: UUID, archived) -> Optional[tuple[str, str, WorkSpace]]:
+        name, user_id, space = self.data_store_storage_repo.get_workspace_by_id(user_mail, space_id, archived)
 
         if space is None:
             raise SpaceNotFoundError
 
-        return name, space
+        return name, user_id, space
 
     def create_workspace(self, user_mail: str, workspace: WorkSpace):
         return self.data_store_storage_repo.create_workspace(user_mail, workspace)
@@ -139,7 +139,7 @@ class DataStoreService:
     def add_new_document(self, user_email: str, workspace_id: uuid.UUID, new_document_name: str, new_document_type: str,
                          new_file_data: str) -> UUID:
         try:
-            workspace = self.get_workspace_by_id(user_email, workspace_id)
+            name, user_id, workspace = self.get_workspace_by_id(user_email, workspace_id)
         except SpaceNotFoundError:
             raise ItemNotFoundError
         # TODO тут нужно проверять, есть ли файл с таким названием в воркспейсе
