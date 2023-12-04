@@ -27,8 +27,24 @@ class Request:
     def get_source_branch_id(self) -> UUID:
         return self.__source_branch_id
 
+    def set_source_branch_id(self, source_branch_id: UUID):
+        if isinstance(source_branch_id, UUID):
+            self.__source_branch_id = source_branch_id
+        else:
+            raise TypeError
+
+    source_branch_id = property(get_source_branch_id, set_source_branch_id)
+
     def get_target_branch_id(self) -> UUID:
         return self.__target_branch_id
+
+    def set_target_branch_id(self, target_branch_id: UUID):
+        if isinstance(target_branch_id, UUID):
+            self.__target_branch_id = target_branch_id
+        else:
+            raise TypeError
+
+    target_branch_id = property(get_target_branch_id, set_target_branch_id)
 
     def get_status(self) -> RequestStatus:
         return self.__status
