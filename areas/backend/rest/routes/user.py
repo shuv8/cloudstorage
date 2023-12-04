@@ -271,6 +271,8 @@ def get_workspace_content(space_id):
                 {
                     "title": merge_request.title,
                     "description": merge_request.description,
+                    "source_branch_id": merge_request.source_branch_id,
+                    "target_branch_id": merge_request.target_branch_id,
                     "status": merge_request.status,
                     "id": merge_request.get_id(),
                 }

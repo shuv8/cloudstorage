@@ -27,8 +27,12 @@ class Request:
     def get_source_branch_id(self) -> UUID:
         return self.__source_branch_id
 
+    source_branch_id = property(get_source_branch_id)
+
     def get_target_branch_id(self) -> UUID:
         return self.__target_branch_id
+
+    target_branch_id = property(get_target_branch_id)
 
     def get_status(self) -> RequestStatus:
         return self.__status
