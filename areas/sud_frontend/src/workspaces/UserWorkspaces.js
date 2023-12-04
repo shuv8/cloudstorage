@@ -82,7 +82,7 @@ function UserWorkspaces() {
     };
 
     const handleAccessesClick = (workspaceId) => {
-        fetch(`${API_BASE_URL}/department/users}`, {
+        fetch(`${API_BASE_URL}/accesses/${workspaceId}`, {
             method: 'GET', headers: {
                 'Content-Type': 'application/json',
             }, credentials: 'include',
@@ -424,7 +424,7 @@ function UserWorkspaces() {
                             <div className="all-request">
                                 {workspace.requests.length > 0 ? (<ul className="all-requests-container">
                                     {workspace.requests.map(request => (
-                                        <li className="request-item" key={request.id}>
+                                        <li onClick={() => goToRequest(workspace.id, request.source_branch_id, request.id)} className="request-item" key={request.id}>
                                             <div>{request.title}</div>
                                             <div>{request.description}</div>
                                             <div>Статус: {R_STATUS_MAP[workspace.status] || 'Неизвестный статус'}</div>
@@ -601,6 +601,10 @@ function goToProfile() {
 
 function goToBranch(spaceId, branchId) {
     window.location.href = `/branch/${spaceId}/${branchId}`;
+}
+
+function goToRequest(space_id, branch_id, request_id) {
+    window.location.href = `/request/${space_id}/${branch_id}/${request_id}`;
 }
 
 export default UserWorkspaces;

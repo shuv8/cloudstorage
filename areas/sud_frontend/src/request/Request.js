@@ -1,16 +1,16 @@
 import React, {useState, useEffect} from 'react';
-import './Branch.css';
+import './Request.css';
 import {add_request, add_branch, delete_branch} from "../api";
 import {useParams} from "react-router-dom";
-import {handleWorkspaceAdding} from "../workspaces/UserWorkspaces";
 
 const API_BASE_URL = 'http://localhost:5000';
 
-function Branch() {
-    const {space_id, branch_id} = useParams();
+function Request() {
+    const {space_id, branch_id, request_id} = useParams();
 
     const [branch, setBranch] = useState([]);
-    const [username, setUsername] = useState("Anonim");
+    const [request, setRequest] = useState([]);
+    const [user, setUser] = useState("Anonim");
     const [error, setError] = useState(null);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -19,6 +19,10 @@ function Branch() {
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+
+    const R_STATUS_MAP = {
+        1: 'Открыт', 2: 'В ревью', 3: 'Принят', 4: 'Отклонён', 5: 'Закрыт',
+    };
 
     const toggleDialog = () => {
         setIsDialogOpen(!isDialogOpen);
@@ -31,6 +35,26 @@ function Branch() {
     const toggleConfirm = () => {
         setIsConfirmOpen(!isConfirmOpen);
     };
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/workspace/${space_id}/request/${request_id}`, {
+            method: 'GET', headers: {
+                'Content-Type': 'application/json',
+            }, credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setRequest(data);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
+    }, []);
 
     useEffect(() => {
         fetch(`${API_BASE_URL}/workspace/${space_id}/view/${branch_id}`, {
@@ -65,7 +89,7 @@ function Branch() {
                 return response.json();
             })
             .then(data => {
-                setUsername(data["username"]);
+                setUser(data);
             })
             .catch(error => {
                 setError(error.message);
@@ -145,7 +169,7 @@ function Branch() {
                         Удалить ветку?
                     </h3>
                     <button className="branch-delete-button"
-                            onClick={() => handleBranchDeletion(space_id, branch.id, branch.parent)}>Да
+                            onClick={() => handleRequestDeletion(space_id, branch.id, branch.parent)}>Да
                     </button>
                     <button className="branch-delete-button-close" onClick={toggleConfirm}>Нет</button>
                 </div>
@@ -166,55 +190,52 @@ function Branch() {
                     </h2>
                     <div className="username-info-right">
                         <div className="username" onClick={() => goToProfile()}>
-                            <p className="request-content">{username}</p>
+                            <p className="request-content">{user.username}</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="workspace-block">
 
-                    {/*/ ВСЕ ПРОСТРАНСТВА /*/}
-
-                    <div className="all-workspaces">
-                        <div>
-                            {branch.requests != null && branch.requests.length > 0 ? (<ul className="all-workspaces-container">
-                                {branch.requests.map(current_branch => (
-                                    <li onClick={() => goToRequest(space_id, branch_id, current_branch.id)} className="workspace-item"
-                                        key={current_branch.id}> {current_branch.title}</li>))}
-                            </ul>) : (<p className="workspace-item-p">Не найдено реквестов</p>)}
-
-                            {branch.parent !== "-1" && <button className="add-workspace" onClick={toggleDialog}><p>+</p></button>}
-                        </div>
-                    </div>
-
                     {/*/ ТЕКУЩЕЕ ПРОСТРАНСТВО /*/}
 
                     <div className="all-files-branches">
-                        {branch !== "" ? (<div>
+                        {request !== "" ? (<div>
                             <div className="request-content-title-container">
                                 <div>
-                                    <h3 className="request-content-title">{branch.parent === "-1" &&
-                                        <span><b>🏠</b> </span>} {branch.name}</h3>
-                                    <p className="request-content"><b>Автор ветки: </b>{branch.authorName}</p>
-                                    {branch.parent !== "-1" &&
-                                        <p className="request-content">
-                                            <b>Исходная ветка: </b>
-                                            <p
-                                                className="original-branch-item"
-                                                onClick={() => goToBranch(space_id, branch.parent)}
-                                            >
-                                                {branch.parentName}
-                                            </p>
-                                        </p>
-                                    }
-                                    <p className="request-content">{branch.task_id}</p>
-                                    <p className="request-content">{branch.file}</p>
-                                    <p className="request-content">{branch.document_id}</p>
+                                    <h3 className="request-content-title">{request.title}</h3>
+                                    <p className="request-content"><b>Описание: </b>{request.description}</p>
                                 </div>
+                                <div className="info-right">
+                                    <div className="workspace-status"
+                                            style={{backgroundColor: getStatusColor(request.status)}}>
+                                            <p>{R_STATUS_MAP[request.status] || 'Неизвестно'}</p>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div className="all-branches">      
+                                <p className="request-content">
+                                    <b>Исходная ветка: </b>
+                                    <p
+                                        className="original-branch-item"
+                                        onClick={() => goToBranch(space_id, request.source_branch_id)}
+                                    >
+                                        {branch.name}
+                                    </p>
+                                </p>
+                                <p className="request-content">
+                                    <b>Целевая ветка: </b>
+                                    <p
+                                        className="original-branch-item"
+                                        onClick={() => goToBranch(space_id, request.target_branch_id)}
+                                    >
+                                        {branch.parentName}
+                                    </p>
+                                </p>
                             </div>
                             
-                            <button className="branch-add" onClick={toggleCreate}>Создать ветку</button>
-                            {branch.name !== "master" && <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>}
+                            {(branch.author === user.id) && <button className="branch-add" onClick={toggleCreate}>Согласовать</button>}
+                            {(branch.author === user.id) && <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>}
 
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
@@ -223,6 +244,7 @@ function Branch() {
             </div>
         </div>);
 }
+
 
 export async function handleBranchAdding(space_id, name, document_id, parent_branch_id) {
     try {
@@ -258,7 +280,7 @@ export async function handleRequestAdding(space_id, title, description, source_b
     }
 }
 
-export async function handleBranchDeletion(space_id, branch_id, branch_parent) {
+export async function handleRequestDeletion(space_id, branch_id, branch_parent) {
     try {
         const response = await delete_branch(space_id, branch_id);
 
@@ -287,8 +309,16 @@ function goToBranch(space_id, branch_id) {
     window.location.href = `/branch/${space_id}/${branch_id}`;
 }
 
-function goToRequest(space_id, branch_id, request_id) {
-    window.location.href = `/request/${space_id}/${branch_id}/${request_id}`;
+function getStatusColor(status) {
+    const statusColors = {
+        1: 'blue',
+        2: 'yellow',
+        3: 'green',
+        4: 'red',
+        5: 'gray'
+    };
+
+    return statusColors[status] || 'white'; 
 }
 
-export default Branch;
+export default Request;

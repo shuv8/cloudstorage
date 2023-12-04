@@ -209,3 +209,18 @@ export async function add_request(content, id) {
 
     return response.status;
 }
+
+export async function get_request(content, id) {
+    const response = await fetch(`${API_BASE_URL}/workspace/${id}/request`, {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify(content), credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Adding failed');
+    }
+
+
+    return response.status;
+}
