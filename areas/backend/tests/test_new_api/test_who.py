@@ -20,6 +20,6 @@ class TestWhoIAm:
         assert response.status_code == 200
         resp_json = response.json
         assert resp_json['id'] == admin_id
-        assert resp_json['email'] == 'user@mail.com'
-        assert resp_json['username'] == 'user'
+        assert resp_json['email'] == 'admin@mail.com'
+        assert resp_json['username'] == 'admin'
         assert resp_json['role'] == Role.Admin.value
