@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import './Request.css';
-import {add_request, add_branch, delete_branch} from "../api";
+import {add_request, add_branch, close_request} from "../api";
 import {useParams} from "react-router-dom";
 
 const API_BASE_URL = 'http://localhost:5000';
@@ -10,6 +10,7 @@ function Request() {
 
     const [branch, setBranch] = useState([]);
     const [request, setRequest] = useState([]);
+    const [workspace, setWorkspace] = useState([]);
     const [user, setUser] = useState("Anonim");
     const [error, setError] = useState(null);
 
@@ -96,6 +97,26 @@ function Request() {
             });
     }, []);
 
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/get_workspace/${space_id}`, {
+            method: 'GET', headers: {
+                'Content-Type': 'application/json',
+            }, credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                setWorkspace(data);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
+    }, []);
+
     if (error) {
         return <div>Error: {error}</div>;
     }
@@ -161,15 +182,15 @@ function Request() {
                 </div>
             )}
 
-            {/*/ ДИАЛОГ ПОДТВЕРЖЕНИЯ  АРХИВИРОВАНИЯ /*/}
+            {/*/ ДИАЛОГ ПОДТВЕРЖЕНИЯ  УДАЛЕНИЯ /*/}
 
             {isConfirmOpen && (
                 <div className="dialog-container">
                     <h3>
-                        Удалить ветку?
+                        Удалить реквест?
                     </h3>
                     <button className="branch-delete-button"
-                            onClick={() => handleRequestDeletion(space_id, branch.id, branch.parent)}>Да
+                            onClick={() => handleRequestDeletion(space_id, request_id)}>Да
                     </button>
                     <button className="branch-delete-button-close" onClick={toggleConfirm}>Нет</button>
                 </div>
@@ -186,7 +207,7 @@ function Request() {
                         <span
                             onClick={() => goHome()}
                             style={{cursor:"pointer"}}
-                        >🏠</span> Просмотр ветки
+                        >🏠</span> Просмотр реквеста
                     </h2>
                     <div className="username-info-right">
                         <div className="username" onClick={() => goToProfile()}>
@@ -234,8 +255,8 @@ function Request() {
                                 </p>
                             </div>
                             
-                            {(branch.author === user.id) && <button className="branch-add" onClick={toggleCreate}>Согласовать</button>}
-                            {(branch.author === user.id) && <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>}
+                            {(workspace.user_id === user.id && request.status < 3) && <button className="branch-add" onClick={toggleCreate}>Согласовать</button>}
+                            {((branch.author === user.id || workspace.user_id === user.id) && request.status < 3) && <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>}
 
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
@@ -280,14 +301,14 @@ export async function handleRequestAdding(space_id, title, description, source_b
     }
 }
 
-export async function handleRequestDeletion(space_id, branch_id, branch_parent) {
+export async function handleRequestDeletion(space_id, request_id) {
     try {
-        const response = await delete_branch(space_id, branch_id);
+        const response = await close_request(space_id, request_id);
 
         if (response === 200) {
             localStorage.setItem('authToken', response.token);
 
-            goToBranch(space_id, branch_parent);
+            goHome();
             console.error('Registration was successful, token provided in the response.');
         } else {
             console.error('Registration was unsuccessful, no token provided in the response.');

@@ -427,7 +427,7 @@ function UserWorkspaces() {
                                         <li onClick={() => goToRequest(workspace.id, request.source_branch_id, request.id)} className="request-item" key={request.id}>
                                             <div>{request.title}</div>
                                             <div>{request.description}</div>
-                                            <div>Статус: {R_STATUS_MAP[workspace.status] || 'Неизвестный статус'}</div>
+                                            <div>Статус: {R_STATUS_MAP[request.status] || 'Неизвестный статус'}</div>
                                         </li>))}
                                 </ul>) : (<p>Нет реквестов.</p>)}
                             </div>
