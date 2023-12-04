@@ -82,7 +82,7 @@ function UserWorkspaces() {
     };
 
     const handleAccessesClick = (workspaceId) => {
-        fetch(`${API_BASE_URL}/department/users}`, {
+        fetch(`${API_BASE_URL}/accesses/${workspaceId}`, {
             method: 'GET', headers: {
                 'Content-Type': 'application/json',
             }, credentials: 'include',
