@@ -685,8 +685,8 @@ class DataStoreStorageRepository:
             self.db.session.commit()
 
             return _branch.id
-
-        raise NotAllowedError()
+        else:
+            raise NotAllowedError()
 
     #############
     # REQUESTS
@@ -702,8 +702,8 @@ class DataStoreStorageRepository:
             for request in workspace.requests:
                 if str(request.get_id()) == str(request_id):
                     return request
-
-        raise NotAllowedError()
+        else:
+            raise NotAllowedError()
 
     def change_request_status(self, user_mail: str, workspace_id: uuid.UUID, request_id: uuid.UUID, status: str):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
@@ -717,8 +717,8 @@ class DataStoreStorageRepository:
             ))
 
             self.db.session.commit()
-
-        raise NotAllowedError()
+        else:
+            raise NotAllowedError()
 
     def create_request_for_branch(self, user_mail: str, workspace_id: uuid.UUID, request: Request):
         user: UserModel = UserModel.query.filter_by(email=user_mail).first()
@@ -740,8 +740,8 @@ class DataStoreStorageRepository:
             self.db.session.commit()
 
             return _request.id
-
-        raise NotAllowedError()
+        else:
+            raise NotAllowedError()
 
     def force_merge(self, user_mail: str, workspace_id: uuid.UUID, request_id: uuid.UUID, ):
         username, user_id, workspace = self.get_workspace_by_id(user_mail, workspace_id)
@@ -767,8 +767,8 @@ class DataStoreStorageRepository:
 
             self.delete_branch_from_workspace_by_id(user_mail, workspace_id, branch.get_id())
             self.change_request_status(user_mail, workspace_id, request_id, RequestStatus.Merged.value)
-
-        raise NotAllowedError()
+        else:
+            raise NotAllowedError()
 
     def add_new_document(self, workspace: WorkSpace, new_document: Document, new_file_data: str) -> uuid.UUID:
         branch: BranchModel = BranchModel.query.filter_by(name="master", workspace_id=workspace.get_id()).first()

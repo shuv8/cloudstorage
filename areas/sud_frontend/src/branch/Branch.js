@@ -179,7 +179,7 @@ function Branch() {
                         <div>
                             {branch.requests != null && branch.requests.length > 0 ? (<ul className="all-workspaces-container">
                                 {branch.requests.map(current_branch => (
-                                    <li className="workspace-item"
+                                    <li onClick={() => goToRequest(space_id, branch_id, current_branch.id)} className="workspace-item"
                                         key={current_branch.id}> {current_branch.title}</li>))}
                             </ul>) : (<p className="workspace-item-p">Не найдено реквестов</p>)}
 
@@ -214,7 +214,7 @@ function Branch() {
                             </div>
                             
                             <button className="branch-add" onClick={toggleCreate}>Создать ветку</button>
-                            <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>
+                            {branch.name !== "master" && <button className="branch-delete" onClick={toggleConfirm}>Удалить</button>}
 
                         </div>) : (<p>Нажмите на рабочее пространство для просмотра</p>)}
                     </div>
@@ -285,6 +285,10 @@ function goHome() {
 
 function goToBranch(space_id, branch_id) {
     window.location.href = `/branch/${space_id}/${branch_id}`;
+}
+
+function goToRequest(space_id, branch_id, request_id) {
+    window.location.href = `/request/${space_id}/${branch_id}/${request_id}`;
 }
 
 export default Branch;

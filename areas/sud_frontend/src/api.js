@@ -209,3 +209,33 @@ export async function add_request(content, id) {
 
     return response.status;
 }
+
+export async function get_request(content, id) {
+    const response = await fetch(`${API_BASE_URL}/workspace/${id}/request`, {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify(content), credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Adding failed');
+    }
+
+
+    return response.status;
+}
+
+export async function close_request(space_id, request_id) {
+    const response = await fetch(`${API_BASE_URL}/workspace/${space_id}/request/${request_id}/close`, {
+        method: 'POST', headers: {
+            'Content-Type': 'application/json',
+        }, body: JSON.stringify(request_id), credentials: 'include',
+    });
+
+    if (!response.ok) {
+        throw new Error('Archiving failed');
+    }
+
+
+    return response.status;
+}
